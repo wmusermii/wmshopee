@@ -3,10 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
+  standalone: true,
   selector: 'app-topnavilayout',
   imports: [CommonModule, RouterOutlet,RouterLink],
   templateUrl: './topnavilayout.html',
-  styleUrl: './topnavilayout.css'
+  styleUrls: ['./topnavilayout.css']
 })
 export class Topnavilayout implements OnInit {
     ngOnInit(): void {
