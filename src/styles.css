@@ -1,32 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
-    --bright-blue: oklch(51.01% 0.274 263.83);
-    --electric-violet: oklch(53.18% 0.28 296.97);
-    --french-violet: oklch(47.66% 0.246 305.88);
-    --vivid-pink: oklch(69.02% 0.277 332.77);
-    --hot-red: oklch(61.42% 0.238 15.34);
-    --orange-red: oklch(63.32% 0.24 31.68);
-    --gray-900: oklch(19.37% 0.006 300.98);
-    --gray-700: oklch(36.98% 0.014 302.71);
-    --gray-400: oklch(70.9% 0.015 304.04);
-    --red-to-pink-to-purple-vertical-gradient: linear-gradient(
-      180deg,
-      var(--orange-red) 0%,
-      var(--vivid-pink) 50%,
-      var(--electric-violet) 100%
-    );
-    --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
-      90deg,
-      var(--orange-red) 0%,
-      var(--vivid-pink) 50%,
-      var(--electric-violet) 100%
-    );
-    --pill-accent: var(--bright-blue);
+    --p-primary-color: #f97316!important;          /* base */
+    --p-primary-color-text: #fff!important;        /* text on primary */
+    --p-primary-100: #fff7ed!important;
+    --p-primary-200: #ffedd5!important;
+    --p-primary-300: #fdba74!important;
+    --p-primary-400: #fb923c!important;
+    --p-primary-500: #f97316!important;
+    --p-primary-600: #ea580c!important;
+    --p-primary-700: #c2410c!important;
+    --p-primary-800: #9a3412!important;
+    --p-primary-900: #7c2d12!important;
+    --p-form-field-border-radius: var(--p-border-radius-sm)!important;
     font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter,
       Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
       "Segoe UI Symbol";
     font-size: 14px;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
