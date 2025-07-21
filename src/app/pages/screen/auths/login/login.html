@@ -37,7 +37,8 @@
 
         <div>
           <label for="password" class="block mb-1">Password</label>
-          <input id="password" type="password" [(ngModel)]="password" pPassword class="w-full" />
+          <!-- <<input id="password" type="password" [(ngModel)]="password" pPassword class="w-full" />> -->
+           <p-password [(ngModel)]="password" class="w-full" [inputStyleClass]="w-full" [feedback]="false" [toggleMask]="true" ></p-password>
         </div>
 
         <button pButton type="button" label="Login" class="w-full" (click)="login()"></button>
