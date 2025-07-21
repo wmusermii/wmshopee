@@ -4,14 +4,22 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import backendRouter from './backend/routes/api.routes'
 import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
-
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+/******************** API SERVER *********************/
+app.use(express.json()); // <-- Tambah ini agar API bisa menerima JSON body
+// ---- Tambah route API di sini ----
+// app.get('/api/health', (req, res) => {
+//   res.json({ status: 'ok', time: new Date().toISOString() });
+// });
+app.use('/v2', backendRouter);
+/*********************END API SERVER **************************/
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
