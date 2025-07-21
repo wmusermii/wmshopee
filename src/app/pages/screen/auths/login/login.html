@@ -1,10 +1,9 @@
-<div class="grid grid-cols-1 md:grid-cols-2 h-screen bg-white text-gray-800">
-  <!-- Hero Section -->
+<!-- <div class="grid grid-cols-1 md:grid-cols-2 h-screen bg-white text-gray-800">
+
   <div
   class="relative bg-orange-100 overflow-hidden flex items-center justify-center
-         basis-[30%] md:h-auto md:min-h-screen"
->
-    <!-- Gradasi radial -->
+         basis-[30%] md:h-auto md:min-h-screen">
+
     <div class="absolute inset-0">
       <div
         class="w-[180%] h-[180%] bg-orange-300 rounded-full blur-3xl opacity-60
@@ -12,7 +11,6 @@
       ></div>
     </div>
 
-    <!-- Konten -->
     <div class="z-10 text-center px-4 py-6 md:p-10 max-w-[80%] mx-auto">
       <img src="./logowms.png" alt="Logo" class="mx-auto w-16 md:w-24 mb-4 md:mb-6" />
       <h1 class="text-xl md:text-4xl font-bold text-orange-900 drop-shadow-md leading-tight">
@@ -21,7 +19,7 @@
     </div>
   </div>
 
-  <!-- Form Section -->
+
   <div
   class="flex items-start md:items-center justify-center px-6 py-2 md:py-16 bg-white
          basis-[70%]"
@@ -37,12 +35,46 @@
 
         <div>
           <label for="password" class="block mb-1">Password</label>
-          <!-- <<input id="password" type="password" [(ngModel)]="password" pPassword class="w-full" />> -->
            <p-password [(ngModel)]="password" class="w-full" inputStyleClass="w-full" [feedback]="false" [toggleMask]="true" ></p-password>
         </div>
-
         <button pButton type="button" label="Login" class="w-full" (click)="login()"></button>
       </div>
+    </div>
+  </div>
+</div> -->
+<div class="min-h-screen flex flex-col lg:flex-row">
+  <!-- Hero Section -->
+  <div class="lg:w-1/2 flex flex-col items-center justify-center p-2 lg:p-8 text-center lg:text-left"
+    style="background-image: radial-gradient(circle at top left, #f97316, #ffffff);">
+    <img src="./logowms.png" alt="Warehouse Management System Logo" class="w-32 h-auto mb-2 lg:mb-6" />
+    <h1 class="text-3xl font-light text-black">Warehouse Management System</h1>
+  </div>
+  <!-- Login Form Section -->
+  <div class="lg:w-1/2 flex items-center justify-center p-4 lg:p-8 bg-white relative">
+    <div class="w-full max-w-md">
+      <h2 class="text-2xl font-semibold mb-3 text-gray-800">Sign in to your account</h2>
+      <!-- <div [hidden]="!errorMessage.error" class="mb-2">
+        <p-message [severity]="errorMessage.severity" [text]="errorMessage.message" [icon]="errorMessage.icon"
+          styleClass="p-message p-component block">
+        </p-message>
+      </div> -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="space-y-2">
+        <div class="space-y-3">
+          <div class="flex flex-col mb-2">
+            <label for="username" class="mb-2">Username</label>
+            <input type="text" class="w-full" pInputText formControlName="username" id="username"
+              (change)="_changeError()" />
+          </div>
+          <div class="flex flex-col mb-2">
+            <label for="password" class="mb-2">Password</label>
+            <p-password formControlName="password" (change)="_changeError()" class="w-full" [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full" [toggleMask]="true"></p-password>
+          </div>
+        </div>
+        <button pButton type="submit" class="w-full" [disabled]="!loginForm.valid" style="margin-top: 1.5rem;"
+          label="Login"></button>
+      </form>
     </div>
   </div>
 </div>
