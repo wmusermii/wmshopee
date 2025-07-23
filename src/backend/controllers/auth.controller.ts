@@ -23,10 +23,26 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       }
       user.data.token = token;
     }
-    ResponseHelper.send(res, user);
+    await ResponseHelper.send(res, user);return;
   } catch (error) {
     logError("Error auth.controller : ", error)
-    next(error);
-    // ResponseHelper.send(res,ApiResponse.serverError(error+""));
+    // next(error);
+    await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function attrb(req: Request, res: Response) {
+  try {
+    // const user = await authService.login(username, password);
+    // logInfo("Auth.controller ",user);
+    const data:any = req.userInfo;
+    // console.log("USER INFO ",data.code);
+    if(data.code === 'ERR_JWT_EXPIRED') {
+      await ResponseHelper.send(res, ApiResponse.invalidToken(data.code));return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.success(data,"Success Attrb"));return;
+    }
+  } catch (error) {
+    logError("Error auth.controller : ", error)
+    await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }

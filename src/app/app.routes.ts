@@ -1,14 +1,48 @@
 import { Routes } from '@angular/router';
+import { guestGuard } from './guard/guest.guard';
+import { authGuard } from './guard/auth.guard';
 
 export const routes: Routes = [
   {
-    path: '',redirectTo: 'login',pathMatch: 'full'
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
   },
-  {path:'',
+  {
+    path:'',
     loadComponent:() => import("./layouts/navigations/nonavi/nonavi").then(m => m.Nonavi),
     children:[
-      {path:'login',loadComponent:() => import("./pages/screen/auths/login/login").then(m => m.Login)},
-      {path:'dashboard',loadComponent:() => import("./pages/screen/dashboard/dashboard").then(m => m.Dashboard)},
+      {
+       path:'login',
+       canActivate:[guestGuard],
+      loadComponent:() => import("./pages/screen/auths/login/login").then(m => m.Login)
+      },
+      {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full'
+      }
+    ]
+  },
+  {
+    path:'',
+    loadComponent:() => import("./layouts/navigations/topnavi/topnavilayout/topnavilayout").then(m => m.Topnavilayout),
+    children:[
+      {
+       path:'dashboard',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/dashboard/dashboard").then(m => m.Dashboard)
+      },
+      {
+       path:'shopee',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/inquery/inquery").then(m => m.Inquery)
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
     ]
   }
 ];

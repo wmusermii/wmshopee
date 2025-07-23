@@ -1,11 +1,12 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
 import { Router } from '@angular/router';
+import { LocalstorageService } from '../../../../guard/ssr/localstorage/localstorage.service';
 @Component({
   standalone:true,
   selector: 'app-login',
@@ -14,6 +15,7 @@ import { Router } from '@angular/router';
   styleUrl: './login.css'
 })
 export class Login {
+  ssrStorage = inject(LocalstorageService);
   submitted = false;
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
   loading = false;
@@ -45,6 +47,7 @@ export class Login {
         console.log("Response dari API DATA ", data);
         this.loading=false;
         if(data.code === 20000) {
+          this.ssrStorage.setItem('token', data.data.token);
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMessage = {error:true, severity:"error", message:`${data.message}`, icon:"pi pi-times"}
