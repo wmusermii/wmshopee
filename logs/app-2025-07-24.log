@@ -16,3 +16,8 @@
 [2025-07-24 13:02:53] ERROR: Error auth.controller :  {"code":"SQLITE_ERROR"}
 [2025-07-24 13:10:20] INFO: INSERT REPO :  {"fromdate":"2025-07-24T06:10:09.451Z","fromtime":"13:00:01","totime":"16:00:01"}
 [2025-07-24 13:10:20] ERROR: Error auth.controller :  {"code":"SQLITE_ERROR"}
+[2025-07-24 13:13:46] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6bf5c11f-80b0-41d3-8191-0304feb7d881\data\admindb.sqlite
+[2025-07-24 13:13:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\50125717-0704-42c4-8db9-eee07fabb55d\data\admindb.sqlite
+[2025-07-24 13:13:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\647e1150-4a3e-4723-be20-55ecffd41aee\data\admindb.sqlite
+[2025-07-24 13:13:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e8d62454-8bd6-44ee-836a-ecc438dc149a\data\admindb.sqlite
+[2025-07-24 13:13:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admindb.sqlite
