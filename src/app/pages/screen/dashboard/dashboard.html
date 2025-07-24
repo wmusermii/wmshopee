@@ -1,27 +1,6 @@
-<!-- <h3>dashboard works!</h3>
-<p>This PrimeNG Component test</p>
-<p>Button</p>
-<p-button label="Check"/>
-<p>InputText</p>
-<input type="text" pInputText [(ngModel)]="value" class="w-full" />
-<p>Datepickerx</p>
-
-<p-datepicker [(ngModel)]="date" [showIcon]="true"/>
-
-
-<h1 class="text-sm font-semibold text-orange-500 mb-4">Hello from Tailwind</h1>
-<div class="px-4">
-  <div class="!border-b-1 !border-t-0 !border-x-0 !border-gray-500 !border-solid !px-1 !lg:px-4 !bg-white !z-30">
-  <h1>TESTING TAILWIND</h1>
-</div>
-</div>
-
-<div class="py-4"></div> -->
-<!-- max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-1 lg:p2 -->
 <header class="pt-4 max-w-screen-xl mx-auto px-2 flex items-center justify-between">
   <h1 class="text-xl font-bold mt-2">Arya Nadia</h1>
   <app-datetime></app-datetime>
-   <!-- 20 Agustus 2025 -->
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6">
       <div class="w-full pt-2 flex items-center gap-2 flex-wrap px-2 mb-6">
@@ -30,7 +9,6 @@
           <p-chip [label]="whitemtotal" icon="pi pi-list" class="border border-solid border-gray-300" styleClass="custom-chip" />
           <p-chip [label]="invoicetotalStr" icon="pi pi-receipt" class="border border-solid border-gray-300" styleClass="custom-chip" />
       </div>
-    <!-- </div> -->
     <div class="w-full flex bg-white py-3 px-5 rounded shadow mb-3">
       <h3 class="text-xl text-gray-400 font-medium p-0 m-0">To do : </h3> &nbsp;
       <p *ngIf="invoicetotal < 1"  class="text-xl text-gray-700 p-0 m-0">0 Invoices need to proceed</p>

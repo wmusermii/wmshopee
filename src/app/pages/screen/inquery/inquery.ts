@@ -24,6 +24,7 @@ export class Inquery implements OnInit {
   totime: Date | undefined;
   value: string | undefined;
   //################################
+  showGenerateDialog:boolean = false;
   ssrStorage = inject(LocalstorageService);
   submitted = false;
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
@@ -58,8 +59,9 @@ export class Inquery implements OnInit {
     if (this.dateForm.invalid) {
       return; // Form invalid, jangan lanjut
     }
-    this.loading = true;
+    // this.loading = true;
     console.log("Payload dateform ", this.dateForm.value);
+    this.showGenerateDialog = true;
     // fetch('/v2/auth/login', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
@@ -118,6 +120,14 @@ export class Inquery implements OnInit {
   }
   pad(n: number): string {
     return n.toString().padStart(2, '0');
+  }
+  confirmGenerate(){
+    console.log("Confirm generate");
+    this.showGenerateDialog = false;
+    this.loading = true;
+  }
+  cancelGenerate(){
+    this.showGenerateDialog=false;
   }
 }
 interface TimeCombo {

@@ -1,10 +1,8 @@
 <header class="pt-4 max-w-screen-xl mx-auto px-2 flex items-center justify-between">
   <h1 class="text-xl font-bold mt-2">Arya Nadia</h1>
   <app-datetime></app-datetime>
-  <!-- 20 Agustus 2025 -->
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6">
-  <!-- <div class="w-full flex flex-col md:flex-row bg-white py-3 px-5 rounded shadow mb-3 items-start md:items-center justify-between gap-3"> -->
   <form [formGroup]="dateForm" (ngSubmit)="onSubmit()" class="w-full flex flex-col md:flex-row bg-white py-3 px-5 rounded shadow mb-3 items-start md:items-center justify-between gap-3">
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2 mb-2 md:mb-0">
       <p class="m-0">Day:</p>
@@ -14,10 +12,6 @@
 
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2 mb-2 md:mb-0">
       <p class="m-0">From:</p>
-      <!-- <p-datepicker formControlName="fromtime" [timeOnly]="true" [showOnFocus]="false" [showIcon]="true" class="w-full"
-        inputStyleClass="w-full text-center"></p-datepicker> -->
-         <!-- <h1 class="text-gray-300"> {{ formatTime(dateForm.get('fromtime')?.value!) }} </h1>
-           -->
          <p-select
          [options]="optionFromTime"
           formControlName="fromtime"
@@ -30,15 +24,43 @@
 
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2">
       <p class="m-0">To:</p>
-      <!-- <p-datepicker formControlName="totime" [timeOnly]="true" [showOnFocus]="false" [showIcon]="true" class="w-full"
-        inputStyleClass="w-full text-center"></p-datepicker> -->
           <h1 class="text-gray-300">{{ dateForm.get('totime')?.value }}</h1>
     </div>
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2">
       <button pButton type="submit" class="w-full" label="Generate Shopee Invoice"></button>
     </div>
   </form>
-  <div *ngIf="loading"
+  <div *ngIf="showGenerateDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">
+    <div class="flex items-start gap-4">
+      <!-- Icon Section -->
+      <div class="pt-1">
+        <svg class="w-10 h-10 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.366-.774 1.42-.774 1.786 0l6.518 13.8A1 1 0 0 1 15.618 18H4.382a1 1 0 0 1-.943-1.101l6.518-13.8zM11 14a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm-1-2a.75.75 0 0 0 .75-.75V8a.75.75 0 0 0-1.5 0v3.25c0 .414.336.75.75.75z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <!-- Text Section -->
+      <div class="flex-1">
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">Generate Jobs</h2>
+        <p class="text-gray-700">
+          You will generate
+          <strong>{{ dateForm.value.date | date:'fullDate' }}</strong> on
+          <strong>{{ dateForm.value.fromtime }}</strong> to
+          <strong>{{ dateForm.value.totime }}</strong>.
+          <br />
+          And this will remove all data generated before! <br />
+          Please dont close or refres the browser until finished.
+        </p>
+      </div>
+    </div>
+    <!-- Button Section -->
+    <div class="flex justify-center gap-4 mt-6">
+      <p-button label="Yes, Generate" severity="warn" (click)="confirmGenerate()"></p-button>
+      <p-button label="Cancel" severity="secondary" (click)="cancelGenerate()"></p-button>
+    </div>
+  </div>
+</div>
+<div *ngIf="loading"
         class="absolute inset-0 flex items-center justify-center rounded-md z-50 bg-[rgba(255,255,255,0.5)]">
         <div role="status">
           <svg aria-hidden="true" class="inline w-24 h-24 text-gray-200 animate-spin dark:text-gray-600 fill-red-600"
@@ -52,6 +74,6 @@
           </svg>
           <span class="sr-only">Loading...</span>
         </div>
-      </div>
-  <!-- </div> -->
+</div>
+
 </main>
