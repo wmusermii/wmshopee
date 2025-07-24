@@ -1,8 +1,10 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { logError } from '../utils/logger';
+import { logError, logInfo } from '../utils/logger';
 import { ApiResponse } from '../utils/apiResponse';
+import { ApiService } from '../services/api.service';
+const apiService = new ApiService();
 export function echo(req: Request, res: Response, next: NextFunction) {
   try {
     const payload = {code:1, message:"Echo test workeds from controller"}
@@ -14,3 +16,40 @@ export function echo(req: Request, res: Response, next: NextFunction) {
 
   }
 }
+//##################### PROCESS SHOPEE ######################
+export async function generateQShopee(req: Request, res: Response, next: NextFunction) {
+  const { date,fromtime, totime } = req.body;
+  try {
+    let bodyPayload = {fromdate:date, fromtime:fromtime, totime:totime}
+    const userInfo:any = req.userInfo;
+//     Payload :  {
+//   fromdate: '2025-07-24T05:16:23.890Z',
+//   fromtime: '12:00:01',
+//   totime: '15:00:01'
+// }
+    const inserResult = await apiService.qShopeeInsert(bodyPayload,userInfo);
+
+    logInfo("HASIL INSERT : ",inserResult)
+    // const payload = {code:1, message:"Login test workeds from controller"}
+    // const user = await authService.login(username, password);
+    // logInfo("Auth.controller ",user);
+    // const data:any = user.data;
+    // if(user.code === 20000) {
+    //   const token = await EncryptDecryptJwt.generateToken(data);
+    //   // logInfo("Token created ",token)
+    //   for (const key in user.data) {
+    //     if (user.data.hasOwnProperty(key)) {
+    //       delete user.data[key];
+    //     }
+    //   }
+    //   user.data.token = token;
+    // }
+    await ResponseHelper.send(res, ApiResponse.success(req.body,"Generate success"));return;
+  } catch (error) {
+    logError("Error auth.controller : ", error)
+    // next(error);
+    await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+//##################### PROCESS ELSE ######################

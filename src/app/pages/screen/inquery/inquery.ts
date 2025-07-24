@@ -29,6 +29,7 @@ export class Inquery implements OnInit {
   submitted = false;
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
   loading = false;
+  token: string | null | undefined = undefined;
   dateForm = new FormGroup({
       date: new FormControl(new Date(), [Validators.required]),
       fromtime: new FormControl('', [Validators.required]),
@@ -43,6 +44,7 @@ export class Inquery implements OnInit {
     this.updateDateTime(this.dateForm.value.date!);
   }
   ngOnInit(): void {
+    this.token = this.ssrStorage.getItem('token');
     this.optionFromTime = Array.from({ length: 24 }, (_, i) => {
       const hour = i.toString().padStart(2, '0');
       const time = `${hour}:00:01`;
@@ -121,13 +123,78 @@ export class Inquery implements OnInit {
   pad(n: number): string {
     return n.toString().padStart(2, '0');
   }
-  confirmGenerate(){
+  async confirmGenerate(){
     console.log("Confirm generate");
     this.showGenerateDialog = false;
     this.loading = true;
+    await this._generatePorcess(this.dateForm.value)
   }
   cancelGenerate(){
     this.showGenerateDialog=false;
+  }
+  async _generatePorcess(payload:any) {
+    fetch('/v2/shopee/gen_qshopee', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/gen_qshopee 0", res);
+        if (!res.ok) throw new Error('q_shopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/gen_qshopee 1", data);
+        if (data.code === 20000) {
+          // const datamenuString = data.data.menublob;
+          // if (datamenuString) {
+          //   this.listMenu = JSON.parse(datamenuString);
+          //   this.replaceLogoutWithCommand.call(this,this.listMenu);
+          // }
+          this.loading=false;
+
+        } else {
+          this.loading=false
+          // this.listMenu = [];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/gen_qshopee", err);
+        // this.showConfirmDialog = true;
+      });
+  }
+  async _getDailyPorcess() {
+    fetch('/v2/auth/attrb', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
+    })
+      .then(res => {
+        console.log("Response dari API  /auth/attrb", res);
+        if (!res.ok) throw new Error('Attrb Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /auth/attrb ", data);
+        if (data.code === 20000) {
+          // const datamenuString = data.data.menublob;
+          // if (datamenuString) {
+          //   this.listMenu = JSON.parse(datamenuString);
+          //   this.replaceLogoutWithCommand.call(this,this.listMenu);
+          // }
+        } else {
+          // this.listMenu = [];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /auth/attrb", err);
+        // this.showConfirmDialog = true;
+      });
   }
 }
 interface TimeCombo {
