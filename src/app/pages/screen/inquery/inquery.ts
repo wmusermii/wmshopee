@@ -30,15 +30,13 @@ export class Inquery implements OnInit {
   submitted = false;
   QueriesData:QueryFields[]=[];
   cols!: Column[];
-
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
   loading = false;
   token: string | null | undefined = undefined;
   dateForm = new FormGroup({
       date: new FormControl(new Date(), [Validators.required]),
       fromtime: new FormControl('', [Validators.required]),
-      totime: new FormControl('', [Validators.required])
-    });
+      totime: new FormControl('', [Validators.required])});
   constructor(private fb: FormBuilder) {
     this.dateForm.get('date')?.valueChanges.subscribe((selectedDate) => {
       this.updateDateTime(selectedDate);
