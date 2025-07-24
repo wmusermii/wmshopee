@@ -28,8 +28,14 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
 //   totime: '15:00:01'
 // }
     const inserResult = await apiService.qShopeeInsert(bodyPayload,userInfo);
-
-    logInfo("HASIL INSERT : ",inserResult)
+    if(inserResult.code === 20000 && inserResult.data.length > 0) {
+      await ResponseHelper.send(res, ApiResponse.success(req.body,"Generate success"));return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+    // HASIL INSERT :  {"code":20000,"message":"Records found","data":[{"id":2}]}
+    // logInfo("HASIL INSERT : ",inserResult)
     // const payload = {code:1, message:"Login test workeds from controller"}
     // const user = await authService.login(username, password);
     // logInfo("Auth.controller ",user);
@@ -44,11 +50,11 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
     //   }
     //   user.data.token = token;
     // }
-    await ResponseHelper.send(res, ApiResponse.success(req.body,"Generate success"));return;
+    // await ResponseHelper.send(res, ApiResponse.success(req.body,"Generate success"));return;
   } catch (error) {
     logError("Error auth.controller : ", error)
     // next(error);
-    await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
 

@@ -6,13 +6,14 @@ import { ChipModule } from 'primeng/chip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { DatetimeComponent } from '../../../layouts/directive/datetime/datetime.component';
 import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorage.service';
 
 @Component({
   standalone: true,
   selector: 'app-inquery',
-  imports: [CommonModule, ReactiveFormsModule ,FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule,SelectModule, DatetimeComponent],
+  imports: [CommonModule, ReactiveFormsModule ,FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule,SelectModule,TableModule, DatetimeComponent],
   templateUrl: './inquery.html',
   styleUrl: './inquery.css'
 })
@@ -27,6 +28,9 @@ export class Inquery implements OnInit {
   showGenerateDialog:boolean = false;
   ssrStorage = inject(LocalstorageService);
   submitted = false;
+  QueriesData:QueryFields[]=[];
+  cols!: Column[];
+
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
   loading = false;
   token: string | null | undefined = undefined;
@@ -50,6 +54,28 @@ export class Inquery implements OnInit {
       const time = `${hour}:00:01`;
       return { value: time, label: time };
     });
+
+    this.cols = [
+            { field: 'id', header: '#', class:"text-center", cellclass:"text-end" },
+            { field: 'datepick', header: 'DATE', class:"text-center", cellclass:"text-center" },
+            { field: 'fromtime', header: 'FROM TIME', class:"text-center", cellclass:"text-center" },
+            { field: 'totime', header: 'TO TIME', class:"text-center", cellclass:"text-center" },
+            { field: 'remarks', header: 'REMARKS', class:"text-center", cellclass:"text-start" },
+    ];
+    this.QueriesData = [
+      {
+        id: 1, datepick: "2025-07-10", fromtime: "02:00:01", totime: "05:00:00", created_by: "system", created_at: '2025-07-10',
+        remarks: 'Generated Shopee Request'
+      },
+      {
+        id: 2, datepick: "2025-07-10", fromtime: "05:00:01", totime: "09:00:00", created_by: "system", created_at: '2025-07-10',
+        remarks: 'Generated Shopee Request'
+      },
+      {
+        id: 3, datepick: "2025-07-10", fromtime: "09:00:01", totime: "12:00:00", created_by: "system", created_at: '2025-07-10',
+        remarks: 'Generated Shopee Request'
+      },
+    ]
     this.updateDateTime(new Date());
   }
   // Helper getter untuk akses kontrol form di template
@@ -64,32 +90,6 @@ export class Inquery implements OnInit {
     // this.loading = true;
     console.log("Payload dateform ", this.dateForm.value);
     this.showGenerateDialog = true;
-    // fetch('/v2/auth/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(this.loginForm.value)
-    // })
-    //   .then(res => {
-    //     console.log("Response dari API ", res);
-    //     // logInfo
-    //     if (!res.ok) throw new Error('Login gagal');
-    //     return res.json();
-    //   })
-    //   .then(data => {
-    //     // console.log("Response dari API DATA ", JSON.parse(data));
-    //     console.log("Response dari API DATA ", data);
-    //     this.loading=false;
-    //     if(data.code === 20000) {
-    //       this.ssrStorage.setItem('token', data.data.token);
-    //       this.router.navigate(['/dashboard']);
-    //     } else {
-    //       this.errorMessage = {error:true, severity:"error", message:`${data.message}`, icon:"pi pi-times"}
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log("Response Error ", err);
-    //     alert('Login gagal: ' + err.message);
-    //   });
   }
 
   //######################## TIME FUNCTION ##########################
@@ -200,4 +200,19 @@ export class Inquery implements OnInit {
 interface TimeCombo {
     value: string;
     label: string;
+}
+interface QueryFields {
+    id: number;
+    fromtime: string;
+    totime: string;
+    created_by: string;
+    created_at: string;
+    datepick: string;
+    remarks:string;
+}
+interface Column {
+    field: string;
+    header: string;
+    class: string;
+    cellclass:string;
 }

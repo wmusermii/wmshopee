@@ -31,7 +31,9 @@ html, body {
 .custom-chip .p-chip-icon {
   color: #a6a7a8;
 }
-
+.p-datatable-sort-icon {
+  padding-left: 2px!important;
+}
 .p-panelmenu {
     gap: 0.1rem!important;
 }

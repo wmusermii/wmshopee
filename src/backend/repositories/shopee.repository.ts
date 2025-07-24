@@ -3,7 +3,6 @@ import { logInfo } from '../utils/logger';
 
 export class ShopeeRepository {
   async saveQShopee(payload:any, userInfo:any) {
-    logInfo("INSERT REPO : ",payload)
     const query = await db('q_shopee').insert(
         {
           fromtime: payload.fromtime,
