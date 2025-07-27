@@ -22,7 +22,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
           delete user.data[key];
         }
       }
-      logInfo("############################UINFO 2 : ",uInfo)
+      // logInfo("############################UINFO 2 : ",uInfo)
       delete uInfo.menublob;
       user.data.token = token;
       user.data.userinfo = uInfo;

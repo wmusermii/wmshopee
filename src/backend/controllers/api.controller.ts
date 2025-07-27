@@ -36,11 +36,10 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
   }
 }
 export async function getQShopee(req: Request, res: Response, next: NextFunction) {
-  const { date,fromtime, totime } = req.body;
   try {
-    let bodyPayload = {fromdate:date, fromtime:fromtime, totime:totime}
+    console.log("####################################### getQSHopee");
     const userInfo:any = req.userInfo;
-    const inserResult = await apiService.qShopeeInsert(bodyPayload,userInfo);
+    const inserResult = await apiService.qShopeeGet(userInfo);
     if(inserResult.code === 20000 && inserResult.data.length > 0) {
       await ResponseHelper.send(res, inserResult);return;
     } else {

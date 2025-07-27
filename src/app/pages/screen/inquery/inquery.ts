@@ -13,30 +13,32 @@ import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorag
 @Component({
   standalone: true,
   selector: 'app-inquery',
-  imports: [CommonModule, ReactiveFormsModule ,FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule,SelectModule,TableModule, DatetimeComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, SelectModule, TableModule, DatetimeComponent],
   templateUrl: './inquery.html',
   styleUrl: './inquery.css'
 })
 export class Inquery implements OnInit {
-  userInfo:any | undefined;
+  userInfo: any | undefined;
   date: Date | undefined;
-  optionFromTime:TimeCombo[] | undefined
+  optionFromTime: TimeCombo[] | undefined
   fromtime: Date | undefined;
   totime: Date | undefined;
   value: string | undefined;
   //################################
-  showGenerateDialog:boolean = false;
+  showGenerateDialog: boolean = false;
+  showErrorDialog: boolean = false;
   ssrStorage = inject(LocalstorageService);
   submitted = false;
-  QueriesData:QueryFields[]=[];
+  QueriesData: QueryFields[] = [];
   cols!: Column[];
-  errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
+  errorMessage: any = { error: false, severity: "info", message: "ini test", icon: "pi pi-times" };
   loading = false;
   token: string | null | undefined = undefined;
   dateForm = new FormGroup({
-      date: new FormControl(new Date(), [Validators.required]),
-      fromtime: new FormControl('', [Validators.required]),
-      totime: new FormControl('', [Validators.required])});
+    date: new FormControl(new Date(), [Validators.required]),
+    fromtime: new FormControl('', [Validators.required]),
+    totime: new FormControl('', [Validators.required])
+  });
   constructor(private fb: FormBuilder) {
     this.dateForm.get('date')?.valueChanges.subscribe((selectedDate) => {
       this.updateDateTime(selectedDate);
@@ -55,37 +57,18 @@ export class Inquery implements OnInit {
     });
 
     this.cols = [
-            { field: 'id', header: '#', class:"text-center", cellclass:"text-end" },
-            { field: 'datepick', header: 'DATE', class:"text-center", cellclass:"text-center" },
-            { field: 'fromtime', header: 'FROM TIME', class:"text-center", cellclass:"text-center" },
-            { field: 'totime', header: 'TO TIME', class:"text-center", cellclass:"text-center" },
-            { field: 'fullname', header: 'CREATED_BY', class:"text-center", cellclass:"text-start" },
-            { field: 'created_at', header: 'CREATED_AT', class:"text-center", cellclass:"text-center" },
+      { field: 'id', header: '#', class: "text-center", cellclass: "text-end" },
+      { field: 'datepick', header: 'DATE', class: "text-center", cellclass: "text-center" },
+      { field: 'fromtime', header: 'FROM TIME', class: "text-center", cellclass: "text-center" },
+      { field: 'totime', header: 'TO TIME', class: "text-center", cellclass: "text-center" },
+      { field: 'fullname', header: 'CREATED_BY', class: "text-center", cellclass: "text-start" },
+      { field: 'created_at', header: 'CREATED_AT', class: "text-center", cellclass: "text-center" },
     ];
     this.QueriesData = [
-      // {
-      //   id: 1, datepick: "2025-07-10", fromtime: "02:00:01", totime: "05:00:00", created_by: "system", created_at: '2025-07-10',
-      //   remarks: 'Generated Shopee Request'
-      // },
-      // {
-      //   id: 2, datepick: "2025-07-10", fromtime: "05:00:01", totime: "09:00:00", created_by: "system", created_at: '2025-07-10',
-      //   remarks: 'Generated Shopee Request'
-      // },
-      // {
-      //   id: 3, datepick: "2025-07-10", fromtime: "09:00:01", totime: "12:00:00", created_by: "system", created_at: '2025-07-10',
-      //   remarks: 'Generated Shopee Request'
-      // },
     ]
-  //   {
-  //   "id": 2,
-  //   "datepick": "2025-07-24",
-  //   "fromtime": "22:00:01",
-  //   "totime": "01:00:01",
-  //   "created_by": "102345690",
-  //   "fullname": "Super Admin",
-  //   "created_at": "2025-07-24 15:37:45"
-  // }
+
     this.updateDateTime(new Date());
+    this._getDailyPorcess();
   }
   // Helper getter untuk akses kontrol form di template
   get f() {
@@ -96,6 +79,14 @@ export class Inquery implements OnInit {
     if (this.dateForm.invalid) {
       return; // Form invalid, jangan lanjut
     }
+    if (this.isTimeConflict()) {
+      // alert("⛔ Waktu yang Anda generate berada pada rentang waktu yang sudah ada!");
+      this.showErrorDialog=true;
+      return;
+    }
+
+
+
     // this.loading = true;
     console.log("Payload dateform ", this.dateForm.value);
     this.showGenerateDialog = true;
@@ -132,15 +123,18 @@ export class Inquery implements OnInit {
   pad(n: number): string {
     return n.toString().padStart(2, '0');
   }
-  async confirmGenerate(){
+  async confirmGenerate() {
     this.showGenerateDialog = false;
     this.loading = true;
     await this._generatePorcess(this.dateForm.value)
   }
-  cancelGenerate(){
-    this.showGenerateDialog=false;
+  cancelGenerate() {
+    this.showGenerateDialog = false;
   }
-  async _generatePorcess(payload:any) {
+  cancelError() {
+    this.showErrorDialog = false;
+  }
+  async _generatePorcess(payload: any) {
     fetch('/v2/shopee/gen_qshopee', {
       method: 'POST',
       headers: {
@@ -158,16 +152,16 @@ export class Inquery implements OnInit {
         console.log("Response dari API /shopee/gen_qshopee 1", data);
         if (data.code === 20000) {
           const dataRecords = data.data;
-          this.QueriesData=dataRecords;
+          this.QueriesData = dataRecords;
           // const datamenuString = data.data.menublob;
           // if (datamenuString) {
           //   this.listMenu = JSON.parse(datamenuString);
           //   this.replaceLogoutWithCommand.call(this,this.listMenu);
           // }
-          this.loading=false;
+          this.loading = false;
 
         } else {
-          this.loading=false
+          this.loading = false
           // this.listMenu = [];
         }
       })
@@ -177,7 +171,7 @@ export class Inquery implements OnInit {
       });
   }
   async _getDailyPorcess() {
-    fetch('/v2/auth/attrb', {
+    fetch('/v2/shopee/get_qshopee', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -185,44 +179,64 @@ export class Inquery implements OnInit {
       }
     })
       .then(res => {
-        console.log("Response dari API  /auth/attrb", res);
-        if (!res.ok) throw new Error('Attrb Gagal');
+        console.log("Response dari API  /shopee/get_qshopee", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
         return res.json();
       })
       .then(data => {
-        console.log("Response dari API /auth/attrb ", data);
+        console.log("Response dari API /shopee/get_qshopee ", data);
         if (data.code === 20000) {
-          // const datamenuString = data.data.menublob;
-          // if (datamenuString) {
-          //   this.listMenu = JSON.parse(datamenuString);
-          //   this.replaceLogoutWithCommand.call(this,this.listMenu);
-          // }
+          const dataRecords = data.data;
+          this.QueriesData = dataRecords;
         } else {
-          // this.listMenu = [];
+          this.QueriesData = [];
         }
       })
       .catch(err => {
-        console.log("Response Error Catch /auth/attrb", err);
-        // this.showConfirmDialog = true;
+        console.log("Response Error Catch /shopee/get_qshopee", err);
       });
+  }
+
+  isTimeConflict(): boolean {
+    const inputFrom = this.dateForm.get('fromtime')?.value;
+    const inputTo = this.dateForm.get('totime')?.value;
+
+    if (!inputFrom || !inputTo) return false;
+
+    const inputFromSec = this.timeToSeconds(inputFrom);
+    const inputToSec = this.timeToSeconds(inputTo);
+
+    return this.QueriesData.some(record => {
+      const recordFromSec = this.timeToSeconds(record.fromtime);
+      const recordToSec = this.timeToSeconds(record.totime);
+
+      // Cek overlap
+      const isSameDate = record.datepick === this.dateForm.get('date')?.value?.toISOString().slice(0, 10);
+      return isSameDate && (inputFromSec < recordToSec && inputToSec > recordFromSec);
+    });
+  }
+
+  timeToSeconds(time: string): number {
+    const [h, m, s] = time.split(':').map(Number);
+    return h * 3600 + m * 60 + s;
   }
 }
 interface TimeCombo {
-    value: string;
-    label: string;
+  value: string;
+  label: string;
 }
 interface QueryFields {
-    id: number;
-    fromtime: string;
-    totime: string;
-    created_by: string;
-    created_at: string;
-    datepick: string;
-    remarks:string;
+  id: number;
+  fromtime: string;
+  totime: string;
+  created_by: string;
+  created_at: string;
+  datepick: string;
+  remarks: string;
 }
 interface Column {
-    field: string;
-    header: string;
-    class: string;
-    cellclass:string;
+  field: string;
+  header: string;
+  class: string;
+  cellclass: string;
 }

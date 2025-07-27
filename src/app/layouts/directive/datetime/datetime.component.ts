@@ -25,7 +25,7 @@ export class DatetimeComponent implements OnInit, OnDestroy {
 
   }
   updateDateTime() {
-    console.log("UPDATE Date Time");
+    // console.log("UPDATE Date Time");
     const now = new Date();
     this.currentDateTime = now.toLocaleString('id-ID', {
       day: '2-digit', month: 'long', year: 'numeric',
