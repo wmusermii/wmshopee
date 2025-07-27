@@ -12,7 +12,7 @@ export class ShopeeRepository {
           fromtime: payload.fromtime,
           totime: payload.totime,
           created_by: userInfo.iduser,
-          created_at: db.fn.now(),
+          created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
           datepick: formattedDate
         }
       ).returning('id');
@@ -20,6 +20,7 @@ export class ShopeeRepository {
     return await query;
   }
   async selectQShopeeAll() {
+    const today = new Date().toISOString().substring(0, 10);
     const result = await db.select([
       'qs.id',
       'qs.datepick',
@@ -28,9 +29,25 @@ export class ShopeeRepository {
       'qs.created_by',
       'mu.fullname',
       'qs.created_at'
-    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").orderBy("qs.created_at","desc");
+    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc");
     return result;
 
     // return await query;
+  }
+  //################# SHOPEE ATTRB ###############################
+  async selectShopeeAPIAtribute(){
+    const result = await db.select([
+      'ms.id',
+      'ms.access_token',
+      'ms.refresh_token',
+      'ms.shop_id',
+      'ms.code',
+      'ms.client_id',
+      'ms.client_secret',
+      'ms.redirect_uri',
+      'ms.base_api',
+      'ms.update_at',
+    ]).from('m_shopee as ms').orderBy("qs.created_at","desc");
+    return result;
   }
 }

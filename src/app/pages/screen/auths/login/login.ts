@@ -48,6 +48,7 @@ export class Login {
         this.loading=false;
         if(data.code === 20000) {
           this.ssrStorage.setItem('token', data.data.token);
+          this.ssrStorage.setItem('C_INFO', data.data.userinfo);
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMessage = {error:true, severity:"error", message:`${data.message}`, icon:"pi pi-times"}

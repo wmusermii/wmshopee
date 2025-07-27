@@ -18,7 +18,7 @@ import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorag
   styleUrl: './inquery.css'
 })
 export class Inquery implements OnInit {
-
+  userInfo:any | undefined;
   date: Date | undefined;
   optionFromTime:TimeCombo[] | undefined
   fromtime: Date | undefined;
@@ -47,6 +47,7 @@ export class Inquery implements OnInit {
   }
   ngOnInit(): void {
     this.token = this.ssrStorage.getItem('token');
+    this.userInfo = this.ssrStorage.getItem("C_INFO");
     this.optionFromTime = Array.from({ length: 24 }, (_, i) => {
       const hour = i.toString().padStart(2, '0');
       const time = `${hour}:00:01`;
@@ -58,22 +59,32 @@ export class Inquery implements OnInit {
             { field: 'datepick', header: 'DATE', class:"text-center", cellclass:"text-center" },
             { field: 'fromtime', header: 'FROM TIME', class:"text-center", cellclass:"text-center" },
             { field: 'totime', header: 'TO TIME', class:"text-center", cellclass:"text-center" },
-            { field: 'remarks', header: 'REMARKS', class:"text-center", cellclass:"text-start" },
+            { field: 'fullname', header: 'CREATED_BY', class:"text-center", cellclass:"text-start" },
+            { field: 'created_at', header: 'CREATED_AT', class:"text-center", cellclass:"text-center" },
     ];
     this.QueriesData = [
-      {
-        id: 1, datepick: "2025-07-10", fromtime: "02:00:01", totime: "05:00:00", created_by: "system", created_at: '2025-07-10',
-        remarks: 'Generated Shopee Request'
-      },
-      {
-        id: 2, datepick: "2025-07-10", fromtime: "05:00:01", totime: "09:00:00", created_by: "system", created_at: '2025-07-10',
-        remarks: 'Generated Shopee Request'
-      },
-      {
-        id: 3, datepick: "2025-07-10", fromtime: "09:00:01", totime: "12:00:00", created_by: "system", created_at: '2025-07-10',
-        remarks: 'Generated Shopee Request'
-      },
+      // {
+      //   id: 1, datepick: "2025-07-10", fromtime: "02:00:01", totime: "05:00:00", created_by: "system", created_at: '2025-07-10',
+      //   remarks: 'Generated Shopee Request'
+      // },
+      // {
+      //   id: 2, datepick: "2025-07-10", fromtime: "05:00:01", totime: "09:00:00", created_by: "system", created_at: '2025-07-10',
+      //   remarks: 'Generated Shopee Request'
+      // },
+      // {
+      //   id: 3, datepick: "2025-07-10", fromtime: "09:00:01", totime: "12:00:00", created_by: "system", created_at: '2025-07-10',
+      //   remarks: 'Generated Shopee Request'
+      // },
     ]
+  //   {
+  //   "id": 2,
+  //   "datepick": "2025-07-24",
+  //   "fromtime": "22:00:01",
+  //   "totime": "01:00:01",
+  //   "created_by": "102345690",
+  //   "fullname": "Super Admin",
+  //   "created_at": "2025-07-24 15:37:45"
+  // }
     this.updateDateTime(new Date());
   }
   // Helper getter untuk akses kontrol form di template
@@ -122,7 +133,6 @@ export class Inquery implements OnInit {
     return n.toString().padStart(2, '0');
   }
   async confirmGenerate(){
-    console.log("Confirm generate");
     this.showGenerateDialog = false;
     this.loading = true;
     await this._generatePorcess(this.dateForm.value)
@@ -147,6 +157,8 @@ export class Inquery implements OnInit {
       .then(data => {
         console.log("Response dari API /shopee/gen_qshopee 1", data);
         if (data.code === 20000) {
+          const dataRecords = data.data;
+          this.QueriesData=dataRecords;
           // const datamenuString = data.data.menublob;
           // if (datamenuString) {
           //   this.listMenu = JSON.parse(datamenuString);

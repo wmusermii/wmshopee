@@ -188,3 +188,90 @@
 [2025-07-24 21:31:31] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1e705063-bc8b-4be1-88f3-fb12028c4614\data\admdb.sqlite
 [2025-07-24 21:31:31] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\cce69b0a-9b0a-45ff-989d-22cefccf168a\data\admdb.sqlite
 [2025-07-24 21:33:25] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 22:19:55] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\46ed1b4c-6e7b-4021-ba2e-00ecf55c60b3\data\admdb.sqlite
+[2025-07-24 22:20:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\788bcc34-9ed4-482a-9166-df66727d9af4\data\admdb.sqlite
+[2025-07-24 22:20:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e7de3ae4-3262-44ec-9d4c-59615c6870e7\data\admdb.sqlite
+[2025-07-24 22:20:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\49c95c88-ea40-49d4-a273-c6ea043ffa6b\data\admdb.sqlite
+[2025-07-24 22:22:02] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 22:22:38] ERROR: Error Encrypt  {"code":"ERR_JWT_EXPIRED","name":"t","claim":"exp","reason":"check_failed","payload":{"iduser":"102345690","username":"admin","password":"manage","fullname":"Super Admin","mobile":"20","email":null,"groupname":"Superadmin","menublob":"[{ \"label\": \"Dashboard\", \"routelink\": \"/dashboard\" }, { \"label\": \"Warehouse\", \"items\": [{ \"label\": \"Product\", \"routelink\": \"/warehouse/product\" }, { \"label\": \"Storage\", \"routerLink\": \"/warehouse/storage\" }] }, { \"label\": \"Settings\", \"items\": [{ \"label\": \"User Account\", \"routerLink\": \"/settings/user\" }, { \"label\": \"Shopee API \", \"routerLink\": \"/settings/shopee\" }] }, { \"label\": \"Shopee\", \"routerLink\": \"/shopee\" }, { \"label\": \"Packaging\", \"routerLink\": \"/packaging\" }, { \"label\": \"Logout\", \"routerLink\": \"/logout\", \"icon\":\"pi pi-sign-out\" }]","iat":1753367759,"exp":1753369859}}
+[2025-07-24 22:23:16] INFO: Data datepick :  2025-07-24
+[2025-07-24 22:26:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\56b553d7-a4a2-4a24-bdbb-1b4c25138b16\data\admdb.sqlite
+[2025-07-24 22:26:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\69b862a0-40eb-4ddc-b4a9-0cd65ca9d32f\data\admdb.sqlite
+[2025-07-24 22:26:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\f2543e9a-524b-42ea-b044-f474e040d7c1\data\admdb.sqlite
+[2025-07-24 22:26:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\4362b341-7602-4ea5-9127-622c8a4b0a36\data\admdb.sqlite
+[2025-07-24 22:29:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 22:30:19] INFO: Data datepick :  2025-07-24
+[2025-07-24 22:33:49] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\a13a63c0-f865-43f6-9996-535521f9b578\data\admdb.sqlite
+[2025-07-24 22:34:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\13f72c57-7989-4d7d-870e-b82f62a726f0\data\admdb.sqlite
+[2025-07-24 22:34:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\cc9145d0-fecb-46fc-91ac-e2a9cee2ac57\data\admdb.sqlite
+[2025-07-24 22:34:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e1823cfb-e1fb-474d-bd42-baab877aa7ac\data\admdb.sqlite
+[2025-07-24 22:37:21] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 22:37:45] INFO: Data datepick :  2025-07-24
+[2025-07-24 22:51:25] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6a57ee4b-d0fa-40a8-9b3c-223ec2e6a797\data\admdb.sqlite
+[2025-07-24 22:51:52] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\00897024-2d77-40eb-86cf-b2c61b9d9297\data\admdb.sqlite
+[2025-07-24 22:51:52] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\8a1a7736-4200-4d77-a851-48bd35ad4250\data\admdb.sqlite
+[2025-07-24 22:51:52] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b8bb8d2e-35e6-4da1-af17-a38ea967428c\data\admdb.sqlite
+[2025-07-24 22:57:41] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b03e20fe-d1a7-4627-ae7a-9ce8cc0c6335\data\admdb.sqlite
+[2025-07-24 22:57:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\c07c2fbd-147a-4c75-9edf-f938291eaac8\data\admdb.sqlite
+[2025-07-24 22:57:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\39abc79f-4d2a-45e2-b5eb-5472c8a1430c\data\admdb.sqlite
+[2025-07-24 22:57:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\63a9b81f-fd94-488a-b3ee-01d9b00e0f06\data\admdb.sqlite
+[2025-07-24 22:59:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2c237450-2d17-4427-8a37-f812db420752\data\admdb.sqlite
+[2025-07-24 23:00:42] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\13a0175c-7bef-45d7-b3a2-49af8e95a97c\data\admdb.sqlite
+[2025-07-24 23:00:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ddb69266-d516-4149-846e-41fb8e2842c4\data\admdb.sqlite
+[2025-07-24 23:00:58] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b14a169f-0083-4169-98a5-88c4fc88982b\data\admdb.sqlite
+[2025-07-24 23:00:58] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2db2aef2-c4df-4ae4-a042-d5750f7d0866\data\admdb.sqlite
+[2025-07-24 23:01:49] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:05:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\86a2eccb-3ccc-41d5-9f1f-b2810552cfc2\data\admdb.sqlite
+[2025-07-24 23:05:50] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1e9bdf9e-080b-4c4a-a429-fa65123ad07d\data\admdb.sqlite
+[2025-07-24 23:05:50] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\78afc939-e4cc-4337-b161-9ef95f9adb89\data\admdb.sqlite
+[2025-07-24 23:05:50] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0898d562-dcf8-47ca-a2ac-fffcec0f9848\data\admdb.sqlite
+[2025-07-24 23:17:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:17:39] INFO: Data datepick :  2025-07-24
+[2025-07-24 23:18:12] INFO: Data datepick :  2025-07-24
+[2025-07-24 23:18:35] INFO: Data datepick :  2025-07-24
+[2025-07-24 23:28:19] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\63e9970e-04fe-41d3-be59-2b09e964db90\data\admdb.sqlite
+[2025-07-24 23:28:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2cd9c0e5-b031-49ae-a05f-dda85f48eac3\data\admdb.sqlite
+[2025-07-24 23:28:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0bae174b-9d16-4afc-9626-2f77b02df591\data\admdb.sqlite
+[2025-07-24 23:28:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\7b9e1b54-7ea8-4aa9-8e31-16f68e22fe48\data\admdb.sqlite
+[2025-07-24 23:30:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\9aab3eef-e8e6-43be-af2d-723d6fcf8523\data\admdb.sqlite
+[2025-07-24 23:30:30] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2be75e3b-2b7f-4b70-bc26-b80236f1be98\data\admdb.sqlite
+[2025-07-24 23:30:30] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e5845681-9ce4-4d7d-8dd1-0f48e1e2d8c0\data\admdb.sqlite
+[2025-07-24 23:30:30] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\df20fcd9-094f-4485-b65a-3fa0ed27ae51\data\admdb.sqlite
+[2025-07-24 23:31:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:39:38] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2c82f176-5a2f-4b36-bd97-ddc8e21dc737\data\admdb.sqlite
+[2025-07-24 23:39:40] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6d41156d-26f9-4395-849f-1176be93bb90\data\admdb.sqlite
+[2025-07-24 23:39:40] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\4f896bf2-a8c7-4c80-81a7-aa6fe645366d\data\admdb.sqlite
+[2025-07-24 23:39:40] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ca581fe6-fcd0-4ce3-afcc-9982dfb027c2\data\admdb.sqlite
+[2025-07-24 23:43:50] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0d6b5d7a-98ba-492c-9139-89603e4162f6\data\admdb.sqlite
+[2025-07-24 23:43:51] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\fc16557c-b5f3-4cfc-be84-ed52f3d073e7\data\admdb.sqlite
+[2025-07-24 23:43:51] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1e17148c-2862-4179-a4a5-c28548b4953a\data\admdb.sqlite
+[2025-07-24 23:43:51] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d11e1fa6-ce1a-47ca-a42f-440af294aba9\data\admdb.sqlite
+[2025-07-24 23:43:59] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:50:22] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\56031263-2c44-45df-a99c-f99e42afb2a1\data\admdb.sqlite
+[2025-07-24 23:50:23] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\c40e3edd-733f-4600-a430-8683d4868e54\data\admdb.sqlite
+[2025-07-24 23:50:23] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\88c70289-7809-4ff3-a769-77ff4aa79325\data\admdb.sqlite
+[2025-07-24 23:50:23] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2935fc8e-4b2b-46d0-8c77-aa0015e01c67\data\admdb.sqlite
+[2025-07-24 23:50:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:50:56] ERROR: Error auth.controller :  {}
+[2025-07-24 23:52:54] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\3b7bf927-c926-4dbd-881a-aa1b03834e5b\data\admdb.sqlite
+[2025-07-24 23:52:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\c363b247-3f25-49bb-97fa-445220b5d8b8\data\admdb.sqlite
+[2025-07-24 23:52:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\06832a56-d65c-4db4-a74b-196d436b6ff7\data\admdb.sqlite
+[2025-07-24 23:52:56] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\4fc98037-b568-4a5b-b0af-8e8dde854e3d\data\admdb.sqlite
+[2025-07-24 23:53:01] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:53:07] INFO: ############################UINFO  {"iduser":"102345690","username":"admin","password":"manage","fullname":"Super Admin","mobile":"20","email":null,"groupname":"Superadmin","menublob":"[{ \"label\": \"Dashboard\", \"routerLink\": \"/dashboard\" }, { \"label\": \"Warehouse\", \"items\": [{ \"label\": \"Product\", \"routerLink\": \"/warehouse/product\" }, { \"label\": \"Storage\", \"routerLink\": \"/warehouse/storage\" }] }, { \"label\": \"Settings\", \"items\": [{ \"label\": \"User Account\", \"routerLink\": \"/settings/user\" }, { \"label\": \"Shopee API \", \"routerLink\": \"/settings/shopee\" }] }, { \"label\": \"Shopee\", \"routerLink\": \"/shopee\" }, { \"label\": \"Packaging\", \"routerLink\": \"/packaging\" }, { \"label\": \"Logout\", \"routerLink\": \"/logout\", \"icon\":\"pi pi-sign-out\" }]"}
+[2025-07-24 23:53:07] INFO: ############################UINFO 2 :  {}
+[2025-07-24 23:56:10] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\84515932-3a1c-40d9-8b1f-55e24353101c\data\admdb.sqlite
+[2025-07-24 23:56:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2840aa0f-5ea2-4f34-9c9e-c1998b707584\data\admdb.sqlite
+[2025-07-24 23:56:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\f8315aa8-8164-4269-8da5-137d17bc79e4\data\admdb.sqlite
+[2025-07-24 23:56:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\01084511-7dbc-47ab-8d75-e251a32c78d5\data\admdb.sqlite
+[2025-07-24 23:56:18] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:56:29] INFO: ############################UINFO  {"iduser":"102345690","username":"admin","password":"manage","fullname":"Super Admin","mobile":"20","email":null,"groupname":"Superadmin","menublob":"[{ \"label\": \"Dashboard\", \"routerLink\": \"/dashboard\" }, { \"label\": \"Warehouse\", \"items\": [{ \"label\": \"Product\", \"routerLink\": \"/warehouse/product\" }, { \"label\": \"Storage\", \"routerLink\": \"/warehouse/storage\" }] }, { \"label\": \"Settings\", \"items\": [{ \"label\": \"User Account\", \"routerLink\": \"/settings/user\" }, { \"label\": \"Shopee API \", \"routerLink\": \"/settings/shopee\" }] }, { \"label\": \"Shopee\", \"routerLink\": \"/shopee\" }, { \"label\": \"Packaging\", \"routerLink\": \"/packaging\" }, { \"label\": \"Logout\", \"routerLink\": \"/logout\", \"icon\":\"pi pi-sign-out\" }]"}
+[2025-07-24 23:56:29] INFO: ############################UINFO 2 :  {"iduser":"102345690","username":"admin","password":"manage","fullname":"Super Admin","mobile":"20","email":null,"groupname":"Superadmin","menublob":"[{ \"label\": \"Dashboard\", \"routerLink\": \"/dashboard\" }, { \"label\": \"Warehouse\", \"items\": [{ \"label\": \"Product\", \"routerLink\": \"/warehouse/product\" }, { \"label\": \"Storage\", \"routerLink\": \"/warehouse/storage\" }] }, { \"label\": \"Settings\", \"items\": [{ \"label\": \"User Account\", \"routerLink\": \"/settings/user\" }, { \"label\": \"Shopee API \", \"routerLink\": \"/settings/shopee\" }] }, { \"label\": \"Shopee\", \"routerLink\": \"/shopee\" }, { \"label\": \"Packaging\", \"routerLink\": \"/packaging\" }, { \"label\": \"Logout\", \"routerLink\": \"/logout\", \"icon\":\"pi pi-sign-out\" }]"}
+[2025-07-24 23:57:26] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e8cd901f-586b-4cda-98ac-446d2a680366\data\admdb.sqlite
+[2025-07-24 23:57:28] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\64472903-7842-4977-9047-9aa93d6de4ce\data\admdb.sqlite
+[2025-07-24 23:57:28] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\73c65ced-6989-4dc5-a476-1729dbebc664\data\admdb.sqlite
+[2025-07-24 23:57:28] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\7704d7c4-3bb7-4628-add5-6e05e5bed718\data\admdb.sqlite
+[2025-07-24 23:57:33] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-24 23:57:42] INFO: ############################UINFO 2 :  {"iduser":"102345690","username":"admin","password":"manage","fullname":"Super Admin","mobile":"20","email":null,"groupname":"Superadmin","menublob":"[{ \"label\": \"Dashboard\", \"routerLink\": \"/dashboard\" }, { \"label\": \"Warehouse\", \"items\": [{ \"label\": \"Product\", \"routerLink\": \"/warehouse/product\" }, { \"label\": \"Storage\", \"routerLink\": \"/warehouse/storage\" }] }, { \"label\": \"Settings\", \"items\": [{ \"label\": \"User Account\", \"routerLink\": \"/settings/user\" }, { \"label\": \"Shopee API \", \"routerLink\": \"/settings/shopee\" }] }, { \"label\": \"Shopee\", \"routerLink\": \"/shopee\" }, { \"label\": \"Packaging\", \"routerLink\": \"/packaging\" }, { \"label\": \"Logout\", \"routerLink\": \"/logout\", \"icon\":\"pi pi-sign-out\" }]"}
+[2025-07-24 23:58:00] INFO: Data datepick :  2025-07-24
+[2025-07-24 23:58:22] INFO: Data datepick :  2025-07-24

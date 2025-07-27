@@ -15,13 +15,17 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const data:any = user.data;
     if(user.code === 20000) {
       const token = await EncryptDecryptJwt.generateToken(data);
-      // logInfo("Token created ",token)
+      const uInfo = JSON.parse(JSON.stringify(data)); // agar data tidak hilang
+
       for (const key in user.data) {
         if (user.data.hasOwnProperty(key)) {
           delete user.data[key];
         }
       }
+      logInfo("############################UINFO 2 : ",uInfo)
+      delete uInfo.menublob;
       user.data.token = token;
+      user.data.userinfo = uInfo;
     }
     await ResponseHelper.send(res, user);return;
   } catch (error) {

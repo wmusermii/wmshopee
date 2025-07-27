@@ -19,4 +19,17 @@ export class ApiService {
       }
     // }
   }
+  async qShopeeGet(payload: any, userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.saveQShopee(payload,userinfo);
+    if(!shopeeResult) return ApiResponse.successNoData(shopeeResult,"Unable to insert data!");
+    //################## Berhasil Isi #######################
+    // if(shopeeResult){
+      const rowQueryShopee = await this.shopeeRepo.selectQShopeeAll();
+      if(!rowQueryShopee) {
+        return ApiResponse.successNoData(shopeeResult,"Unable to get data!");
+      } else {
+        return ApiResponse.success(rowQueryShopee,"Records found");
+      }
+    // }
+  }
 }

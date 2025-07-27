@@ -46,7 +46,7 @@ export class EncryptDecryptJwt {
       });
       return payload; // Berisi data yang ada di token
     } catch (error) {
-      logError("Error Encrypt ",error)
+      // logError("Error Encrypt ",error)
       return error;
       // throw new Error('Token tidak valid atau sudah kedaluwarsa');
     }

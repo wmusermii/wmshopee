@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,9 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ChipModule } from 'primeng/chip';
+
+import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorage.service';
+import { Router } from '@angular/router';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
@@ -15,7 +18,9 @@ import { ChipModule } from 'primeng/chip';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
+  constructor(private router: Router, private ssrStorage: LocalstorageService) { }
+    userInfo:any | undefined;
      date: Date | undefined;
     value:string | undefined;
     totalSku:string="0";
@@ -29,4 +34,8 @@ export class Dashboard {
   whitemtotal:string = "In Warehouse : 500 pcs.";
   invoicetotal:number = 5;
   invoicetotalStr:string = "Invoices : 10 pcs.";
+  ngOnInit(): void {
+    this.userInfo = this.ssrStorage.getItem("C_INFO");
+    console.log("User Info ", this.userInfo);
+  }
 }
