@@ -1,0 +1,65 @@
+import crypto from 'crypto';
+import { ShopeeRepository } from '../../repositories/shopee.repository';
+import { logInfo } from '../../utils/logger';
+interface ShopeeCredential {
+  client_id: string;
+  client_secret: string;
+  refresh_token: string;
+  access_token: string;
+  shop_id: string;
+  base_api: string;
+}
+function getTimestamp() {
+  return Math.floor(Date.now() / 1000);
+}
+export class ShopeeService {
+  private shopeeRepo = new ShopeeRepository();
+
+  private async getCredential(): Promise<ShopeeCredential> {
+    const creds = await this.shopeeRepo.selectShopeeAPIAtribute();
+    return {
+      client_id: creds.client_id,
+      client_secret: creds.client_secret,
+      refresh_token: creds.refresh_token,
+      access_token: creds.access_token,
+      shop_id: creds.shop_id,
+      base_api: creds.base_api
+    };
+  }
+
+  private generateSignature(path: string, timestamp: number, accessToken = '', shopId = '', client_id: string, client_secret: string): string {
+    let baseString = `${client_id}${path}${timestamp}${shopId}`;
+    if (!accessToken && shopId) {
+      baseString += shopId;
+    }
+    if (accessToken && shopId) {
+      baseString += accessToken + shopId;
+    }
+    return crypto.createHmac('sha256', client_secret).update(baseString, 'utf8').digest('hex');
+  }
+
+  public async refreshToken(): Promise<any> {
+    const cred = await this.getCredential();
+    const path = '/api/v2/auth/access_token/get';
+    const timestamp = getTimestamp();
+    const sign = this.generateSignature(path, timestamp, '', '', cred.client_id, cred.client_secret);
+    const url = `${cred.base_api}${path}?partner_id=${cred.client_id}&timestamp=${timestamp}&sign=${sign}`;
+    console.log(sign);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        refresh_token: cred.refresh_token,
+        partner_id: Number(cred.client_id),
+        shop_id: Number(cred.shop_id)
+      })
+    });
+    const result = await res.json();
+    if (result.error || result.response?.error) {
+      console.error('❌ Shopee token refresh failed', result);
+      throw new Error(result.message || result.response?.message);
+    }
+    console.log('✅ Shopee token refreshed:', result);
+    return result.response;
+  }
+}

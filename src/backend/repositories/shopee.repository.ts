@@ -47,7 +47,19 @@ export class ShopeeRepository {
       'ms.redirect_uri',
       'ms.base_api',
       'ms.update_at',
-    ]).from('m_shopee as ms').orderBy("qs.created_at","desc");
+    ]).from('m_shopee as ms').first();
     return result;
+  }
+  async updateShopeeToken(payload:any) {
+    logInfo("Update data token : ");
+    const query = await db('m_shopee').update(
+        {
+          access_token: payload.access_token,
+          refresh_token: payload.refresh_token,
+          update_at:payload.update_at
+        }
+      ).where("id",'1000001').returning('id');
+
+    return await query;
   }
 }
