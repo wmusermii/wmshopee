@@ -13,7 +13,9 @@ export class ShopeeRepository {
           totime: payload.totime,
           created_by: userInfo.iduser,
           created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
-          datepick: formattedDate
+          datepick: formattedDate,
+          totalresi:payload.totalresi,
+          listresi:payload.listresi
         }
       ).returning('id');
 
@@ -28,6 +30,8 @@ export class ShopeeRepository {
       'qs.totime',
       'qs.created_by',
       'mu.fullname',
+      'qs.status',
+      'qs.totalresi',
       'qs.created_at'
     ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc");
     return result;
@@ -48,6 +52,13 @@ export class ShopeeRepository {
       'ms.base_api',
       'ms.update_at',
     ]).from('m_shopee as ms').first();
+    return result;
+  }
+  async selectShopeeJobsByID(payload:any){
+    const result = await db.select([
+      'qs.id',
+      'qs.listresi'
+    ]).from('q_shopee as qs').first();
     return result;
   }
   async updateShopeeToken(payload:any) {

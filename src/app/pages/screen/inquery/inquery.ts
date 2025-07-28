@@ -24,8 +24,10 @@ export class Inquery implements OnInit {
   fromtime: Date | undefined;
   totime: Date | undefined;
   value: string | undefined;
+  selectedResi:any;
   //################################
   showGenerateDialog: boolean = false;
+  showProcessResiDialog: boolean = false;
   showErrorDialog: boolean = false;
   ssrStorage = inject(LocalstorageService);
   submitted = false;
@@ -61,6 +63,7 @@ export class Inquery implements OnInit {
       { field: 'datepick', header: 'DATE', class: "text-center", cellclass: "text-center" },
       { field: 'fromtime', header: 'FROM TIME', class: "text-center", cellclass: "text-center" },
       { field: 'totime', header: 'TO TIME', class: "text-center", cellclass: "text-center" },
+      { field: 'totalresi', header: 'INVOICES', class: "text-center", cellclass: "text-center" },
       { field: 'fullname', header: 'CREATED_BY', class: "text-center", cellclass: "text-start" },
       { field: 'created_at', header: 'CREATED_AT', class: "text-center", cellclass: "text-center" },
     ];
@@ -128,8 +131,15 @@ export class Inquery implements OnInit {
     this.loading = true;
     await this._generatePorcess(this.dateForm.value)
   }
+  async confirmJobsProcess() {
+    this.showProcessResiDialog = false;
+    this.loading = true;
+    await this._generateJobProcess();
+    // await this._generatePorcess(this.dateForm.value)
+  }
   cancelGenerate() {
     this.showGenerateDialog = false;
+    this.showErrorDialog=false;
   }
   cancelError() {
     this.showErrorDialog = false;
@@ -170,6 +180,38 @@ export class Inquery implements OnInit {
         // this.showConfirmDialog = true;
       });
   }
+  async _generateJobProcess(){
+      fetch('/v2/shopee/gen_qshopee_job', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(this.selectedResi)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/gen_jobs_qshopee 0", res);
+        if (!res.ok) throw new Error('gen_jobs_qshopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/gen_jobs_qshopee 1", data);
+        if (data.code === 20000) {
+          // const dataRecords = data.data;
+          // this.QueriesData = dataRecords;
+          this.loading = false;
+
+        } else {
+          this.loading = false
+          // this.listMenu = [];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/gen_qshopee", err);
+        // this.showConfirmDialog = true;
+      });
+  }
+
   async _getDailyPorcess() {
     fetch('/v2/shopee/get_qshopee', {
       method: 'GET',
@@ -219,6 +261,16 @@ export class Inquery implements OnInit {
   timeToSeconds(time: string): number {
     const [h, m, s] = time.split(':').map(Number);
     return h * 3600 + m * 60 + s;
+  }
+  _processRow(rowData:any) {
+    console.log(rowData);
+    this.showProcessResiDialog = true;
+    this.selectedResi = rowData
+
+
+  }
+  _cancelProcessRow() {
+    this.showProcessResiDialog = false;
   }
 }
 interface TimeCombo {

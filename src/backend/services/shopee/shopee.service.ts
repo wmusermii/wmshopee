@@ -70,9 +70,7 @@ export class ShopeeService {
     }
     const newToken = result;
     console.log('✅ Shopee token refreshed:', result);
-    await this.shopeeRepo.updateShopeeToken({access_token:newToken.access_token, refresh_token:newToken.refresh_token, update_at:new Date().toISOString()});
-
-    // console.log('✅ Shopee token refreshed:', result);
+    await this.shopeeRepo.updateShopeeToken({ access_token: newToken.access_token, refresh_token: newToken.refresh_token, update_at: await this.getLocalDateTime() });
     return newToken;
   }
 
@@ -89,17 +87,16 @@ export class ShopeeService {
       sign,
       ...queryParams
     });
-
     const url = `${cred.base_api}${path}?${searchParams.toString()}`;
     const res = await fetch(url);
     const result = await res.json();
-
-    if (result.error === 'error_auth') {
+    // logInfo('✅✅ fetchWithAuth :', result)
+    if (result.error === 'invalid_acceess_token') {
       // Refresh token and retry once
+      logInfo('✅ Shopee get List Error:', result)
       const newToken = await this.refreshToken();
       timestamp = getTimestamp();
       sign = this.generateSignature(path, timestamp, newToken.access_token, cred.shop_id, cred.client_id, cred.client_secret);
-
       const retryParams = new URLSearchParams({
         partner_id: cred.client_id,
         shop_id: cred.shop_id,
@@ -108,30 +105,89 @@ export class ShopeeService {
         sign,
         ...queryParams
       });
-
       const retryUrl = `${cred.base_api}${path}?${retryParams.toString()}`;
       const retryRes = await fetch(retryUrl);
+      // logInfo('✅ Shopee get List Setelah fetch :', retryRes.json)
       return await retryRes.json();
     }
 
     return result;
   }
 
-  public async getOrderList(timeFrom: number, timeTo: number): Promise<any> {
+  public async getOrderList(datepick: string, timeFrom: string, timeTo: string): Promise<any[]> {
     const path = '/api/v2/order/get_order_list';
-    return this.fetchWithAuth(path, {
-      time_from: String(timeFrom),
-      time_to: String(timeTo),
-      page_size: '50',
-      response_optional_fields: 'order_status,shipping_carrier' // tambahkan field sesuai kebutuhan
-    });
+
+    const timestamp_from = await this.toTimestampWIB(datepick, timeFrom); // e.g. 01:00 WIB
+    const timestamp_to = await this.toTimestampWIB(datepick, timeTo);     // e.g. 04:00 WIB
+
+    let cursor = '';
+    let hasMore = true;
+    const allOrders: any[] = [];
+
+    while (hasMore) {
+      const params: Record<string, any> = {
+        time_range_field: 'create_time',
+        time_from: timestamp_from,
+        time_to: timestamp_to,
+        page_size: '100',
+        response_optional_fields: 'order_status'
+      };
+
+      if (cursor) {
+        params['cursor'] = cursor;
+      }
+
+      const result = await this.fetchWithAuth(path, params);
+
+      const orders = result?.response?.order_list || [];
+      if (orders.length > 0) {
+        allOrders.push(...orders);
+      }
+
+      hasMore = result?.response?.more === true;
+      cursor = result?.response?.next_cursor || '';
+    }
+
+    console.log('✅ Total Orders Fetched:', allOrders.length);
+
+    return allOrders;
   }
 
-  public async getOrderDetail(orderSnList: string[]): Promise<any> {
+  public async getOrderDetail(orderSnList: string[]): Promise<any[]> {
     const path = '/api/v2/order/get_order_detail';
-    return this.fetchWithAuth(path, {
-      order_sn_list: orderSnList.join(','),
-      response_optional_fields: 'buyer_user_id,total_amount,region,buyer_username,order_status' // tambahkan sesuai kebutuhan
-    });
+    const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+
+    const allDetails: any[] = [];
+
+    for (const chunk of chunks) {
+      const res = await this.fetchWithAuth(path, {
+        order_sn_list: chunk,
+        response_optional_fields: 'order_status,item_list,total_amount' // sesuaikan kebutuhan
+      });
+
+      if (res && res.response && res.response.order_list) {
+        allDetails.push(...res.response.order_list);
+      }
+    }
+
+    return allDetails;
+  }
+
+  async getLocalDateTime(): Promise<string> {
+    const now = new Date();
+    const offsetMs = now.getTimezoneOffset() * 60000;
+    const local = new Date(now.getTime() - offsetMs);
+    return local.toISOString().slice(0, 19).replace('T', ' ');
+  }
+  async toTimestampWIB(date: string, time: string): Promise<number> {
+    const localDateTime = new Date(`${date}T${time}+07:00`); // Menggabungkan sebagai zona WIB
+    return Math.floor(localDateTime.getTime() / 1000); // Ubah ke detik
+  }
+  chunkArray<T>(arr: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
   }
 }

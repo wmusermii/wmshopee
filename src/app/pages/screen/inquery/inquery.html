@@ -43,7 +43,7 @@
         </div>
         <!-- Text Section -->
         <div class="flex-1">
-          <h2 class="text-lg font-semibold text-gray-800 mb-2">Generate Jobs</h2>
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">Inquery From Shopee</h2>
           <p class="text-gray-700">
             You will generate
             <strong>{{ dateForm.value.date | date:'fullDate' }}</strong> on
@@ -51,7 +51,7 @@
             <strong>{{ dateForm.value.totime }}</strong>.
             <br />
             And this will remove all data generated before! <br />
-            Please dont close or refres the browser until finished.
+            Please dont close or refresh the browser until its finished.
           </p>
         </div>
       </div>
@@ -89,9 +89,46 @@
       </div>
     </div>
   </div>
+  <div *ngIf="showProcessResiDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">
+      <div class="flex items-start gap-4">
+        <!-- Icon Section -->
+        <div class="pt-1">
+          <svg class="w-10 h-10 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M8.257 3.099c.366-.774 1.42-.774 1.786 0l6.518 13.8A1 1 0 0 1 15.618 18H4.382a1 1 0 0 1-.943-1.101l6.518-13.8zM11 14a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm-1-2a.75.75 0 0 0 .75-.75V8a.75.75 0 0 0-1.5 0v3.25c0 .414.336.75.75.75z"
+              clip-rule="evenodd" />
+          </svg>
+          <!-- <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.53-11.47a.75.75 0 00-1.06-1.06L10 8.94 7.53 6.47a.75.75 0 10-1.06 1.06L8.94 10l-2.47 2.47a.75.75 0 101.06 1.06L10 11.06l2.47 2.47a.75.75 0 101.06-1.06L11.06 10l2.47-2.47z" clip-rule="evenodd" />
+</svg> -->
+        </div>
+        <!-- Text Section -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">Generate Jobs</h2>
+          <p class="text-gray-700">
+            You will generate <strong> {{ selectedResi.totalresi }} jobs </strong> for in range
+            <strong>{{ selectedResi.fromtime }}</strong> to
+            <strong>{{ selectedResi.totime }}</strong>.
+            at <strong>{{ selectedResi.datepick}}</strong>
+            <br />
+            And this will remove selected data from the Queue list! <br />
+            Please dont close or refresh the browser until its finished.
+          </p>
+        </div>
+      </div>
+      <!-- Button Section -->
+      <div class="flex justify-center gap-4 mt-6">
+        <p-button label="Yes, Process" severity="warn" (click)="confirmJobsProcess()"></p-button>
+        <p-button label="Cancel" severity="secondary" (click)="cancelGenerate()"></p-button>
+      </div>
+    </div>
+  </div>
+
+
   <div class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
-    <h3>Invoices Ready</h3>
-    <p-table [columns]="cols" [value]="QueriesData" class="w-full" size="small" stripedRows="true" showGridlines="true"
+    <h3>Invoices Queue</h3>
+    <p-table [columns]="cols" [value]="QueriesData" class="w-full" stripedRows="true" showGridlines="true"
       [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }" [rowsPerPageOptions]="[5, 10, 20]">
       <ng-template pTemplate="header" let-columns>
         <tr>
@@ -99,6 +136,7 @@
             [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
             {{ col.header }}<p-sortIcon field="col.field" />
           </th>
+          <th style="text-align: center;">Action</th>
         </tr>
       </ng-template>
 
@@ -108,6 +146,15 @@
             [ngStyle]="{ 'text-align': col.cellclass === 'text-center' ? 'center' : (col.cellclass === 'text-end' ? 'right' : 'left') }"
             *ngFor="let col of columns">
             {{ rowData[col.field] }}
+          </td>
+          <!-- Kolom ACTION -->
+          <td style="text-align: center;">
+            <!-- <button *ngIf="rowData.totalresi > 0" pButton type="button" label="Process" icon="pi pi-cog"
+              class="p-button-sm p-button-rounded p-button-success"
+              >
+            </button> -->
+            <button pButton type="button" class="w-full" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <!-- (click)="processRow(rowData)" -->
           </td>
         </tr>
       </ng-template>

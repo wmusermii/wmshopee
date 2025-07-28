@@ -35,6 +35,35 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function generateQShopeeJobs(req: Request, res: Response, next: NextFunction) {
+  //     {
+//   "id": 2,
+//   "datepick": "2025-07-28",
+//   "fromtime": "05:00:01",
+//   "totime": "08:00:01",
+//   "created_by": "102345690",
+//   "fullname": "Super Admin",
+//   "status": 0,
+//   "totalresi": 112,
+//   "created_at": "2025-07-28 20:02:32"
+// }
+  const { id,datepick,fromtime,totime,created_by,fullname,status,totalresi,created_at } = req.body;
+  try {
+    let bodyPayload = {id:id}
+    const userInfo:any = req.userInfo;
+    const jobsResult = await apiService.qShopeeJobs(bodyPayload,userInfo);
+    // if(inserResult.code === 20000 && inserResult.data.length > 0) {
+      await ResponseHelper.send(res, jobsResult);return;
+    // } else {
+    //   await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+    //   return;
+    // }
+  } catch (error) {
+    logError("Error auth.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
 export async function getQShopee(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getQSHopee");
