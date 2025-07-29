@@ -33,6 +33,7 @@ export class Inquery implements OnInit {
   ssrStorage = inject(LocalstorageService);
   submitted = false;
   QueriesData: QueryFields[] = [];
+  QueriesDataPos: QueryFields[] = [];
   cols!: Column[];
   errorMessage: any = { error: false, severity: "info", message: "ini test", icon: "pi pi-times" };
   loading = false;
@@ -262,7 +263,42 @@ export class Inquery implements OnInit {
         console.log("Response Error Catch /shopee/get_qshopee", err);
       });
   }
-
+  async _getViewPosProcess() {
+    fetch('/v2/shopee/get_positem', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_positem", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/get_positem ", data);
+        if (data.code === 20000) {
+          const dataRecordsTemp = cloneDeep(data.data);
+          console.log("Data View ", dataRecordsTemp);
+          // dataRecordsTemp.forEach((record: { status: number | string }) => {
+          //   if (record.status === 0) {
+          //     record.status = 'OPEN';
+          //   } else if (record.status === 1) {
+          //     record.status = 'PROCEED';
+          //   } else {
+          //     record.status = 'UNKNOWN';
+          //   }
+          // });
+          this.QueriesDataPos = dataRecordsTemp;
+        } else {
+          this.QueriesDataPos = [];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_qshopee", err);
+      });
+  }
   isTimeConflict(): boolean {
     const inputFrom = this.dateForm.get('fromtime')?.value;
     const inputTo = this.dateForm.get('totime')?.value;

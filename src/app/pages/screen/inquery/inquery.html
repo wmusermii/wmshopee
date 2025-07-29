@@ -126,7 +126,7 @@
   </div>
 
 
-  <div class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
+  <div *ngIf="!showProcedPostDialog" class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
     <h3>Invoices Queue</h3>
     <p-table [columns]="cols" [value]="QueriesData" class="w-full" stripedRows="true" showGridlines="true"
       [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }" [rowsPerPageOptions]="[5, 10, 20]">
@@ -162,7 +162,41 @@
     </p-table>
   </div>
 
+  <div *ngIf="showProcedPostDialog" class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
+    <h3>Preparation Items</h3>
+    <p-table [columns]="cols" [value]="QueriesDataPos" class="w-full" stripedRows="true" showGridlines="true"
+      [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }" [rowsPerPageOptions]="[5, 10, 20]">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th [pSortableColumn]="col.field" *ngFor="let col of columns"
+            [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
+            {{ col.header }}<p-sortIcon field="col.field" />
+          </th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </ng-template>
 
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td
+            [ngStyle]="{ 'text-align': col.cellclass === 'text-center' ? 'center' : (col.cellclass === 'text-end' ? 'right' : 'left') }"
+            *ngFor="let col of columns">
+            {{ rowData[col.field] }}
+          </td>
+          <!-- Kolom ACTION -->
+          <td style="text-align: center;">
+            <!-- <button *ngIf="rowData.totalresi > 0" pButton type="button" label="Process" icon="pi pi-cog"
+              class="p-button-sm p-button-rounded p-button-success"
+              >
+            </button> -->
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" severity="info" pButton type="button" class="w-full" icon="pi pi-search" label="Sort Items" (click)="_viewPostItem(rowData)"></button>
+            <!-- (click)="processRow(rowData)" -->
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 
 
 

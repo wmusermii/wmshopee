@@ -52,14 +52,15 @@ export class ApiService {
     const shopeeResult = await this.shopeeRepo.selectQShopeeAll();
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to insert data!");
     //################## Berhasil Isi #######################
-    // if(shopeeResult){
-    const rowQueryShopee = await this.shopeeRepo.selectQShopeeAll();
+     const rowQueryShopee = await this.shopeeRepo.selectQShopeeAll();
     if (!rowQueryShopee) {
       return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     } else {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
-    // }
+  }
+  async viewShopeePosByID(payload:any, userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN({});
   }
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);
@@ -93,7 +94,8 @@ export class ApiService {
           model_id: item.model_id,
           model_name: item.model_name,
           model_quantity_purchased: item.model_quantity_purchased,
-          image_url: item.image_info?.image_url || null
+          image_url: item.image_info?.image_url || null,
+          create_time:this.toDatetimeString(order.create_time)
         });
       });
     });
@@ -118,77 +120,4 @@ export class ApiService {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 }
-//   {
-//   "advance_package": false,
-//   "booking_sn": "",
-//   "cod": false,
-//   "create_time": 1753664279,
-//   "currency": "IDR",
-//   "days_to_ship": 2,
-//   "item_list": [
-//     {
-//       "add_on_deal": false,
-//       "add_on_deal_id": 0,
-//       "image_info": {
-//         "image_url": "https://cf.shopee.co.id/file/sg-11134201-23010-8vtqpav1gmmv88_tn"
-//       },
-//       "is_b2c_owned_item": false,
-//       "is_prescription_item": false,
-//       "item_id": 23016158204,
-//       "item_name": "Gesper Sabuk Ikat Pinggang Anak Sekolah SD SMP SMA Dan Pramuka  Madrasah Laki laki perempuan",
-//       "item_sku": "",
-//       "main_item": false,
-//       "model_discounted_price": 10672,
-//       "model_id": 183672608214,
-//       "model_name": "GESPER SD 90cm",
-//       "model_original_price": 10672,
-//       "model_quantity_purchased": 1,
-//       "model_sku": "",
-//       "order_item_id": 23016158204,
-//       "product_location_id": [
-//         "IDZ"
-//       ],
-//       "promotion_group_id": 0,
-//       "promotion_id": 0,
-//       "promotion_type": "",
-//       "weight": 0.055,
-//       "wholesale": false
-//     },
-//     {
-//       "add_on_deal": false,
-//       "add_on_deal_id": 0,
-//       "image_info": {
-//         "image_url": "https://cf.shopee.co.id/file/id-11134207-7qul2-lhfzoxjhl6qcb8_tn"
-//       },
-//       "is_b2c_owned_item": false,
-//       "is_prescription_item": false,
-//       "item_id": 23820424910,
-//       "item_name": "Dasi SD Sekolah Bordir Sablon Putra Putri Anak",
-//       "item_sku": "",
-//       "main_item": false,
-//       "model_discounted_price": 7280,
-//       "model_id": 235263566887,
-//       "model_name": "Karet Bordir,Putra",
-//       "model_original_price": 7280,
-//       "model_quantity_purchased": 1,
-//       "model_sku": "",
-//       "order_item_id": 23820424910,
-//       "product_location_id": [
-//         "IDZ"
-//       ],
-//       "promotion_group_id": 0,
-//       "promotion_id": 0,
-//       "promotion_type": "",
-//       "weight": 0.02,
-//       "wholesale": false
-//     }
-//   ],
-//   "message_to_seller": "",
-//   "order_sn": "250728AJGGSCB3",
-//   "order_status": "SHIPPED",
-//   "region": "ID",
-//   "reverse_shipping_fee": 0,
-//   "ship_by_date": 1753721999,
-//   "total_amount": 21952,
-//   "update_time": 1753688433
-// }
+

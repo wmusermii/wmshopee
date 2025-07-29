@@ -36,6 +36,23 @@ export class ShopeeRepository {
     const query = await db('q_shopee_invoices_detail').insert(payload);
     return await query;
   }
+
+  async viewQShopeePosBySN(payload:any){
+    const query = await db('q_shopee_invoices_detail')
+    .select(
+      'item_id',
+      'item_name',
+      'model_name',
+      'image_url'
+    )
+    .sum({ qty: 'model_quantity_purchased' })
+    .where('status', 0)
+    .groupBy('item_id')
+    .orderBy('qty', 'desc');
+    return await query;
+  }
+
+
   async selectQShopeeAll() {
     const today = new Date().toISOString().substring(0, 10);
     const result = await db.select([
@@ -53,6 +70,7 @@ export class ShopeeRepository {
     // .andWhere('qs.status', 0)
     // return await query;
   }
+
   //################# SHOPEE ATTRB ###############################
   async selectShopeeAPIAtribute(){
     const result = await db.select([
