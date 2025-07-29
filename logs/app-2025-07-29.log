@@ -1,0 +1,26 @@
+[2025-07-29 09:37:21] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\eb3d8565-8328-4d66-b7a7-96bad755867b\data\admdb.sqlite
+[2025-07-29 09:37:24] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\58872e8e-21c0-4547-8a32-1680cc170fb5\data\admdb.sqlite
+[2025-07-29 09:37:24] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1d584d6f-2567-444a-b6da-c1c8f155e2ad\data\admdb.sqlite
+[2025-07-29 09:37:24] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d309e891-048b-470a-aae3-d621facc8ce3\data\admdb.sqlite
+[2025-07-29 09:37:40] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-29 09:38:00] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33b084c057f6039f4f1724700"}
+[2025-07-29 09:38:01] INFO: Update data token : 
+[2025-07-29 09:38:02] INFO: ✅ Sudah di List  103
+[2025-07-29 09:38:51] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-29 09:40:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\80c666ba-780b-473b-9e1a-2bc36fb4055e\data\admdb.sqlite
+[2025-07-29 09:40:49] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0db6b223-7165-4e6a-bcbf-614e1edbc0df\data\admdb.sqlite
+[2025-07-29 09:40:49] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\8b08772d-2c4a-4da6-9db2-3ca2ccdae268\data\admdb.sqlite
+[2025-07-29 09:40:49] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\dd05089d-03c8-40e7-a4d6-ac8219384c35\data\admdb.sqlite
+[2025-07-29 09:41:36] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-29 09:41:46] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33b08597d125e1a327a1a2e00"}
+[2025-07-29 09:41:47] INFO: Update data token : 
+[2025-07-29 09:41:47] INFO: ✅ Sudah di List  15
+[2025-07-29 09:44:17] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\34535d83-e3c8-4047-921a-a3645ddb32fb\data\admdb.sqlite
+[2025-07-29 09:44:19] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\aab02501-591b-4aac-a9e6-8d497ec673b0\data\admdb.sqlite
+[2025-07-29 09:44:19] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\09953401-f024-48cc-9d77-1b4955be14bf\data\admdb.sqlite
+[2025-07-29 09:44:19] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\06d128e8-8eca-4962-9ac3-e0376cdbac5a\data\admdb.sqlite
+[2025-07-29 09:44:31] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-07-29 09:44:40] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33b0863ce35bbaa662010d900"}
+[2025-07-29 09:44:44] INFO: Update data token : 
+[2025-07-29 09:44:44] INFO: ✅ Sudah di List  15
+[2025-07-29 09:45:32] INFO: JOB RESPONSE  {"code":20000,"message":"Records found","data":[{"id":2,"datepick":"2025-07-29","fromtime":"00:00:01","totime":"03:00:01","created_by":"102345690","fullname":"Super Admin","status":1,"totalresi":15,"created_at":"2025-07-29 09:44:44"}]}

@@ -130,6 +130,7 @@ export class ShopeeService {
         time_from: timestamp_from,
         time_to: timestamp_to,
         page_size: '100',
+        order_status: 'READY_TO_SHIP',
         response_optional_fields: 'order_status'
       };
 

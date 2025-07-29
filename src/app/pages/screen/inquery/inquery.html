@@ -153,7 +153,8 @@
               class="p-button-sm p-button-rounded p-button-success"
               >
             </button> -->
-            <button pButton type="button" class="w-full" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
             <!-- (click)="processRow(rowData)" -->
           </td>
         </tr>

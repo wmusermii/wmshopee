@@ -32,6 +32,10 @@ export class ShopeeRepository {
    const query = await db('q_shopee_invoices').insert(payload);
     return await query;
   }
+  async saveQShopeeInvoicesDetail(payload:any[]){
+    const query = await db('q_shopee_invoices_detail').insert(payload);
+    return await query;
+  }
   async selectQShopeeAll() {
     const today = new Date().toISOString().substring(0, 10);
     const result = await db.select([
@@ -44,9 +48,9 @@ export class ShopeeRepository {
       'qs.status',
       'qs.totalresi',
       'qs.created_at'
-    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).andWhere('qs.status', 0).orderBy("qs.created_at","desc");
+    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc");
     return result;
-
+    // .andWhere('qs.status', 0)
     // return await query;
   }
   //################# SHOPEE ATTRB ###############################

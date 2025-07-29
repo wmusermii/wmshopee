@@ -9,7 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { DatetimeComponent } from '../../../layouts/directive/datetime/datetime.component';
 import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorage.service';
-
+import { cloneDeep } from 'lodash';
 @Component({
   standalone: true,
   selector: 'app-inquery',
@@ -24,10 +24,11 @@ export class Inquery implements OnInit {
   fromtime: Date | undefined;
   totime: Date | undefined;
   value: string | undefined;
-  selectedResi:any;
+  selectedResi: any;
   //################################
   showGenerateDialog: boolean = false;
   showProcessResiDialog: boolean = false;
+  showProcedPostDialog: boolean = false;
   showErrorDialog: boolean = false;
   ssrStorage = inject(LocalstorageService);
   submitted = false;
@@ -60,6 +61,7 @@ export class Inquery implements OnInit {
 
     this.cols = [
       { field: 'id', header: '#', class: "text-center", cellclass: "text-end" },
+      { field: 'status', header: 'STATUS', class: "text-center", cellclass: "text-center" },
       { field: 'datepick', header: 'DATE', class: "text-center", cellclass: "text-center" },
       { field: 'fromtime', header: 'FROM TIME', class: "text-center", cellclass: "text-center" },
       { field: 'totime', header: 'TO TIME', class: "text-center", cellclass: "text-center" },
@@ -84,7 +86,7 @@ export class Inquery implements OnInit {
     }
     if (this.isTimeConflict()) {
       // alert("⛔ Waktu yang Anda generate berada pada rentang waktu yang sudah ada!");
-      this.showErrorDialog=true;
+      this.showErrorDialog = true;
       return;
     }
 
@@ -139,7 +141,7 @@ export class Inquery implements OnInit {
   }
   cancelGenerate() {
     this.showGenerateDialog = false;
-    this.showErrorDialog=false;
+    this.showErrorDialog = false;
   }
   cancelError() {
     this.showErrorDialog = false;
@@ -161,15 +163,19 @@ export class Inquery implements OnInit {
       .then(data => {
         console.log("Response dari API /shopee/gen_qshopee 1", data);
         if (data.code === 20000) {
-          const dataRecords = data.data;
-          this.QueriesData = dataRecords;
-          // const datamenuString = data.data.menublob;
-          // if (datamenuString) {
-          //   this.listMenu = JSON.parse(datamenuString);
-          //   this.replaceLogoutWithCommand.call(this,this.listMenu);
-          // }
+          // const dataRecords = data.data;
+          const dataRecordsTemp = cloneDeep(data.data);;
+          dataRecordsTemp.forEach((record: { status: number | string }) => {
+            if (record.status === 0) {
+              record.status = 'OPEN';
+            } else if (record.status === 1) {
+              record.status = 'PROCEED';
+            } else {
+              record.status = 'UNKNOWN';
+            }
+          });
+          this.QueriesData = dataRecordsTemp;
           this.loading = false;
-
         } else {
           this.loading = false
           // this.listMenu = [];
@@ -180,8 +186,8 @@ export class Inquery implements OnInit {
         // this.showConfirmDialog = true;
       });
   }
-  async _generateJobProcess(){
-      fetch('/v2/shopee/gen_qshopee_job', {
+  async _generateJobProcess() {
+    fetch('/v2/shopee/gen_qshopee_job', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -197,8 +203,17 @@ export class Inquery implements OnInit {
       .then(data => {
         console.log("Response dari API /shopee/gen_jobs_qshopee 1", data);
         if (data.code === 20000) {
-          const dataRecords = data.data;
-          this.QueriesData = dataRecords;
+          const dataRecordsTemp = cloneDeep(data.data);;
+          dataRecordsTemp.forEach((record: { status: number | string }) => {
+            if (record.status === 0) {
+              record.status = 'OPEN';
+            } else if (record.status === 1) {
+              record.status = 'PROCEED';
+            } else {
+              record.status = 'UNKNOWN';
+            }
+          });
+          this.QueriesData = dataRecordsTemp;
           this.loading = false;
 
         } else {
@@ -228,8 +243,17 @@ export class Inquery implements OnInit {
       .then(data => {
         console.log("Response dari API /shopee/get_qshopee ", data);
         if (data.code === 20000) {
-          const dataRecords = data.data;
-          this.QueriesData = dataRecords;
+          const dataRecordsTemp = cloneDeep(data.data);;
+          dataRecordsTemp.forEach((record: { status: number | string }) => {
+            if (record.status === 0) {
+              record.status = 'OPEN';
+            } else if (record.status === 1) {
+              record.status = 'PROCEED';
+            } else {
+              record.status = 'UNKNOWN';
+            }
+          });
+          this.QueriesData = dataRecordsTemp;
         } else {
           this.QueriesData = [];
         }
@@ -262,13 +286,20 @@ export class Inquery implements OnInit {
     const [h, m, s] = time.split(':').map(Number);
     return h * 3600 + m * 60 + s;
   }
-  _processRow(rowData:any) {
+  _processRow(rowData: any) {
     console.log(rowData);
     this.showProcessResiDialog = true;
     this.selectedResi = rowData
-
-
   }
+
+   _viewPostItem(rowData: any) {
+    console.log("Melihat Post Barang yang di beli",rowData);
+    this.showProcedPostDialog = true;
+    // this.showProcessResiDialog = true;
+    // this.selectedResi = rowData
+   }
+
+
   _cancelProcessRow() {
     this.showProcessResiDialog = false;
   }
