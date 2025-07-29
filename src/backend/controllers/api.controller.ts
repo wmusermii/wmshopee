@@ -52,12 +52,10 @@ export async function generateQShopeeJobs(req: Request, res: Response, next: Nex
     let bodyPayload = {id:id}
     const userInfo:any = req.userInfo;
     const jobsResult = await apiService.qShopeeJobs(bodyPayload,userInfo);
-    // if(inserResult.code === 20000 && inserResult.data.length > 0) {
+    logInfo("JOB RESPONSE ", jobsResult)
+
       await ResponseHelper.send(res, jobsResult);return;
-    // } else {
-    //   await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
-    //   return;
-    // }
+
   } catch (error) {
     logError("Error auth.controller : ", error)
     // next(error);

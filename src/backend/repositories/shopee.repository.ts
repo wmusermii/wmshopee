@@ -5,8 +5,6 @@ export class ShopeeRepository {
   async saveQShopee(payload:any, userInfo:any) {
     // Pastikan fromdate diformat jadi YYYY-MM-DD
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); // hasilnya "2025-07-24"
-
-    logInfo("Data datepick : ",formattedDate)
     const query = await db('q_shopee').insert(
         {
           fromtime: payload.fromtime,
@@ -21,6 +19,19 @@ export class ShopeeRepository {
 
     return await query;
   }
+  async updateQShopee(payload:any) {
+    const query = await db('q_shopee').update(
+        {
+          status: 1
+        }
+      ).where("id", payload.id).returning('id');
+
+    return await query;
+  }
+  async saveQShopeeInvoices(payload:any[]) {
+   const query = await db('q_shopee_invoices').insert(payload);
+    return await query;
+  }
   async selectQShopeeAll() {
     const today = new Date().toISOString().substring(0, 10);
     const result = await db.select([
@@ -33,7 +44,7 @@ export class ShopeeRepository {
       'qs.status',
       'qs.totalresi',
       'qs.created_at'
-    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc");
+    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).andWhere('qs.status', 0).orderBy("qs.created_at","desc");
     return result;
 
     // return await query;
@@ -58,7 +69,7 @@ export class ShopeeRepository {
     const result = await db.select([
       'qs.id',
       'qs.listresi'
-    ]).from('q_shopee as qs').first();
+    ]).from('q_shopee as qs').where("id",payload.id).first();
     return result;
   }
   async updateShopeeToken(payload:any) {

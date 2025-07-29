@@ -197,8 +197,8 @@ export class Inquery implements OnInit {
       .then(data => {
         console.log("Response dari API /shopee/gen_jobs_qshopee 1", data);
         if (data.code === 20000) {
-          // const dataRecords = data.data;
-          // this.QueriesData = dataRecords;
+          const dataRecords = data.data;
+          this.QueriesData = dataRecords;
           this.loading = false;
 
         } else {
