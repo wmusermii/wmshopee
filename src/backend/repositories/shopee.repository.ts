@@ -52,8 +52,41 @@ export class ShopeeRepository {
     .orderBy('qty', 'desc');
     return await query;
   }
-
-
+  async selectPackagesAvailable() {
+    const query = await db('q_shopee_invoices')
+    .select(
+      'id_q_shopee',
+      'create_time',
+      'order_status',
+      'total_amount',
+      'update_time',
+      'status',
+      'order_sn',
+      'ship_by_date'
+    )
+    .where('status', 0)
+    .orderBy('id_q_shopee', 'asc');
+    return await query;
+  }
+  async selectItemsPackagesAvailable(payload:any) {
+    const query = await db('q_shopee_invoices_detail')
+    .select(
+      'id_q_shopee',
+      'order_sn',
+      'item_id',
+      'item_name',
+      'item_sku',
+      'model_id',
+      'model_name',
+      'model_quantity_purchased as qty',
+      'image_url',
+      'status',
+      'create_time'
+    )
+    .where('status', 0).andWhere('order_sn', payload.order_sn)
+    .orderBy('create_time', 'desc');
+    return await query;
+  }
   async selectQShopeeAll() {
     const today = new Date().toISOString().substring(0, 10);
     const result = await db.select([

@@ -39,6 +39,16 @@ export const routes: Routes = [
        loadComponent:() => import("./pages/screen/inquery/inquery").then(m => m.Inquery)
       },
       {
+       path:'packaging',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/packaging/listinvoice/listinvoice").then(m => m.Listinvoice)
+      },
+      {
+        path: 'packaging/detail',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/screen/packaging/listinvoice/detailinvoice/detailinvoice').then(m => m.Detailinvoice),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

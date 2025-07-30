@@ -59,6 +59,21 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
+  async getPackagesAvailable(userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.selectPackagesAvailable();
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+  async getItemInPackagesAvailable(payload:any, userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.selectItemsPackagesAvailable(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+  async getItemsInPackage(userinfo: any){
+
+  }
   async viewShopeePosByID(payload:any, userinfo: any) {
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     if(!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");

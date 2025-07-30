@@ -129,6 +129,7 @@ export class ShopeeService {
         time_range_field: 'create_time',
         time_from: timestamp_from,
         time_to: timestamp_to,
+        order_status:'READY_TO_SHIP',
         page_size: '100',
         response_optional_fields: 'order_status'
       };

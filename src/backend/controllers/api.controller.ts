@@ -36,17 +36,6 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
   }
 }
 export async function generateQShopeeJobs(req: Request, res: Response, next: NextFunction) {
-  //     {
-//   "id": 2,
-//   "datepick": "2025-07-28",
-//   "fromtime": "05:00:01",
-//   "totime": "08:00:01",
-//   "created_by": "102345690",
-//   "fullname": "Super Admin",
-//   "status": 0,
-//   "totalresi": 112,
-//   "created_at": "2025-07-28 20:02:32"
-// }
   const { id,datepick,fromtime,totime,created_by,fullname,status,totalresi,created_at } = req.body;
   try {
     let bodyPayload = {id:id}
@@ -79,14 +68,52 @@ export async function getQShopee(req: Request, res: Response, next: NextFunction
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+
+
+export async function getPackageJobAvailable(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getPackageJobAvailable");
+    const userInfo:any = req.userInfo;
+    const packageResult = await apiService.getPackagesAvailable(userInfo);
+    if(packageResult.code === 20000 && packageResult.data.length > 0) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function getItemsInPackage(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getItemsInPackage");
+    const { order_sn } = req.body;
+    const userInfo:any = req.userInfo;
+    const payload = {order_sn:order_sn}
+    const packageResult = await apiService.getItemInPackagesAvailable(payload,userInfo);
+    if(packageResult.code === 20000 && packageResult.data.length > 0) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+
 export async function viewQShopeePosItem(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### viewQShopeePosItem");
     const { id } = req.body;
     const userInfo:any = req.userInfo;
     const viewResult = await apiService.viewShopeePosByID({id:id},userInfo);
-    // logInfo("Controller hasil View Result ",viewResult)
-    // await ResponseHelper.send(res,ApiResponse.success(viewResult,"Success"));
     if(viewResult.code === 20000 && viewResult.data.length > 0) {
       await ResponseHelper.send(res,ApiResponse.success(viewResult,"Success"));return;
     } else {
