@@ -153,8 +153,10 @@
               class="p-button-sm p-button-rounded p-button-success"
               >
             </button> -->
-            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
-            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full"
+              icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
+            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" pButton type="button" class="w-full"
+              icon="pi pi-search" label="Sort Items" (click)="_viewPostItem(rowData)" severity="info"></button>
             <!-- (click)="processRow(rowData)" -->
           </td>
         </tr>
@@ -164,38 +166,42 @@
 
   <div *ngIf="showProcedPostDialog" class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
     <h3>Preparation Items</h3>
-    <p-table [columns]="cols" [value]="QueriesDataPos" class="w-full" stripedRows="true" showGridlines="true"
-      [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }" [rowsPerPageOptions]="[5, 10, 20]">
-      <ng-template pTemplate="header" let-columns>
+    <p-table [value]="QueriesDataPos" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]" class="w-full"
+      stripedRows="true" showGridlines="true" [tableStyle]="{ 'min-width': '30rem' }">
+      <ng-template pTemplate="caption">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="javascript:void(0)" (click)="_backtojob()" class="text-blue-600 hover:underline text-sm">&larr; Back to Job</a>
+        </div>
+      </div>
+    </ng-template>
+      <ng-template pTemplate="header">
         <tr>
-          <th [pSortableColumn]="col.field" *ngFor="let col of columns"
-            [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
-            {{ col.header }}<p-sortIcon field="col.field" />
-          </th>
-          <th style="text-align: center;">Action</th>
+          <th>Item</th>
+          <th class="text-right">Qty</th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <ng-template pTemplate="body" let-product>
         <tr>
-          <td
-            [ngStyle]="{ 'text-align': col.cellclass === 'text-center' ? 'center' : (col.cellclass === 'text-end' ? 'right' : 'left') }"
-            *ngFor="let col of columns">
-            {{ rowData[col.field] }}
+          <td>
+            <div class="flex items-start space-x-4">
+              <img [src]="product.image_url"
+                [alt]="product.name" class="w-16 h-16 object-cover rounded" />
+              <div>
+                <div class="font-bold text-lg text-gray-800">{{ product.item_name }}</div>
+                <div class="text-sm text-gray-500">{{ product.model_name }}</div>
+              </div>
+            </div>
           </td>
-          <!-- Kolom ACTION -->
-          <td style="text-align: center;">
-            <!-- <button *ngIf="rowData.totalresi > 0" pButton type="button" label="Process" icon="pi pi-cog"
-              class="p-button-sm p-button-rounded p-button-success"
-              >
-            </button> -->
-            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full" icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
-            <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" severity="info" pButton type="button" class="w-full" icon="pi pi-search" label="Sort Items" (click)="_viewPostItem(rowData)"></button>
-            <!-- (click)="processRow(rowData)" -->
+
+          <td class="text-right align-middle">
+            <span class="text-4xl font-semibold text-blue-700">{{ product.qty }}</span>
           </td>
         </tr>
       </ng-template>
     </p-table>
+
   </div>
 
 

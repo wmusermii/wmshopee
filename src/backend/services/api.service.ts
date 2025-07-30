@@ -60,7 +60,9 @@ export class ApiService {
     }
   }
   async viewShopeePosByID(payload:any, userinfo: any) {
-    const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN({});
+    const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
+    if(!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    return ApiResponse.success(shopeeResult, "Success get data!");
   }
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);

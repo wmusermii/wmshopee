@@ -47,6 +47,7 @@ export class ShopeeRepository {
     )
     .sum({ qty: 'model_quantity_purchased' })
     .where('status', 0)
+    .andWhere('id_q_shopee', payload.id)
     .groupBy('item_id')
     .orderBy('qty', 'desc');
     return await query;

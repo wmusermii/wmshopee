@@ -82,12 +82,15 @@ export async function getQShopee(req: Request, res: Response, next: NextFunction
 export async function viewQShopeePosItem(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### viewQShopeePosItem");
+    const { id } = req.body;
     const userInfo:any = req.userInfo;
-    const inserResult = await apiService.qShopeeGet(userInfo);
-    if(inserResult.code === 20000 && inserResult.data.length > 0) {
-      await ResponseHelper.send(res, inserResult);return;
+    const viewResult = await apiService.viewShopeePosByID({id:id},userInfo);
+    // logInfo("Controller hasil View Result ",viewResult)
+    // await ResponseHelper.send(res,ApiResponse.success(viewResult,"Success"));
+    if(viewResult.code === 20000 && viewResult.data.length > 0) {
+      await ResponseHelper.send(res,ApiResponse.success(viewResult,"Success"));return;
     } else {
-      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"No available data"));
       return;
     }
   } catch (error) {

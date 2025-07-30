@@ -263,13 +263,14 @@ export class Inquery implements OnInit {
         console.log("Response Error Catch /shopee/get_qshopee", err);
       });
   }
-  async _getViewPosProcess() {
+  async _getViewPosProcess(payload:any) {
     fetch('/v2/shopee/get_positem', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
-      }
+      },
+      body: JSON.stringify(payload)
     })
       .then(res => {
         console.log("Response dari API  /shopee/get_positem", res);
@@ -278,19 +279,12 @@ export class Inquery implements OnInit {
       })
       .then(data => {
         console.log("Response dari API /shopee/get_positem ", data);
+        this.loading=false;
         if (data.code === 20000) {
+          this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          console.log("Data View ", dataRecordsTemp);
-          // dataRecordsTemp.forEach((record: { status: number | string }) => {
-          //   if (record.status === 0) {
-          //     record.status = 'OPEN';
-          //   } else if (record.status === 1) {
-          //     record.status = 'PROCEED';
-          //   } else {
-          //     record.status = 'UNKNOWN';
-          //   }
-          // });
-          this.QueriesDataPos = dataRecordsTemp;
+          console.log("Data View ", dataRecordsTemp.data);
+          this.QueriesDataPos = dataRecordsTemp.data;
         } else {
           this.QueriesDataPos = [];
         }
@@ -328,13 +322,15 @@ export class Inquery implements OnInit {
     this.selectedResi = rowData
   }
 
-   _viewPostItem(rowData: any) {
+   async _viewPostItem(rowData: any) {
     console.log("Melihat Post Barang yang di beli",rowData);
-    this.showProcedPostDialog = true;
-    // this.showProcessResiDialog = true;
-    // this.selectedResi = rowData
+    const payload = {id:rowData.id};
+    this.loading= true;
+    await this._getViewPosProcess(payload);
    }
-
+   async _backtojob(){
+      this.showProcedPostDialog=false;
+   }
 
   _cancelProcessRow() {
     this.showProcessResiDialog = false;
