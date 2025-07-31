@@ -83,8 +83,19 @@ export class ShopeeRepository {
       'status',
       'create_time'
     )
-    .where('status', 0).andWhere('order_sn', payload.order_sn)
+    .where('order_sn', payload.order_sn)
     .orderBy('create_time', 'desc');
+    return await query;
+  }
+  async updateItemsPackagesAvailable(payload:any, userInfo:any) {
+
+    const query = await db('q_shopee_invoices_detail').update(
+        {
+          status: 1,
+          updated_by: userInfo.userid,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+        }
+      ).where("id_q_shopee", payload.id_q_shopee).andWhere("order_sn",payload.order_sn).andWhere("item_id",payload.item_id).returning('id_q_shopee');
     return await query;
   }
   async selectQShopeeAll() {

@@ -4,6 +4,44 @@
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6">
   <h1 class="text-xl font-bold m-2 p-2">Order {{jobOrderSN}}</h1>
+  <p-dataview [value]="listItem" layout="list" [rows]="5" [paginator]="true">
+  <ng-template #list let-items>
+    <div class="space-y-4">
+      <div
+        *ngFor="let item of items"
+        class="bg-white shadow-md rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 transition hover:shadow-lg cursor-pointer"
+        (click)="onClickInvoice(item)"
+      >
+        <!-- Left Image -->
+        <img
+          [src]="item.image_url"
+          alt="Product Image"
+          class="w-20 h-20 object-cover rounded-md border"
+        />
+
+        <!-- Middle Content -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-gray-800 m-0">
+            {{ item.item_name }}
+          </h2>
+          <p class="text-md text-gray-500 m-0 p-0">{{ item.model_name }}</p>
+          <p class="text-md text-gray-500">Status Jobs — {{ getStatus(item.status) }}</p>
+        </div>
+
+        <!-- Qty as big number -->
+        <div class="self-end md:self-center">
+          <span class="text-4xl font-semibold text-green-600">
+            {{ item.qty }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dataview>
+<p-button label="PRINT THIS JOB" *ngIf="isDoneChecked" icon="pi pi-check" styleClass="w-full" size="large"></p-button>
+
+<p-button label="NEXT JOB" *ngIf="isEmptyFirst" icon="pi pi-check" styleClass="w-full" variant="outlined" severity="warn" size="large"></p-button>
+
   <div *ngIf="loading"
     class="absolute inset-0 flex items-center justify-center rounded-md z-50 bg-[rgba(255,255,255,0.5)]">
     <div role="status">
@@ -19,4 +57,33 @@
       <span class="sr-only">Loading...</span>
     </div>
   </div>
+  <!-- MODAL DIALOG -->
+<div *ngIf="selectedItem" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md relative p-4">
+
+    <!-- Close Button -->
+    <button class="absolute top-2 right-2 text-gray-500 hover:text-black" (click)="closeDialog()">
+      <i class="pi pi-times text-xl"></i>
+    </button>
+
+    <!-- Image -->
+    <img [src]="selectedItem?.image_url" alt="Item Image" class="w-full rounded mb-4" />
+
+    <!-- Nama Barang -->
+    <h2 class="text-xl font-bold text-start text-gray-800 text-center m-0 p-0">{{ selectedItem?.item_name }}</h2>
+
+    <!-- Model -->
+    <p class="text-sm text-gray-500 text-start m-0 p-0">{{ selectedItem?.model_name }}</p>
+
+    <!-- Qty besar -->
+    <div class="text-5xl font-bold text-green-600 text-center mb-6">
+      {{ selectedItem?.qty }}
+    </div>
+
+    <!-- Button -->
+    <p-button label="CHECKED" icon="pi pi-check" styleClass="w-full" (click)="closeSubmitDialog()"></p-button>
+  </div>
+</div>
+
+
 </main>
