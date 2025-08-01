@@ -1,0 +1,5 @@
+[2025-08-01 08:58:39] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-01 08:59:09] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33b441a9ea71606467bf2b200"}
+[2025-08-01 08:59:09] INFO: Update data token : 
+[2025-08-01 08:59:10] INFO: ✅ Sudah di List  20
+[2025-08-01 08:59:38] INFO: ✅ Sudah di List  44

@@ -87,6 +87,28 @@ export async function getPackageJobAvailable(req: Request, res: Response, next: 
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function checkPackageTaken(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getItemsInPackage");
+    const { order_sn } = req.body;
+    const userInfo:any = req.userInfo;
+    const payload = {order_sn:order_sn}
+    const packageResult = await apiService.getPackagesIstaken(payload);
+    if(packageResult.code === 20000 && packageResult.data.length > 0) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+
+
 export async function getItemsInPackage(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getItemsInPackage");

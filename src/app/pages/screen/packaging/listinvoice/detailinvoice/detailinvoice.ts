@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DatetimeComponent } from '../../../../../layouts/directive/datetime/datetime.component';
 import { LocalstorageService } from '../../../../../guard/ssr/localstorage/localstorage.service';
 import { cloneDeep } from 'lodash';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-detailinvoice',
@@ -27,6 +28,7 @@ export class Detailinvoice implements OnInit, OnDestroy {
   ssrStorage = inject(LocalstorageService);
   loading = false;
   selectedItem: any = null;
+  constructor(private router: Router) { }
   async ngOnInit(): Promise<void> {
     console.log("Implement DetailInvoice");
     this.token = this.ssrStorage.getItem('token');
@@ -140,7 +142,12 @@ export class Detailinvoice implements OnInit, OnDestroy {
   async filterValidRecords(data: any[]): Promise<any[]> {
     return data.filter(record => record.status <= 0);
   }
-
+  async _saveNextJob() {
+    this.router.navigate(['/packaging']);
+  }
+  async _nextJob() {
+    this.router.navigate(['/packaging']);
+  }
 }
 interface ItemFields {
   id_q_shopee: number;

@@ -65,8 +65,14 @@ export class ApiService {
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
+   async getPackagesIstaken(payload:any) {
+    const shopeeResult = await this.shopeeRepo.selectPackageIfTaken(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
   async getItemInPackagesAvailable(payload:any, userinfo: any) {
-    const shopeeResult = await this.shopeeRepo.selectItemsPackagesAvailable(payload);
+    const shopeeResult = await this.shopeeRepo.selectItemsPackagesAvailable(payload, userinfo);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");

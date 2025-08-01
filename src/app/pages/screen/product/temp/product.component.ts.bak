@@ -1,0 +1,54 @@
+import { Component, OnInit } from '@angular/core';
+import { DatetimeComponent } from 'src/app/layouts/datetime/datetime.component';
+//##########################PRIMENG################################
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { CommonModule } from '@angular/common';
+@Component({
+    selector: 'app-product',
+    imports: [CommonModule, DatetimeComponent, InputGroupModule, InputGroupAddonModule, ButtonModule, TableModule],
+    templateUrl: './product.component.html',
+    styleUrls: ['./product.component.scss']
+})
+export class ProductComponent implements OnInit {
+  products!: Product[];
+  cols!: Column[];
+  ngOnInit(): void {
+    this.cols = [
+            { field: 'item_id', header: 'ID Product' },
+            { field: 'item_name', header: 'Product' },
+            { field: 'item_condition', header: 'Condition' },
+            { field: 'item_status', header: 'Status' },
+            { field: 'orgBrand', header: 'Brand' },
+            { field: 'filename', header: 'filename' },
+            { field: 'filename', header: 'filename' },
+            { field: 'filename', header: 'filename' }
+        ];
+
+        this.products=[
+          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"id-11134207-7qukz-licq99t2wt0ed6"},
+          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"id-11134207-7rbk2-macg35sirnryca"},
+          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"id-11134207-7r98v-lvu9t8nmnfyi9b"}
+        ]
+
+  }
+
+  _searchClick(){
+    console.log("Button Search di Click");
+  }
+}
+interface Product {
+    item_id: string;
+    item_sku: string;
+    item_name: string;
+    item_condition: string;
+    item_status: string;
+    orgBrand: string;
+    filename:string;
+}
+interface Column {
+    field: string;
+    header: string;
+}

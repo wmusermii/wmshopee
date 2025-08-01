@@ -68,24 +68,79 @@ export class ShopeeRepository {
     .orderBy('id_q_shopee', 'asc');
     return await query;
   }
-  async selectItemsPackagesAvailable(payload:any) {
-    const query = await db('q_shopee_invoices_detail')
+  async selectPackageIfTaken(payload:any) {
+    const query = await db('q_shopee_invoices')
     .select(
       'id_q_shopee',
-      'order_sn',
-      'item_id',
-      'item_name',
-      'item_sku',
-      'model_id',
-      'model_name',
-      'model_quantity_purchased as qty',
-      'image_url',
+      'create_time',
+      'order_status',
+      'total_amount',
+      'update_time',
       'status',
-      'create_time'
+      'order_sn',
+      'ship_by_date'
     )
-    .where('order_sn', payload.order_sn)
-    .orderBy('create_time', 'desc');
+    .where('status','>', 0)
+    .andWhere('order_sn', payload.order_sn).first()
     return await query;
+  }
+  async selectItemsPackagesAvailable(payload:any, userinfo:any) {
+    //#######################CHECK APAKAH q_shopee_invoices SUDAH TERUPDATE STATUSNYA######################
+    const checkStatus = await db('q_shopee_invoices').select('status').where('order_sn', payload.order_sn).first();
+    // console.log("############## ", userinfo);
+    //######################################################
+    if(checkStatus.status === 0) {
+      //################################ UPDATE q_shopee_invoices dulu bahwa sudah di take _1
+      const updateStatus = await db('q_shopee_invoices').update({
+          status: 1,
+          updated_by: userinfo.iduser,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+        }).where('order_sn', payload.order_sn).returning('id_q_shopee');
+
+      //#######################################################
+      if(updateStatus){
+              const query = await db('q_shopee_invoices_detail')
+            .select(
+              'id_q_shopee',
+              'order_sn',
+              'item_id',
+              'item_name',
+              'item_sku',
+              'model_id',
+              'model_name',
+              'model_quantity_purchased as qty',
+              'image_url',
+              'status',
+              'create_time'
+            )
+            .where('order_sn', payload.order_sn)
+            .orderBy('create_time', 'desc');
+            return await query;
+        } else {
+            return [];
+        }
+      } else {
+          const query = await db('q_shopee_invoices_detail')
+            .select(
+              'id_q_shopee',
+              'order_sn',
+              'item_id',
+              'item_name',
+              'item_sku',
+              'model_id',
+              'model_name',
+              'model_quantity_purchased as qty',
+              'image_url',
+              'status',
+              'create_time'
+            )
+            .where('order_sn', payload.order_sn)
+            .orderBy('create_time', 'desc');
+            return await query;
+      }
+  }
+  async updateSelectedPackages(payload:any, userinfo:any){
+
   }
   async updateItemsPackagesAvailable(payload:any, userInfo:any) {
 

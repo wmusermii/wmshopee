@@ -70,7 +70,33 @@
       </div>
     </div>
   </div>
-
+  <div *ngIf="showErrorDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">
+      <div class="flex items-start gap-4">
+        <!-- Icon Section -->
+        <div class="pt-1">
+          <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.53-11.47a.75.75 0 00-1.06-1.06L10 8.94 7.53 6.47a.75.75 0 10-1.06 1.06L8.94 10l-2.47 2.47a.75.75 0 101.06 1.06L10 11.06l2.47 2.47a.75.75 0 101.06-1.06L11.06 10l2.47-2.47z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <!-- Text Section -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">Error Job</h2>
+          <p class="text-gray-700">
+            Somebody has taken <strong> {{ selectedResi?.order_sn }} </strong> Order<br />
+            Please refresh or choose another Order! <br />
+          </p>
+        </div>
+      </div>
+      <!-- Button Section -->
+      <div class="flex justify-center gap-4 mt-6">
+        <p-button label="Ok," severity="warn" (click)="cancelErrorProcess()"></p-button>
+        <!-- <p-button label="Cancel" severity="secondary" (click)="cancelJobProcess()"></p-button> -->
+      </div>
+    </div>
+  </div>
   <div *ngIf="loading"
     class="absolute inset-0 flex items-center justify-center rounded-md z-50 bg-[rgba(255,255,255,0.5)]">
     <div role="status">

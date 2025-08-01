@@ -1,0 +1,91 @@
+<header class="pt-24 max-w-7xl mx-auto px-2 flex items-center justify-between">
+  <h1 class="text-xl font-bold mt-2">Product</h1>
+  <app-datetime></app-datetime>
+</header>
+<header class="pt-5 max-w-7xl mx-auto px-2 flex items-center justify-between">
+  <h1 class="text-xl font-bold mt-2"></h1>
+  <button pButton type="button" label="Tambah Data" icon="pi pi-plus"
+    class="!bg-orange-500 !text-white hover:!bg-orange-600 !border !border-orange-600 p-button p-component !mt-4"></button>
+</header>
+<main class="pt-5 px-10 max-w-7xl mx-auto px-2">
+  <div class="bg-white p-3 rounded shadow mb-3">
+    <p-inputgroup
+      class="w-full group border border-gray-300  rounded overflow-hidden focus-within:border-orange-200 focus-within:ring-1 focus-within:ring-orange-200 transition-all duration-200">
+      <!-- Addon -->
+      <p-inputgroup-addon class="px-3 py-2 text-sm text-gray-700 whitespace-nowrap">
+        <span class="!px-2 !py-2 text-gray-500 font-medium">Cari Produk</span>
+      </p-inputgroup-addon>
+      <!-- Input -->
+      <input pInputText type="text" placeholder="Cari Nama Produk"
+        class="w-full text-sm focus:outline-none focus:ring-0 border-0" />
+      <!-- Addon kanan (Tombol Search) -->
+      <p-inputgroup-addon class="bg-gray-100 px-5 py-1">
+        <button pButton type="button" (click)="_searchClick()" label="Search"
+          class="!bg-transparent !text-gray-500 !border-0 hover:!bg-transparent focus:!shadow-none focus:!ring-0 focus:!outline-none px-5 text-sm font-medium"></button>&nbsp;
+      </p-inputgroup-addon>
+    </p-inputgroup>
+
+    <div class="flex flex-wrap items-center gap-2 py-6">
+      <!-- Teks utama -->
+      <h3 class="text-base font-semibold mr-4">176 Product</h3>
+
+      <!-- Chip: Store -->
+      <span class="inline-flex items-center bg-gray-300 text-gray-500 text-xs font-medium px-3 rounded-full">
+        <!-- Icon -->
+        Store : 1500 Pcs
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide px-2 lucide-store-icon lucide-store">
+          <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+          <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+          <path d="M2 7h20" />
+          <path
+            d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" />
+        </svg>
+      </span>
+
+      <!-- Chip lainnya -->
+      <span class="inline-flex items-center bg-gray-300 text-gray-500 text-xs font-medium px-3 rounded-full">
+        Warehouse : 3000 Pcs
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-warehouse-icon px-2 lucide-warehouse">
+          <path d="M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11" />
+          <path
+            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8z" />
+          <path d="M6 13h12" />
+          <path d="M6 17h12" />
+        </svg>
+      </span>
+    </div>
+    <div class="py-1"></div>
+  <p-table [columns]="cols" [value]="products" [tableStyle]="{ 'min-width': '100%' }"
+    [styleClass]="'w-full rounded-sm overflow-hidden border border-gray-100'">
+    <!-- Header Template -->
+    <ng-template pTemplate="header" let-columns>
+      <tr class="bg-gray-100">
+        <th *ngFor="let col of columns"
+          class="!px-4 !py-3 border-b border-gray-100">
+          <span class="!font-medium !text-sm !text-gray-500">{{ col.header }}</span>
+        </th>
+      </tr>
+    </ng-template>
+
+    <!-- Body Template -->
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr class="hover:bg-gray-50 border-b border-gray-100">
+        <td *ngFor="let col of columns" class="!px-4 !py-1 !text-[14px] text-gray-600 text-center whitespace-nowrap">
+          {{ rowData[col.field] }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+
+  </div>
+
+
+
+
+</main>

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { echo, generateQShopee, generateQShopeeJobs, getItemsInPackage, getPackageJobAvailable, getQShopee, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getItemsInPackage, getPackageJobAvailable, getQShopee, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -18,6 +18,7 @@ router.get('/auth/attrb',asyncHandler(authBearerMiddleware), asyncHandler(attrb)
 
 router.get('/warehouse/get_jobs/available', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem));
 router.get('/warehouse/get_packages', asyncHandler(authBearerMiddleware),asyncHandler(getPackageJobAvailable));
+router.post('/warehouse/check_taken_packages', asyncHandler(authBearerMiddleware),asyncHandler(checkPackageTaken));
 router.post('/warehouse/get_items_packages', asyncHandler(authBearerMiddleware),asyncHandler(getItemsInPackage)); // Untuk melihat Posisi banyaknya Item pada resi yang ada
 router.post('/warehouse/update_items_packages', asyncHandler(authBearerMiddleware),asyncHandler(updateItemsInPackage)); // Untuk mengupdate item yang sudah di kerjakan
 export default router;
