@@ -59,6 +59,21 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
+  async qShopeePerformance() {
+    const shopeeResult = await this.apiShopeeService.getPerformance();
+    if(shopeeResult) {
+      return ApiResponse.success(shopeeResult, "Records found");
+    }
+      return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+  }
+   async qShopeeInfo() {
+    const shopeeResult = await this.apiShopeeService.getShopInfo();
+    // console.log("GET PROFILE SHOP INFO ", shopeeResult);
+    if(shopeeResult) {
+      return ApiResponse.success(shopeeResult, "Records found");
+    }
+      return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+  }
   async getPackagesAvailable(userinfo: any) {
     const shopeeResult = await this.shopeeRepo.selectPackagesAvailable();
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
@@ -83,8 +98,17 @@ export class ApiService {
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
-  async getItemsInPackage(userinfo: any){
-
+  async getCountInvoicesAvailable(){
+    const shopeeResult = await this.shopeeRepo.getCountInvoicesAvailable();
+     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+  async getCountSKUAvailable(){
+    const shopeeResult = await this.shopeeRepo.getCountSKUAvailable();
+     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
   }
   async viewShopeePosByID(payload:any, userinfo: any) {
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);

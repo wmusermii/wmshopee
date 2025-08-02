@@ -157,20 +157,38 @@ export class ShopeeService {
   public async getOrderDetail(orderSnList: string[]): Promise<any[]> {
     const path = '/api/v2/order/get_order_detail';
     const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
-
     const allDetails: any[] = [];
-
     for (const chunk of chunks) {
       const res = await this.fetchWithAuth(path, {
         order_sn_list: chunk,
         response_optional_fields: 'order_status,item_list,total_amount' // sesuaikan kebutuhan
       });
-
       if (res && res.response && res.response.order_list) {
         allDetails.push(...res.response.order_list);
       }
     }
+    return allDetails;
+  }
 
+  public async getPerformance(): Promise<any[]> {
+    const path = '/api/v2/account_health/get_shop_performance';
+    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    const res = await this.fetchWithAuth(path);
+    if(res && res.response) {
+
+      return res.response.overall_performance
+    }
+    const allDetails: any |undefined = undefined;
+    return allDetails;
+  }
+   public async getShopInfo(): Promise<any[]> {
+    const path = '/api/v2/shop/get_profile';
+    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    const res = await this.fetchWithAuth(path);
+    if(res && res.response) {
+      return res.response
+    }
+    const allDetails: any |undefined = undefined;
     return allDetails;
   }
 

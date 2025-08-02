@@ -52,6 +52,20 @@ export class ShopeeRepository {
     .orderBy('qty', 'desc');
     return await query;
   }
+  async selectSKUAvailable() {
+    const query = await db('m_product')
+    .select(
+      'item_id',
+      'item_sku',
+      'item_name',
+      'item_condition',
+      'item_status',
+      'orgBrand',
+      'filename'
+    )
+    .orderBy('item_id', 'asc');
+    return await query;
+  }
   async selectPackagesAvailable() {
     const query = await db('q_shopee_invoices')
     .select(
@@ -139,8 +153,15 @@ export class ShopeeRepository {
             return await query;
       }
   }
-  async updateSelectedPackages(payload:any, userinfo:any){
-
+  async getCountInvoicesAvailable(){
+      const  packageAvailable = await this.selectPackagesAvailable();
+      const result = {invoiceQty:packageAvailable.length};
+      return result;
+  }
+  async getCountSKUAvailable(){
+      const  packageAvailable = await this.selectSKUAvailable();
+      const result = {skuQty:packageAvailable.length};
+      return result;
   }
   async updateItemsPackagesAvailable(payload:any, userInfo:any) {
 

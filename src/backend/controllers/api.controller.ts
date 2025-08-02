@@ -35,6 +35,40 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+
+export async function getShopPerformance(req: Request, res: Response, next: NextFunction) {
+  try {
+    const shopperformanceResult = await apiService.qShopeePerformance();
+    if(shopperformanceResult.code === 20000) {
+      await ResponseHelper.send(res, shopperformanceResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function getShopInfo(req: Request, res: Response, next: NextFunction) {
+  try {
+    const shopperinfoResult = await apiService.qShopeeInfo();
+    if(shopperinfoResult.code === 20000) {
+      await ResponseHelper.send(res, shopperinfoResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+
+
 export async function generateQShopeeJobs(req: Request, res: Response, next: NextFunction) {
   const { id,datepick,fromtime,totime,created_by,fullname,status,totalresi,created_at } = req.body;
   try {
@@ -158,6 +192,45 @@ export async function viewQShopeePosItem(req: Request, res: Response, next: Next
       await ResponseHelper.send(res,ApiResponse.success(viewResult,"Success"));return;
     } else {
       await ResponseHelper.send(res,ApiResponse.successNoData([],"No available data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+export async function getCountInvoicesAvailable(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getCountInvoicesAvailable");
+    // const { order_sn } = req.body;
+    const userInfo:any = req.userInfo;
+    // const payload = {order_sn:order_sn}
+    const packageResult = await apiService.getCountInvoicesAvailable();
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function getCountSKUAvailable(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getCountSKUAvailable");
+    // const { order_sn } = req.body;
+    const userInfo:any = req.userInfo;
+    // const payload = {order_sn:order_sn}
+    const packageResult = await apiService.getCountSKUAvailable();
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
       return;
     }
   } catch (error) {
