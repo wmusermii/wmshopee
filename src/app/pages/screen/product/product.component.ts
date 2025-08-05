@@ -40,6 +40,7 @@ export class ProductComponent implements OnInit {
         this.cols = [
             { field: 'filename', header: 'Image' },
             { field: 'item_name', header: 'Product' },
+            { field: 'model_name', header: 'Model' },
             { field: 'item_condition', header: 'Condition' },
             { field: 'item_status', header: 'Status' },
             { field: 'orgBrand', header: 'Brand' },
@@ -70,12 +71,13 @@ export class ProductComponent implements OnInit {
           .then(async data => {
             console.log("Response dari API /warehouse/get_sku_all", data);
             if (data.code === 20000) {
-              const updatedProduct = await Promise.all(
-                data.data.map(async (item: { filename: any; }) => ({
-                  ...item,
-                  filename: `/imgproducts/${item.filename}.jpg`
-                }))
-              );
+              // const updatedProduct = await Promise.all(
+              //   data.data.map(async (item: { filename: any; }) => ({
+              //     ...item,
+              //     filename: `/imgproducts/${item.filename}.jpg`
+              //   }))
+              // );
+              const updatedProduct = data.data;
               this.loading=false;
               this.products = updatedProduct;
               this.allProducts= updatedProduct;
@@ -104,7 +106,7 @@ export class ProductComponent implements OnInit {
     this.products = [...this.allProducts];
   } else {
     this.products = this.allProducts.filter(item =>
-      [item.item_name, item.item_sku, item.orgBrand]
+      [item.item_name, item.item_sku, item.orgBrand, item.model_name]
         .some(field => field?.toLowerCase().includes(term))
     );
   }
@@ -122,6 +124,7 @@ interface Product {
     item_name: string;
     item_condition: string;
     item_status: string;
+    model_name: string;
     orgBrand: string;
     filename:string;
 }

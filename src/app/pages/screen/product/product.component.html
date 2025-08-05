@@ -4,7 +4,8 @@
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6 mt-2">
   <p-table #table [columns]="cols" [value]="products" class="w-full" stripedRows="true" showGridlines="true"
-      [paginator]="true" [rows]="10" [tableStyle]="{ 'min-width': '60rem' }" [rowsPerPageOptions]="[10, 50, 100]">
+  scrollable="true"
+      [paginator]="true" [rows]="10" [tableStyle]="{ 'min-width': '120rem' }" [rowsPerPageOptions]="[10, 50, 100]">
       <ng-template #caption>
         <div class="flex flex-col gap-2">
           <!-- Baris atas: Title dan Add Button -->
@@ -20,15 +21,16 @@
                     <p-button icon="pi pi-search" severity="secondary" variant="text" (click)="_manualSearch()" />
                 </p-inputgroup-addon>
             </p-inputgroup>
-          <!-- <input
-            type="text"
-            pInputText
-            [(ngModel)]="globalFilter"
-            placeholder="Search products..."
-            class="w-full"
-            (input)="onGlobalSearch()"
-          /> -->
         </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th [pSortableColumn]="col.field" *ngFor="let col of columns"
+            [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
+            {{ col.header }}<p-sortIcon field="col.field" />
+          </th>
+          <th style="text-align: center;">Action</th>
+        </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-rowData>
@@ -36,12 +38,13 @@
           <td>
             <div class="flex items-start space-x-4">
               <img [src]="rowData.filename"
-                [alt]="rowData.name" class="w-16 h-16 object-cover rounded" />
+                [alt]="rowData.name" class="w-10 h-10 object-cover rounded" />
             </div>
           </td>
           <td>
             {{rowData.item_name}}
           </td>
+          <td>{{rowData.model_name}}</td>
           <td>{{rowData.item_condition}}</td>
           <td>{{rowData.item_status}}</td>
           <td>{{rowData.orgBrand}}</td>

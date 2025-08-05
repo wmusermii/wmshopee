@@ -61,6 +61,8 @@ export class ShopeeRepository {
       'item_condition',
       'item_status',
       'orgBrand',
+      'model_id',
+      'model_name',
       'filename'
     )
     .orderBy('item_id', 'asc');
