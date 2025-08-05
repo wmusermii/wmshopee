@@ -11,7 +11,8 @@
           <!-- Baris atas: Title dan Add Button -->
           <div class="flex items-center justify-between">
             <span class="text-xl font-bold">Products</span>
-            <p-button icon="pi pi-plus" (onClick)="_addProduct()" label="Add Product" rounded raised />
+            <!-- <p-button icon="pi pi-plus" (onClick)="_addProduct()" label="Add Product" rounded raised /> -->
+            <p-button icon="pi pi-refresh" (onClick)="_addProduct()" label="Sync Shopee" rounded raised />
           </div>
 
           <!-- Input Search -->
@@ -29,7 +30,7 @@
             [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
             {{ col.header }}<p-sortIcon field="col.field" />
           </th>
-          <th style="text-align: center;">Action</th>
+          <!-- <th style="text-align: center;">Action</th> -->
         </tr>
       </ng-template>
 
@@ -49,10 +50,10 @@
           <td>{{rowData.item_status}}</td>
           <td>{{rowData.orgBrand}}</td>
           <!-- Kolom ACTION -->
-          <td style="text-align: center;">
+          <!-- <td style="text-align: center;">
             <p-button styleClass="custom-rb" icon="pi pi-file-edit" aria-label="edit" [rounded]="true" [text]="true" severity="info"/>
             <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="Save" [rounded]="true" [text]="true" severity="danger"/>
-          </td>
+          </td> -->
         </tr>
       </ng-template>
     </p-table>

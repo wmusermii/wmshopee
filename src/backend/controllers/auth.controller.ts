@@ -7,8 +7,14 @@ import { AuthService } from '../services/auth.service';
 import { EncryptDecryptJwt } from '../utils/encryptdecryptJwt';
 const authService = new AuthService();
 export async function login(req: Request, res: Response, next: NextFunction) {
-  const { username, password } = req.body;
+  const { credential } = req.body;
   try {
+    console.log("CREDENTIAL : ", credential);
+
+    // Decode Base64
+    const decoded = Buffer.from(credential, 'base64').toString('utf-8');
+   console.log("CREDENTIAL DECODED : ", decoded);
+    const [username, password] = decoded.split(':');
     // const payload = {code:1, message:"Login test workeds from controller"}
     const user = await authService.login(username, password);
     // logInfo("Auth.controller ",user);

@@ -30,11 +30,21 @@ export class Login {
       return; // Form invalid, jangan lanjut
     }
     this.loading = true;
-    console.log("Payload form ", this.loginForm.value);
+    const objPayload = this.loginForm.value;
+    console.log("Payload form ", objPayload);
+    // const payload = {credential:btoa(`${objPayload.username}:${objPayload.password}`)}
+    const credential = btoa(`${objPayload.username}:${objPayload.password}`);
+// {
+//     "username": "admin",
+//     "password": "manage"
+// }
+
+
+
     fetch('/v2/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.loginForm.value)
+      body: JSON.stringify({ credential })
     })
       .then(res => {
         console.log("Response dari API ", res);
@@ -56,7 +66,8 @@ export class Login {
       })
       .catch(err => {
         console.log("Response Error ", err);
-        alert('Login gagal: ' + err.message);
+        // alert('Login gagal: ' + err.message);
+        this.errorMessage = {error:true, severity:"error", message:`${err}`, icon:"pi pi-times"}
       });
   }
 
