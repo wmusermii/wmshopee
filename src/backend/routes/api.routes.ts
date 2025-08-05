@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -24,5 +24,6 @@ router.post('/warehouse/check_taken_packages', asyncHandler(authBearerMiddleware
 router.post('/warehouse/get_items_packages', asyncHandler(authBearerMiddleware),asyncHandler(getItemsInPackage)); // Untuk melihat Posisi banyaknya Item pada resi yang ada
 router.post('/warehouse/update_items_packages', asyncHandler(authBearerMiddleware),asyncHandler(updateItemsInPackage)); // Untuk mengupdate item yang sudah di kerjakan
 router.get('/warehouse/get_resi_count', asyncHandler(authBearerMiddleware),asyncHandler(getCountInvoicesAvailable)); // Untuk melihat jumlah total invoices belum di kerjakan
+router.get('/warehouse/get_sku_all', asyncHandler(authBearerMiddleware),asyncHandler(getAllSKUAvailable)); // Untuk melihat jumlah total barang
 router.get('/warehouse/get_sku_count', asyncHandler(authBearerMiddleware),asyncHandler(getCountSKUAvailable)); // Untuk melihat jumlah total barang
 export default router;

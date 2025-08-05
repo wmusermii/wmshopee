@@ -66,16 +66,13 @@ export async function getShopInfo(req: Request, res: Response, next: NextFunctio
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
-
-
-
 export async function generateQShopeeJobs(req: Request, res: Response, next: NextFunction) {
   const { id,datepick,fromtime,totime,created_by,fullname,status,totalresi,created_at } = req.body;
   try {
     let bodyPayload = {id:id}
     const userInfo:any = req.userInfo;
     const jobsResult = await apiService.qShopeeJobs(bodyPayload,userInfo);
-    logInfo("JOB RESPONSE ", jobsResult)
+    // logInfo("JOB RESPONSE ", jobsResult)
 
       await ResponseHelper.send(res, jobsResult);return;
 
@@ -102,7 +99,6 @@ export async function getQShopee(req: Request, res: Response, next: NextFunction
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
-
 
 export async function getPackageJobAvailable(req: Request, res: Response, next: NextFunction) {
   try {
@@ -240,3 +236,20 @@ export async function getCountSKUAvailable(req: Request, res: Response, next: Ne
   }
 }
 //##################### PROCESS ELSE ######################
+export async function getAllSKUAvailable(req: Request, res: Response, next: NextFunction) {
+ try {
+    console.log("####################################### getCountSKUAvailable");
+    const userInfo:any = req.userInfo;
+    const packageResult = await apiService.getAllSKUAvailable();
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}

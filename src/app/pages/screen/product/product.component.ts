@@ -10,27 +10,18 @@ import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorage.service';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'app-product',
-    imports: [CommonModule, FormsModule, DatetimeComponent, InputGroupModule, InputGroupAddonModule, ButtonModule, TableModule,SelectModule],
+    imports: [CommonModule, FormsModule, DatetimeComponent, InputGroupModule,InputTextModule, InputGroupAddonModule, ButtonModule, TableModule,SelectModule],
     templateUrl: './product.component.html',
     styleUrls: ['./product.component.scss']
 })
 export class ProductComponent implements OnInit {
+
   userInfo:any | undefined;
      date: Date | undefined;
     value:string | undefined;
-    totalSku:string="0";
-  totalStoreItem:string="0";
-  totalWarehouseItem:string="0";
-  totalResi:string= "0"
-  itemList: any[] = [];
-  dataResi: any[] = [];
-  skutotal:string = "Sku:176 items";
-  storeitemtotal:string = "In Store : 1500 pcs.";
-  whitemtotal:string = "In Warehouse : 500 pcs.";
-  invoicetotal:number = 5;
-  invoicetotalStr:string = "Invoices : 10 pcs.";
   loading: boolean = false;
   token: string | null | undefined = undefined;
   products!: Product[];
@@ -42,7 +33,7 @@ export class ProductComponent implements OnInit {
   first = 0;
   globalFilter:string ='';
   constructor(private router: Router, private ssrStorage: LocalstorageService) { }
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
 
@@ -53,28 +44,7 @@ export class ProductComponent implements OnInit {
             { field: 'item_status', header: 'Status' },
             { field: 'orgBrand', header: 'Brand' },
         ];
-        // data yg akan ditampilkan
-        this.products=[
-          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"/imgproducts/id-11134207-7qukz-licq99t2wt0ed6.jpg"},
-          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7rbk2-macg35sirnryca.jpg"},
-          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7r98v-lvu9t8nmnfyi9b.jpg"},
-          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"/imgproducts/id-11134207-7qukz-licq99t2wt0ed6.jpg"},
-          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7rbk2-macg35sirnryca.jpg"},
-          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7r98v-lvu9t8nmnfyi9b.jpg"},
-          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"/imgproducts/id-11134207-7qukz-licq99t2wt0ed6.jpg"},
-          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7rbk2-macg35sirnryca.jpg"},
-          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7r98v-lvu9t8nmnfyi9b.jpg"},
-          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"/imgproducts/id-11134207-7qukz-licq99t2wt0ed6.jpg"},
-          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7rbk2-macg35sirnryca.jpg"},
-          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7r98v-lvu9t8nmnfyi9b.jpg"},
-          {item_id:"22424855539", item_sku:"", item_name:"Pulpen 1 pack Technoline Greebel 0.5 mm 12pcs + Gratis 1", item_condition:"NEW", item_status:"NORMAL", orgBrand:"GREEBEL", filename:"/imgproducts/id-11134207-7qukz-licq99t2wt0ed6.jpg"},
-          {item_id:"41401912697", item_sku:"", item_name:"Grosir Dasi Merah Doff Polos Pria Wanita Formal Instant ( 20 PCS )", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7rbk2-macg35sirnryca.jpg"},
-          {item_id:"29351174921", item_sku:"", item_name:"Dasi Madrasah MI MTS MA Sekolah Ibtidaiyah Tsanawiyah Aliyah", item_condition:"NEW", item_status:"NORMAL", orgBrand:"ARNAD", filename:"/imgproducts/id-11134207-7r98v-lvu9t8nmnfyi9b.jpg"}
-        ]
-        // semua data asli
-        this.allProducts=this.products;
-
-
+        await this._refreshProduct()
   }
   _searchClick(){
     console.log("Button Search di Click");
@@ -83,8 +53,43 @@ export class ProductComponent implements OnInit {
         this.sortField = event.field;
         this.sortOrder = event.order;
   }
-  _refreshProduct(){
+  async _refreshProduct(){
+    this.loading = true;
+        fetch('/v2/warehouse/get_sku_all', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          }
+        })
+          .then(res => {
+            console.log("Response dari API  /warehouse/get_sku_all", res);
+            if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
+            return res.json();
+          })
+          .then(async data => {
+            console.log("Response dari API /warehouse/get_sku_all", data);
+            if (data.code === 20000) {
+              const updatedProduct = await Promise.all(
+                data.data.map(async (item: { filename: any; }) => ({
+                  ...item,
+                  filename: `/imgproducts/${item.filename}.jpg`
+                }))
+              );
+              this.loading=false;
+              this.products = updatedProduct;
+              this.allProducts= updatedProduct;
 
+
+            } else {
+              this.loading=false
+              this.allProducts=[];
+            }
+          })
+          .catch(err => {
+            this.loading = false;
+            console.log("Response Error Catch /warehouse/get_sku_count", err);
+          });
   }
   changeRows(newRows: number, currentPage: number) {
   this.rows = newRows;
@@ -104,7 +109,12 @@ export class ProductComponent implements OnInit {
     );
   }
   }
+  async _manualSearch(){
 
+  }
+  async _addProduct(){
+
+  }
 }
 interface Product {
     item_id: string;

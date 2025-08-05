@@ -110,6 +110,12 @@ export class ApiService {
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
+  async getAllSKUAvailable(){
+    const shopeeResult = await this.shopeeRepo.selectSKUAvailable();
+     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
   async viewShopeePosByID(payload:any, userinfo: any) {
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     if(!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
