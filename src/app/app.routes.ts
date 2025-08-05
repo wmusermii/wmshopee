@@ -18,6 +18,10 @@ export const routes: Routes = [
       loadComponent:() => import("./pages/screen/auths/login/login").then(m => m.Login)
       },
       {
+       path:'registration',
+      loadComponent:() => import("./pages/screen/auths/registration/registration").then(m => m.Registration)
+      },
+      {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full'

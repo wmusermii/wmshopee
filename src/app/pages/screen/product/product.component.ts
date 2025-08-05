@@ -25,12 +25,10 @@ export class ProductComponent implements OnInit {
   loading: boolean = false;
   token: string | null | undefined = undefined;
   products!: Product[];
+  totalProduct:number = 0;
   allProducts!: Product[];
   cols!: Column[];
-  sortField: string = '';
-  sortOrder: number = 1;
   rows = 10;
-  first = 0;
   globalFilter:string ='';
   constructor(private router: Router, private ssrStorage: LocalstorageService) { }
   async ngOnInit(): Promise<void> {
@@ -51,8 +49,8 @@ export class ProductComponent implements OnInit {
     console.log("Button Search di Click");
   }
   onSort(event: any) {
-        this.sortField = event.field;
-        this.sortOrder = event.order;
+        // this.sortField = event.field;
+        // this.sortOrder = event.order;
   }
   async _refreshProduct(){
     this.loading = true;
@@ -71,17 +69,11 @@ export class ProductComponent implements OnInit {
           .then(async data => {
             console.log("Response dari API /warehouse/get_sku_all", data);
             if (data.code === 20000) {
-              // const updatedProduct = await Promise.all(
-              //   data.data.map(async (item: { filename: any; }) => ({
-              //     ...item,
-              //     filename: `/imgproducts/${item.filename}.jpg`
-              //   }))
-              // );
               const updatedProduct = data.data;
               this.loading=false;
               this.products = updatedProduct;
               this.allProducts= updatedProduct;
-
+              this.totalProduct=this.allProducts.length;
 
             } else {
               this.loading=false
@@ -93,12 +85,7 @@ export class ProductComponent implements OnInit {
             console.log("Response Error Catch /warehouse/get_sku_count", err);
           });
   }
-  changeRows(newRows: number, currentPage: number) {
-  this.rows = newRows;
-  // Recalculate starting index (first) based on current page
-  this.first = newRows * currentPage;
-  localStorage.setItem('product_table_rows', this.rows.toString());
-  }
+
   onGlobalSearch() {
     console.log("Global filter : ", this.globalFilter);
   const term = this.globalFilter.trim().toLowerCase();

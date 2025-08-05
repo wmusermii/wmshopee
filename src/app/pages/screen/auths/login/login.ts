@@ -5,12 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LocalstorageService } from '../../../../guard/ssr/localstorage/localstorage.service';
 @Component({
   standalone:true,
   selector: 'app-login',
-  imports: [CommonModule, FormsModule,ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
+  imports: [CommonModule, FormsModule,RouterModule ,ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })

@@ -253,3 +253,22 @@ export async function getAllSKUAvailable(req: Request, res: Response, next: Next
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function sendingEmailTo(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { to, subject, message} = req.body;
+    const userInfo:any = req.userInfo;
+    // const payload = {id_q_shopee:id_q_shopee,order_sn:order_sn,item_id:item_id }
+    // console.log("####################################### updateItemsInPackage ", payload);
+    const packageResult = await apiService.sendEmailNotification(to,subject,message);
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}

@@ -193,7 +193,20 @@ export class ShopeeRepository {
     // .andWhere('qs.status', 0)
     // return await query;
   }
-
+  async getSMTPVariables(){
+      const query = await db('m_smtp')
+      .select(
+        'smtp',
+        'usermail',
+        'password',
+        'service',
+        'secret',
+        'refreshtoken',
+        'accesstoken',
+        'port'
+      ).first();
+      return await query;
+  }
   //################# SHOPEE ATTRB ###############################
   async selectShopeeAPIAtribute(){
     const result = await db.select([

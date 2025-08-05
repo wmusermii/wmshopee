@@ -4,7 +4,7 @@ import { ShopeeRepository } from "../repositories/shopee.repository";
 import { ApiResponse } from "../utils/apiResponse";
 import { logInfo } from "../utils/logger";
 import { ShopeeService } from "./shopee/shopee.service";
-
+import nodemailer from 'nodemailer';
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
   private apiShopeeService = new ShopeeService();//Jangan Di hapus dahulu
@@ -172,11 +172,40 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
+  async sendEmailNotification(to: string, subject: string, message: string) {
+    // console.log('sendEmailNotification called with:', { to, subject, message });
+  const smtpVariable = await this.shopeeRepo.getSMTPVariables();
+  logInfo("SMTP OBJECT ", smtpVariable);
+  // {"smtp":"smtp.gmail.com","usermail":"aryaadityawijaya@gmail.com","password":"vyenzhnzitzlqbbb","service":"gmail","secret":"https://myaccount.google.com/apppasswords","refreshtoken":"https://myaccount.google.com/apppasswords","accesstoken":"https://myaccount.google.com/apppasswords","port":465}
+  const transporter = nodemailer.createTransport({
+    service: smtpVariable.service,
+    auth: {
+      user: smtpVariable.usermail,        // Ganti dengan email Gmail kamu
+      pass: smtpVariable.password,           // Ganti dengan App Password Gmail (16 karakter)
+    },
+  });
+  const mailOptions = {
+    from: `"Jawara Pattimura" <${smtpVariable.usermail}>`, // Ganti sesuai branding dan email kamu
+    to: to,
+    subject: subject,
+    html: message,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logInfo("📤 Email terkirim: ", info.messageId);
+    return ApiResponse.success({ messageId: info.messageId }, "Email sent successfully");
+  } catch (error) {
+    logInfo("❌ Gagal kirim email:", error);
+    return ApiResponse.successNoData({}, "Failed to send email");
+  }
+}
 
   private toDatetimeString(unix: number): string {
     const date = new Date(unix * 1000);
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
+
 }
 
