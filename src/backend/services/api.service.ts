@@ -1,12 +1,14 @@
 // import { UserRepository } from "../repositories/user.repository";
 // import { ApiResponse } from "../utils/apiResponse";
 import { ShopeeRepository } from "../repositories/shopee.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { ApiResponse } from "../utils/apiResponse";
 import { logInfo } from "../utils/logger";
 import { ShopeeService } from "./shopee/shopee.service";
 import nodemailer from 'nodemailer';
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
+  private userRepo = new UserRepository();
   private apiShopeeService = new ShopeeService();//Jangan Di hapus dahulu
   async qShopeeInsert(payload: any, userinfo: any) {
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10);
@@ -199,8 +201,16 @@ export class ApiService {
     logInfo("❌ Gagal kirim email:", error);
     return ApiResponse.successNoData({}, "Failed to send email");
   }
-}
+  }
+  async registerUser(payload:any) {
+    const userResult = await this.userRepo.registerUser(payload);
 
+    if (!userResult) {
+      return ApiResponse.successNoData(null, "Unable to insert data!");
+    } else {
+      return ApiResponse.success(userResult, "Success insert");
+    }
+  }
   private toDatetimeString(unix: number): string {
     const date = new Date(unix * 1000);
     const pad = (n: number) => String(n).padStart(2, '0');

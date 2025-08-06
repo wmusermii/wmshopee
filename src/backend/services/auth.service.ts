@@ -10,4 +10,12 @@ export class AuthService {
     if(!user) return ApiResponse.successNoData(user,"Incorrect Username and Password!");
     return ApiResponse.success(user,"Records found");
   }
+  async selectGetUserByUserID(username: string) {
+    // const user = await this.repository.findByUsername(username);
+    logInfo("USER DICARI ", username)
+    const user = await this.repository.findByUsername(username);
+    if(!user) return ApiResponse.successNoData(user,"Incorrect Username and Password!");
+    return ApiResponse.success(user,"Records found");
+  }
+
 }

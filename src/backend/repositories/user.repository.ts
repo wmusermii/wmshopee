@@ -1,5 +1,5 @@
 import db from '../database/client';
-
+import { customAlphabet } from 'nanoid'
 export class UserRepository {
   async findByUsername(username: string) {
     const result = await db.select([
@@ -26,5 +26,28 @@ export class UserRepository {
       'mg.menublob'
     ]).from('m_user as mu').innerJoin("m_group as mg","mu.idgroup","mg.idgroup").where({ "username":username, "password":password }).first();
     return result;
+  }
+  async registerUser(payload: any) {
+    console.log("MASUK REPO INSERT ", payload);
+    // Buat generator dengan hanya angka dan panjang 9 digit
+    const nanoidNumeric = customAlphabet('0123456789', 9);
+    // Hanya angka 0-9, panjang 9
+    const uid = nanoidNumeric(); // contoh: "102345678"
+    // {fullname:fullname, mobilename:mobilename, email:email, username:username, password:newPassword, groupCode:groupCode.code}
+    console.log("ID CREATED ", uid);
+    const query = await db('m_user').insert(
+        {
+          iduser: uid+"",
+          username: payload.username,
+          created_by: uid,
+          created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+          idgroup: payload.groupCode,
+          fullname:payload.fullname,
+          mobile:payload.mobilename,
+          email:payload.email
+        }
+      ).returning("iduser");
+
+    return query;
   }
 }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
 import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, sendingEmailTo, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
-import { attrb, login } from '../controllers/auth.controller';
+import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
 const router = Router();
@@ -15,6 +15,7 @@ router.get('/shopee/get_shop_performance', asyncHandler(authBearerMiddleware),as
 router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHandler(getShopInfo)); //mendapatkan Info toko dari Shopee
 //##################################### AUTH ROUTES #############
 router.post('/auth/login', asyncHandler(login));
+router.post('/auth/registuser', asyncHandler(registUser));
 router.get('/auth/attrb',asyncHandler(authBearerMiddleware), asyncHandler(attrb));
 //##################################### AUTH ROUTES #############
 

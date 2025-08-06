@@ -1,29 +1,44 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
-import { Subject } from 'rxjs';
+import { SelectModule } from 'primeng/select';
+// import { Subject } from 'rxjs';
 
 @Component({
   standalone:true,
   selector: 'app-registration',
-  imports: [CommonModule, FormsModule,ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
+  imports: [CommonModule, FormsModule,ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule, SelectModule],
   templateUrl: './registration.html',
   styleUrl: './registration.css'
 })
 export class Registration {
   errorRegistration:any={error:false, message:"Error Message", title:"Error!"}
   successRegistration:any={success:false, message:"Registration Success", title:"Success!"}
+  optiongroup:any[]=[
+    {
+      code:'100000000002', label:'Supervisor', description:'Oversees the work of others, guiding and managing a team to ensure tasks are completed effectively'
+    },
+    {
+      code:'100000000003', label:'Spv Product', description:'Oversees the products, operating to ensure product inventory are completly adjust'
+    },
+    {
+      code:'100000000004', label:'Spv Warehouse', description:'Oversees the stores and warehouses status, and complete product disposition'
+    },
+    {
+      code:'100000000005', label:'Packager', description:'Responsible for the invoices and items requested checked!'
+    }
+  ]
   registerForm = new FormGroup({
       fullname: new FormControl('', [Validators.required]),
       mobilename: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required]),
       username: new FormControl('', [Validators.required]),
-      password: new FormControl('', [Validators.required]),
-      confirmPassword: new FormControl('', [Validators.required]),
+      password: new FormControl(''),
       groupCode: new FormControl('', [Validators.required]),
   });
 
@@ -32,13 +47,25 @@ export class Registration {
   get f() {
     return this.registerForm.controls;
   }
-constructor() {}
+constructor(private router: Router) {}
 loading = false;
 
 
 onRegister() {
   if (this.registerForm.valid) {
     console.log('Register data:', this.registerForm.value);
+//     {
+//     "fullname": "Ryan Muktiadhi",
+//     "mobilename": "087872195524",
+//     "email": "wmusermii@gmail.com",
+//     "username": "ryanmu",
+//     "password": "",
+//     "groupCode": {
+//         "code": "100000000002",
+//         "label": "Supervisor",
+//         "description": "Oversees the work of others, guiding and managing a team to ensure tasks are completed effectively"
+//     }
+// }
     // TODO: Implementasi submit ke backend
   }
 }
@@ -47,6 +74,11 @@ onCancel() {
   this.registerForm.reset();
 }
 onSubmit() {
+
+  if(this.registerForm.valid)
+  {
+    console.log("Value nya ", this.registerForm.value);
+  }
   this.loading=true;
   const htmlMessage = `
 <!DOCTYPE html>
@@ -82,39 +114,52 @@ onSubmit() {
 </body>
 </html>
 `;
-  const payload= {to:"wmusermii@gmail.com", subject:"User Registration", message:htmlMessage}
-
-   fetch('/v2/warehouse/send_email', {
+  // const payload= {to:"wmusermii@gmail.com", subject:"User Registration", message:htmlMessage}
+   fetch('/v2/auth/registuser', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(this.registerForm.value)
     })
       .then(res => {
         console.log("Response dari API ", res);
-        // logInfo
         if (!res.ok) throw new Error('Login gagal');
         return res.json();
       })
       .then(data => {
-        // console.log("Response dari API DATA ", JSON.parse(data));
         console.log("Response dari API DATA ", data);
         this.loading=false;
-//         {
-//     "code": 20000,
-//     "message": "Email sent successfully",
-//     "data": {
-//         "messageId": "<65eb6fee-81a5-cb3c-1a99-7bf67ac85386@gmail.com>"
-//     }
-// }
-        this.successRegistration={success:true, message:`Registration Success and ${data.message}`, title:"Success Register!"};
+        if(data.code === 20000) {
+          this.successRegistration={success:true, message:`Registration Success and ${data.message}`, title:"Success Register!"};
+        } else {
+          this.errorRegistration={error:true, message:data.message, title:"Error Registration!"};
+        }
       })
       .catch(err => {
         console.log("Response Error ", err);
         this.loading=false;
         this.errorRegistration={error:true, message:err.message, title:"Error!"};
-        // alert('Login gagal: ' + err.message);
-        // this.errorMessage = {error:true, severity:"error", message:`${err}`, icon:"pi pi-times"}
       });
+  //  fetch('/v2/warehouse/send_email', {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(payload)
+  //   })
+  //     .then(res => {
+  //       console.log("Response dari API ", res);
+  //       // logInfo
+  //       if (!res.ok) throw new Error('Login gagal');
+  //       return res.json();
+  //     })
+  //     .then(data => {
+  //       console.log("Response dari API DATA ", data);
+  //       this.loading=false;
+  //       this.successRegistration={success:true, message:`Registration Success and ${data.message}`, title:"Success Register!"};
+  //     })
+  //     .catch(err => {
+  //       console.log("Response Error ", err);
+  //       this.loading=false;
+  //       this.errorRegistration={error:true, message:err.message, title:"Error!"};
+  //     });
 
 
 
@@ -122,9 +167,11 @@ onSubmit() {
 }
 async cancelError(){
   this.errorRegistration={error:false, message:"Error Message", title:"Error!"};
+  // this.router.navigate(['/login']);
 }
 async cancelSuccess(){
   this.successRegistration={success:false, message:"Registration Success", title:"Success!"};
+  this.router.navigate(['/dashboard']);
 }
 
 }

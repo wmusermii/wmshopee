@@ -37,7 +37,7 @@
 
           <!-- Mobile Name -->
           <div class="flex flex-col mb-2">
-            <label for="mobilename" class="mb-2">Mobile Name</label>
+            <label for="mobilename" class="mb-2">Mobile Phone</label>
             <input
               type="text"
               class="w-full"
@@ -70,46 +70,14 @@
               id="username"
             />
           </div>
-
-          <!-- Password -->
-          <div class="flex flex-col mb-2">
-            <label for="password" class="mb-2">Password</label>
-            <p-password
-              formControlName="password"
-              class="w-full"
-              [feedback]="false"
-              inputStyleClass="w-full"
-              [toggleMask]="true"
-            ></p-password>
-          </div>
-
-          <!-- Confirm Password -->
-          <div class="flex flex-col mb-2">
-            <label for="confirmPassword" class="mb-2">Confirm Password</label>
-            <p-password
-              formControlName="confirmPassword"
-              class="w-full"
-              [feedback]="false"
-              inputStyleClass="w-full"
-              [toggleMask]="true"
-            ></p-password>
-          </div>
-
           <!-- Group Code -->
           <div class="flex flex-col mb-2">
-            <label for="groupCode" class="mb-2">Group Code</label>
-            <input
-              type="text"
-              class="w-full"
-              pInputText
-              formControlName="groupCode"
-              id="groupCode"
-            />
+            <label for="groupCode" class="mb-2">Group Position</label>
+            <p-select id="groupCode" [options]="optiongroup" formControlName="groupCode" optionLabel="label" [showClear]="false" placeholder="Select position" class="w-full" />
           </div>
         </div>
-
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4">
+        <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4 py-6">
           <button
             pButton
             type="submit"
