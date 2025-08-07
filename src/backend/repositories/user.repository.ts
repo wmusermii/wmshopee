@@ -28,13 +28,10 @@ export class UserRepository {
     return result;
   }
   async registerUser(payload: any) {
-    console.log("MASUK REPO INSERT ", payload);
     // Buat generator dengan hanya angka dan panjang 9 digit
     const nanoidNumeric = customAlphabet('0123456789', 9);
     // Hanya angka 0-9, panjang 9
     const uid = nanoidNumeric(); // contoh: "102345678"
-    // {fullname:fullname, mobilename:mobilename, email:email, username:username, password:newPassword, groupCode:groupCode.code}
-    console.log("ID CREATED ", uid);
     const query = await db('m_user').insert(
         {
           iduser: uid+"",
@@ -44,7 +41,8 @@ export class UserRepository {
           idgroup: payload.groupCode,
           fullname:payload.fullname,
           mobile:payload.mobilename,
-          email:payload.email
+          email:payload.email,
+          password:payload.password
         }
       ).returning("iduser");
 

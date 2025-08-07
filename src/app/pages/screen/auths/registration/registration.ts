@@ -80,40 +80,7 @@ onSubmit() {
     console.log("Value nya ", this.registerForm.value);
   }
   this.loading=true;
-  const htmlMessage = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>User Registration</title>
-<style>
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f6f8; color:#333; margin:0; padding:0; }
-  .container { max-width:480px; background:#fff; margin:40px auto; border-radius:8px; padding:30px 40px; box-shadow:0 4px 16px rgba(0,0,0,0.1); }
-  h1 { color:#007bff; margin-bottom:20px; font-weight:700; font-size:24px; }
-  .content { font-size:16px; line-height:1.6; }
-  .credential-box { background:#f1f5fb; border:1px solid #d1e2ff; border-radius:6px; padding:15px 20px; margin:20px 0; font-family: 'Courier New', Courier, monospace; font-size:15px; color:#1a237e; }
-  .footer { font-size:14px; color:#777; margin-top:30px; text-align:center; }
-</style>
-</head>
-<body>
-<div class="container">
-  <h1>User Registration</h1>
-  <div class="content">
-    <p>Your credential is:</p>
-    <div class="credential-box">
-      <p><strong>User ID :</strong> User Name</p>
-      <p><strong>Password :</strong> aslkdnfa;sPOPOMP</p>
-    </div>
-    <p>Please change the password after you are logged in.</p>
-  </div>
-  <div class="footer">
-    <p>Thank you for registering with us!</p>
-  </div>
-</div>
-</body>
-</html>
-`;
+
   // const payload= {to:"wmusermii@gmail.com", subject:"User Registration", message:htmlMessage}
    fetch('/v2/auth/registuser', {
       method: 'POST',

@@ -214,3 +214,21 @@
 [2025-08-06 18:55:33] INFO: USER DICARI  ryanspr
 [2025-08-06 18:55:33] INFO: EEEEEEEEEEEEEEEEEE  true
 [2025-08-06 18:55:33] ERROR: Error auth.controller :  {"code":"SQLITE_CONSTRAINT_NOTNULL"}
+[2025-08-06 19:00:02] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\bbb25bd7-bdf2-4597-bc4d-25fa32875d8b\data\admdb.sqlite
+[2025-08-06 19:00:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2f05d9a0-11e9-475b-846f-afd52d1121ab\data\admdb.sqlite
+[2025-08-06 19:00:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\42f454bc-d9eb-482a-aaa9-12d23affe0a0\data\admdb.sqlite
+[2025-08-06 19:00:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\3f3053dc-4c25-45e4-b2b8-82654f4df869\data\admdb.sqlite
+[2025-08-06 19:00:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\28298355-c5da-4da6-b5fd-a61888f93c38\data\admdb.sqlite
+[2025-08-06 19:00:20] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-06 19:00:32] INFO: USER DICARI  ryanspr
+[2025-08-06 19:00:32] INFO: EEEEEEEEEEEEEEEEEE  true
+[2025-08-06 19:00:32] ERROR: Error auth.controller :  {"code":"SQLITE_CONSTRAINT_NOTNULL"}
+[2025-08-06 19:04:04] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6a625c66-a7ab-421d-aaca-ed0ce4462baa\data\admdb.sqlite
+[2025-08-06 19:04:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\5f044244-d473-42d4-aadc-d1c12f218ab5\data\admdb.sqlite
+[2025-08-06 19:04:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\a64a09b2-3825-4dd9-b183-8338f0be8d52\data\admdb.sqlite
+[2025-08-06 19:04:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\cd48e1a5-5824-4150-b321-93e55ed57ddd\data\admdb.sqlite
+[2025-08-06 19:04:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\a32eca0e-d58c-4289-a0e8-26bb3e1c93d7\data\admdb.sqlite
+[2025-08-06 19:04:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-06 19:04:21] INFO: USER DICARI  ryanspr
+[2025-08-06 19:04:21] INFO: EEEEEEEEEEEEEEEEEE  true
+[2025-08-06 19:04:21] INFO: HASIL INSERT TABLE  {"code":20000,"message":"Success insert","data":[{"iduser":"513164923"}]}

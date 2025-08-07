@@ -257,8 +257,6 @@ export async function sendingEmailTo(req: Request, res: Response, next: NextFunc
   try {
     const { to, subject, message} = req.body;
     const userInfo:any = req.userInfo;
-    // const payload = {id_q_shopee:id_q_shopee,order_sn:order_sn,item_id:item_id }
-    // console.log("####################################### updateItemsInPackage ", payload);
     const packageResult = await apiService.sendEmailNotification(to,subject,message);
     if(packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult);return;

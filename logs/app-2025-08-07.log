@@ -1,0 +1,13 @@
+[2025-08-07 09:21:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6de1573d-4cb6-4f54-8833-34dad132f772\data\admdb.sqlite
+[2025-08-07 09:22:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\98d82b75-56e5-44d1-adc8-de94b594b154\data\admdb.sqlite
+[2025-08-07 09:22:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b8fc103e-6cc1-4cb6-89ff-639ab4bbe86c\data\admdb.sqlite
+[2025-08-07 09:22:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2e4fc3ce-11e8-425a-8922-dca526b416ea\data\admdb.sqlite
+[2025-08-07 09:22:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\048e85e4-48b4-4a92-a0d3-5a7ff9038db9\data\admdb.sqlite
+[2025-08-07 09:23:18] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-07 09:23:32] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33bbd24c96a6c69a685910200"}
+[2025-08-07 09:23:32] INFO: ✅ Shopee get List Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33bbd24c974a0de0e0575e700"}
+[2025-08-07 09:23:32] INFO: Update data token : 
+[2025-08-07 09:23:32] INFO: Update data token : 
+[2025-08-07 09:34:30] INFO: HASIL INSERT TABLE  {"code":20000,"message":"Success insert","data":[{"iduser":"856239707"}]}
+[2025-08-07 09:34:30] INFO: SMTP OBJECT  {"smtp":"smtp.gmail.com","usermail":"aryaadityawijaya@gmail.com","password":"vyenzhnzitzlqbbb","service":"gmail","secret":"https://myaccount.google.com/apppasswords","refreshtoken":"https://myaccount.google.com/apppasswords","accesstoken":"https://myaccount.google.com/apppasswords","port":465}
+[2025-08-07 09:34:33] INFO: 📤 Email terkirim:  <afd13ce8-2163-db4c-00b6-8143cde030d3@gmail.com>
