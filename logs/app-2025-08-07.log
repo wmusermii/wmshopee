@@ -11,3 +11,9 @@
 [2025-08-07 09:34:30] INFO: HASIL INSERT TABLE  {"code":20000,"message":"Success insert","data":[{"iduser":"856239707"}]}
 [2025-08-07 09:34:30] INFO: SMTP OBJECT  {"smtp":"smtp.gmail.com","usermail":"aryaadityawijaya@gmail.com","password":"vyenzhnzitzlqbbb","service":"gmail","secret":"https://myaccount.google.com/apppasswords","refreshtoken":"https://myaccount.google.com/apppasswords","accesstoken":"https://myaccount.google.com/apppasswords","port":465}
 [2025-08-07 09:34:33] INFO: 📤 Email terkirim:  <afd13ce8-2163-db4c-00b6-8143cde030d3@gmail.com>
+[2025-08-07 09:39:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2029502d-92ed-4050-a6df-2a10b4603899\data\admdb.sqlite
+[2025-08-07 09:39:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\dd691ebd-908c-45b1-9e49-86e2a71b3d9a\data\admdb.sqlite
+[2025-08-07 09:39:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\63b56b4a-0619-4906-9320-611b2e7badae\data\admdb.sqlite
+[2025-08-07 09:39:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\40f84da8-08b1-4504-b912-1adbb968cd9c\data\admdb.sqlite
+[2025-08-07 09:39:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ea4ff09c-4a00-48b7-b747-c6879891fa12\data\admdb.sqlite
+[2025-08-07 09:39:22] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
