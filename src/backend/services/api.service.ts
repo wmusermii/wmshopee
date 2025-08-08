@@ -222,10 +222,10 @@ async updateUser(payload:any, userInfo:any) {
   }
 async sendPrinting(order_sn:any, userInfo:any) {
   const printingObject:any[] = await this.shopeeRepo.selectItemsToPrint({order_sn:order_sn}, userInfo);
-  logInfo("hasil select ")
+  // logInfo("hasil select ",printingObject)
 
-
-
+  const hasilprint = await this.apiShopeeService.getShippingLabel(order_sn)
+  console.log("HASIL PRINT ", hasilprint);
 
   return ApiResponse.success(printingObject, "Printing sent successfully");
 }

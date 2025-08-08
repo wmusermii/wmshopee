@@ -298,7 +298,7 @@ export async function sendingPrinting(req: Request, res: Response, next: NextFun
     // if(packageResult.code === 20000) {
     //   await ResponseHelper.send(res, packageResult);return;
     // } else {
-      await ResponseHelper.send(res,ApiResponse.successNoData([],"Printing test"));
+      await ResponseHelper.send(res,packageResult);
     //   return;
     // }
   } catch (error) {

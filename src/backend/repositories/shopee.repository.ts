@@ -154,10 +154,11 @@ export class ShopeeRepository {
       }
   }
    async selectItemsToPrint(payload:any, userinfo:any) {
+    // console.log("ON REPO ", payload);
     //#######################CHECK APAKAH q_shopee_invoices SUDAH TERUPDATE STATUSNYA######################
     const checkStatus = await db('q_shopee_invoices').select('status').where('order_sn', payload.order_sn).first();
     //######################################################
-    if(checkStatus.status === 0) {
+    if(checkStatus.status === 1) {
       //################################ UPDATE q_shopee_invoices dulu bahwa sudah di take _1
       const updateStatus = await db('q_shopee_invoices').update({
           status: 3,

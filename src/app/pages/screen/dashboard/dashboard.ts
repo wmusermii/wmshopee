@@ -20,7 +20,7 @@ import { cloneDeep } from 'lodash';
   styleUrls: ['./dashboard.css']
 })
 export class Dashboard implements OnInit {
-
+  loadingUser = true;
   token: string | null | undefined = undefined;
     userInfo:any | undefined;
      date: Date | undefined;
@@ -45,6 +45,7 @@ export class Dashboard implements OnInit {
     console.log("USER INFO ", this.userInfo);
     this._refreshCountInvoices();
     this._refreshCountSKU();
+
 
   }
   async _refreshCountInvoices(){
@@ -100,10 +101,12 @@ export class Dashboard implements OnInit {
               // this.listInvoices = [];
               this.totalSku = data.data.skuQty;
               this.skutotal = `Sku : ${this.totalSku} items`
+              this.loadingUser=false;
             } else {
               // this.listInvoices = [];
               this.totalSku = "0";
               this.skutotal = `Sku : ${this.totalSku} items`
+              this.loadingUser=false;
             }
           })
           .catch(err => {
@@ -112,6 +115,8 @@ export class Dashboard implements OnInit {
           });
     }
 
-
+    _goToPackaging(){
+      this.router.navigate(['/packaging']);
+    }
 }
 

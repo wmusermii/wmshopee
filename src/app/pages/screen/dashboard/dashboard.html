@@ -1,5 +1,6 @@
 <header class="pt-4 max-w-screen-xl mx-auto px-2 flex items-start justify-between">
-  <h1 class="text-xl font-bold m-0 p-0">{{userInfo.fullname}}</h1>
+  <!-- <pre>{{userInfo | json }}</pre> -->
+  <h1 class="text-xl font-bold m-0 p-0">{{userInfo.fullname}} ({{userInfo.groupname}})</h1>
   <app-datetime></app-datetime>
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6">
@@ -9,11 +10,21 @@
           <p-chip [label]="whitemtotal" icon="pi pi-list" class="border border-solid border-gray-300" styleClass="custom-chip" /> -->
           <p-chip [label]="invoicetotalStr" icon="pi pi-receipt" class="border border-solid border-gray-300" styleClass="custom-chip" />
       </div>
-    <div class="w-full flex bg-white py-3 px-5 rounded shadow mb-3">
+    <div class="w-full flex bg-white py-3 px-5 items-center rounded shadow mb-3">
       <h3 class="text-xl text-gray-400 font-medium p-0 m-0">To do : </h3> &nbsp;
-      <p *ngIf="totalResi < 1"  class="text-xl text-gray-700 p-0 m-0">0 Invoices need to proceed</p>
-      <a *ngIf="totalResi > 0 && userInfo.groupname == 'Packager'" href="http://www.google.com" class="text-xl text-gray-700 p-0 m-0">{{totalResi}} Invoices need to proceed</a>
-      <span *ngIf="totalResi > 0 && userInfo.groupname != 'Packager'" class="text-xl text-gray-700 p-0 m-0">{{totalResi}} Invoices need to proceed</span>
+      <p *ngIf="!loadingUser && totalResi < 1"  class="text-xl text-gray-700 p-0 m-0">0 Invoices need to proceed</p>
+      <!-- <a *ngIf="!loadingUser && totalResi > 0 && userInfo?.groupname === 'Packager'" routerLink="/packaging" class="text-xl text-gray-700 p-0 m-0">{{totalResi}} Invoices need to proceed link</a> -->
+      <p-button
+          *ngIf="!loadingUser && totalResi > 0 && userInfo?.groupname === 'Packager'"
+          styleClass="p-button-text !p-0 !m-0"
+          (onClick)="_goToPackaging()">
+          <ng-template pTemplate="content">
+            <span class="text-xl text-gray-700">
+              {{ totalResi }} Invoices need to proceed
+            </span>
+          </ng-template>
+        </p-button>
+      <span *ngIf="totalResi > 0 && userInfo?.groupname !== 'Packager'" class="text-xl text-gray-700 p-0 m-0">{{totalResi}} Invoices need to proceed</span>
     </div>
     <div class="w-full bg-white py-3 px-5 rounded shadow mb-3">
       <h3 class="text-xl font-medium  p-0 m-0 mb-4">Jobs Performance</h3>

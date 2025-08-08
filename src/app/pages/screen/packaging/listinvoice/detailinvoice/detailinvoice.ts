@@ -163,8 +163,6 @@ export class Detailinvoice implements OnInit, OnDestroy {
   async _generatePrinting(payloadStr: any) {
     console.log("##### AWAIT PRINTING ", payloadStr);
     const payload = {order_sn:payloadStr};
-
-
     fetch('/v2/shopee/send_print', {
       method: 'POST',
       headers: {
@@ -194,6 +192,7 @@ export class Detailinvoice implements OnInit, OnDestroy {
           // });
           // this.QueriesData = dataRecordsTemp;
           this.loading = false;
+          this._nextJob();return
         } else {
           this.loading = false
           // this.listMenu = [];
