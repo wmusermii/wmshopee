@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, sendingEmailTo, updateItemsInPackage, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, sendingEmailTo, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -17,6 +17,7 @@ router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHand
 router.post('/auth/login', asyncHandler(login));
 router.post('/auth/registuser', asyncHandler(registUser));
 router.get('/auth/attrb',asyncHandler(authBearerMiddleware), asyncHandler(attrb));
+router.post('/auth/updateuser', asyncHandler(authBearerMiddleware),asyncHandler(updateUser));
 //##################################### AUTH ROUTES #############
 
 router.get('/warehouse/get_jobs/available', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem));// Untuk mengambil Jobs / POS barang list dalam Inquery Shopee yang available
@@ -30,4 +31,6 @@ router.get('/warehouse/get_sku_count', asyncHandler(authBearerMiddleware),asyncH
 
 //##################################### EMAIL #############
 router.post('/warehouse/send_email', asyncHandler(sendingEmailTo));// Untuk cek apaka package yang di ambil sudah diambil user lain
+//##################################### Printing #############
+router.post('/warehouse/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingEmailTo));// Untuk cek apaka package yang di ambil sudah diambil user lain
 export default router;

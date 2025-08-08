@@ -10,14 +10,12 @@
       <p-datepicker formControlName="date" dateFormat="dd MM yy" [showOnFocus]="false" [showIcon]="true" class="w-full"
         inputStyleClass="w-full text-center"></p-datepicker>
     </div>
-
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2 mb-2 md:mb-0">
       <p class="m-0">From:</p>
       <p-select [options]="optionFromTime" formControlName="fromtime" placeholder="Select start time"
         optionLabel="label" optionValue="value" (onChange)="updateToTime($event.value)" class="w-full text-center"
         styleClass="w-full text-center font-bold"></p-select>
     </div>
-
     <div class="w-full flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2">
       <p class="m-0">To:</p>
       <h1 class="text-gray-300">{{ dateForm.get('totime')?.value }}</h1>

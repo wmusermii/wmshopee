@@ -103,7 +103,6 @@ export class ShopeeRepository {
   async selectItemsPackagesAvailable(payload:any, userinfo:any) {
     //#######################CHECK APAKAH q_shopee_invoices SUDAH TERUPDATE STATUSNYA######################
     const checkStatus = await db('q_shopee_invoices').select('status').where('order_sn', payload.order_sn).first();
-    // console.log("############## ", userinfo);
     //######################################################
     if(checkStatus.status === 0) {
       //################################ UPDATE q_shopee_invoices dulu bahwa sudah di take _1
@@ -112,10 +111,62 @@ export class ShopeeRepository {
           updated_by: userinfo.iduser,
           updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
         }).where('order_sn', payload.order_sn).returning('id_q_shopee');
-
       //#######################################################
       if(updateStatus){
               const query = await db('q_shopee_invoices_detail')
+            .select(
+              'id_q_shopee',
+              'order_sn',
+              'item_id',
+              'item_name',
+              'item_sku',
+              'model_id',
+              'model_name',
+              'model_quantity_purchased as qty',
+              'image_url',
+              'status',
+              'create_time'
+            )
+            .where('order_sn', payload.order_sn)
+            .orderBy('create_time', 'desc');
+            return await query;
+        } else {
+            return [];
+        }
+      } else {
+          const query = await db('q_shopee_invoices_detail')
+            .select(
+              'id_q_shopee',
+              'order_sn',
+              'item_id',
+              'item_name',
+              'item_sku',
+              'model_id',
+              'model_name',
+              'model_quantity_purchased as qty',
+              'image_url',
+              'status',
+              'create_time'
+            )
+            .where('order_sn', payload.order_sn)
+            .orderBy('create_time', 'desc');
+            return await query;
+      }
+  }
+   async selectItemsToPrint(payload:any, userinfo:any) {
+    //#######################CHECK APAKAH q_shopee_invoices SUDAH TERUPDATE STATUSNYA######################
+    const checkStatus = await db('q_shopee_invoices').select('status').where('order_sn', payload.order_sn).first();
+    //######################################################
+    if(checkStatus.status === 0) {
+      //################################ UPDATE q_shopee_invoices dulu bahwa sudah di take _1
+      const updateStatus = await db('q_shopee_invoices').update({
+          status: 3,
+          updated_by: userinfo.iduser,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+        }).where('order_sn', payload.order_sn).returning('id_q_shopee');
+      //#######################################################
+      if(updateStatus){
+            const query = await db('q_shopee_invoices_detail')
             .select(
               'id_q_shopee',
               'order_sn',

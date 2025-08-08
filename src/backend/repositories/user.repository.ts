@@ -48,4 +48,33 @@ export class UserRepository {
 
     return query;
   }
+  async updateUser(payload: any, userinfo:any) {
+    let syntax:any = {}
+    if(payload.changepassword) {
+      syntax={
+          username: payload.username,
+          created_by: userinfo.iduser,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+          fullname:payload.fullname,
+          mobile:payload.mobile,
+          email:payload.email,
+          password:payload.password
+        }
+    } else {
+      syntax={
+          username: payload.username,
+          created_by: userinfo.iduser,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+          fullname:payload.fullname,
+          mobile:payload.mobile,
+          email:payload.email
+        }
+    }
+    console.log("SYNTAX ",syntax);
+
+    const query = await db('m_user').update(syntax
+      ).where("iduser",payload.iduser).returning("iduser");
+
+    return query;
+  }
 }

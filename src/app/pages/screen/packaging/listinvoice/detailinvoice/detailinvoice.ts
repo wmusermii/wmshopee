@@ -28,6 +28,7 @@ export class Detailinvoice implements OnInit, OnDestroy {
   ssrStorage = inject(LocalstorageService);
   loading = false;
   selectedItem: any = null;
+  showPrintDialog:any = {show:false, title:"Printing", message:"Print this order before take other job?"}
   constructor(private router: Router) { }
   async ngOnInit(): Promise<void> {
     console.log("Implement DetailInvoice");
@@ -143,7 +144,22 @@ export class Detailinvoice implements OnInit, OnDestroy {
     return data.filter(record => record.status <= 0);
   }
   async _saveNextJob() {
-    this.router.navigate(['/packaging']);
+
+    // this.router.navigate(['/packaging']);
+  }
+  async confirmPrinting(){
+    this.loading=true;
+
+
+
+
+
+
+
+    this.showPrintDialog = {show:false, title:"Printing", message:"Print this order before take other job?"}; return
+  }
+  async cancelPrinting() {
+    this.showPrintDialog = {show:false, title:"Printing", message:"Print this order before take other job?"}; return
   }
   async _nextJob() {
     this.router.navigate(['/packaging']);

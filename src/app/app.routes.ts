@@ -58,6 +58,11 @@ export const routes: Routes = [
        loadComponent:() => import("./pages/screen/product/product.component").then(m => m.ProductComponent)
       },
       {
+       path:'profile',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/myprofile/myprofile").then(m => m.Myprofile)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

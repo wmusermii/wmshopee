@@ -11,9 +11,9 @@ const apiService = new ApiService();
 export async function login(req: Request, res: Response, next: NextFunction) {
   const { credential } = req.body;
   try {
-    console.log("CREDENTIAL : ", credential);
+    // console.log("CREDENTIAL : ", credential);
     const decoded = Buffer.from(credential, 'base64').toString('utf-8');
-   console.log("CREDENTIAL DECODED : ", decoded);
+  //  console.log("CREDENTIAL DECODED : ", decoded);
     const [username, password] = decoded.split(':');
     const user = await authService.login(username, password);
     const data:any = user.data;
@@ -115,6 +115,12 @@ export async function registUser(req: Request, res: Response) {
   }
 
 }
+
+
+
+
+
+
 async function generatePassword(): Promise<string> {
   const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";

@@ -235,6 +235,26 @@ export async function getCountSKUAvailable(req: Request, res: Response, next: Ne
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function updateUser(req: Request, res: Response, next: NextFunction) {
+  try {
+
+    const { iduser, username,fullname,mobile,email,groupname,changepassword,password,cpassword} = req.body;
+    const userInfo:any = req.userInfo;
+    const payload = {iduser:iduser, username:username,fullname:fullname,mobile:mobile,email:email,groupname:groupname,password:password,changepassword:changepassword }
+    console.log("####################################### updateUser ", payload);
+    const updateResult = await apiService.updateUser(payload,userInfo);
+    console.log("####################################### updateUser ", updateResult);
+    if(updateResult.code === 20000) {
+      await ResponseHelper.send(res, updateResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));return
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
 //##################### PROCESS ELSE ######################
 export async function getAllSKUAvailable(req: Request, res: Response, next: NextFunction) {
  try {
@@ -264,6 +284,23 @@ export async function sendingEmailTo(req: Request, res: Response, next: NextFunc
       await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
       return;
     }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function sendingPrinting(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { order_sn } = req.body;
+    const userInfo:any = req.userInfo;
+    const packageResult = await apiService.sendPrinting(order_sn,userInfo );
+    // if(packageResult.code === 20000) {
+    //   await ResponseHelper.send(res, packageResult);return;
+    // } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Printing test"));
+    //   return;
+    // }
   } catch (error) {
     logError("Error api.controller : ", error)
     // next(error);

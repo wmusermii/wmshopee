@@ -70,7 +70,6 @@ export class ApiService {
   }
    async qShopeeInfo() {
     const shopeeResult = await this.apiShopeeService.getShopInfo();
-    // console.log("GET PROFILE SHOP INFO ", shopeeResult);
     if(shopeeResult) {
       return ApiResponse.success(shopeeResult, "Records found");
     }
@@ -128,6 +127,7 @@ export class ApiService {
   }
   async saveShopeeInvoices(id: number, orderDetails: any[]) {
     // 1. Persiapan data untuk table q_shopee_invoices
+
     const invoices = orderDetails.map((order) => ({
       id_q_shopee: id,
       create_time: this.toDatetimeString(order.create_time),
@@ -135,7 +135,8 @@ export class ApiService {
       total_amount: order.total_amount,
       ship_by_date: this.toDatetimeString(order.ship_by_date),
       status: 0,
-      order_sn: order.order_sn
+      order_sn: order.order_sn,
+      shipping_carrier:order.shipping_carrier
     }));
 
     // 2. Persiapan data untuk table q_shopee_invoices_detail
@@ -144,7 +145,6 @@ export class ApiService {
     orderDetails.forEach(order => {
       const orderSn = order.order_sn;
       const items = order.item_list || []; // Jika tidak ada item_list, gunakan array kosong
-
       items.forEach((item: any) => {
         invoiceDetails.push({
           id_q_shopee: id,
@@ -211,6 +211,27 @@ export class ApiService {
       return ApiResponse.success(userResult, "Success insert");
     }
   }
+
+async updateUser(payload:any, userInfo:any) {
+    const userResult = await this.userRepo.updateUser(payload, userInfo);
+    if (!userResult) {
+      return ApiResponse.successNoData(null, "Unable to update data!");
+    } else {
+      return ApiResponse.success(userResult, "Success update");
+    }
+  }
+async sendPrinting(order_sn:any, userInfo:any) {
+  const printingObject:any[] = await this.shopeeRepo.selectItemsToPrint({order_sn:order_sn}, userInfo);
+  logInfo("hasil select ")
+
+
+
+
+  return ApiResponse.success(printingObject, "Printing sent successfully");
+}
+
+
+
   private toDatetimeString(unix: number): string {
     const date = new Date(unix * 1000);
     const pad = (n: number) => String(n).padStart(2, '0');

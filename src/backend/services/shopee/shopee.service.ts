@@ -161,8 +161,9 @@ export class ShopeeService {
     for (const chunk of chunks) {
       const res = await this.fetchWithAuth(path, {
         order_sn_list: chunk,
-        response_optional_fields: 'order_status,item_list,total_amount' // sesuaikan kebutuhan
+        response_optional_fields: 'order_status,item_list,total_amount,buyer_username,recipient_address,shipping_carrier,invoice_data' // sesuaikan kebutuhan
       });
+      // console.log("#### ORDER DETAIL : ",res.response.order_list);
       if (res && res.response && res.response.order_list) {
         allDetails.push(...res.response.order_list);
       }
@@ -198,6 +199,49 @@ export class ShopeeService {
     const local = new Date(now.getTime() - offsetMs);
     return local.toISOString().slice(0, 19).replace('T', ' ');
   }
+
+  async getShippingLabel(orderSn: string): Promise<Buffer | null> {
+    // 1️⃣ Ambil info dokumen pengiriman
+    const infoPath = '/api/v2/logistics/get_shipping_document_info';
+    const infoRes = await this.fetchWithAuth(infoPath, {
+      order_sn_list: orderSn,
+    });
+
+    if (infoRes.error || !infoRes.response?.shipping_document_info) {
+      console.error('❌ Tidak ada shipping document info:', infoRes);
+      return null;
+    }
+
+    // Ambil tipe dokumen yang tersedia (contoh: "NORMAL_AIR_WAYBILL")
+    const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
+    if (!docType) {
+      console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
+      return null;
+    }
+
+    // 2️⃣ Download dokumen
+    const downloadPath = '/api/v2/logistics/download_shipping_document';
+    const downloadRes = await this.fetchWithAuth(downloadPath, {
+      order_sn_list: orderSn,
+      shipping_document_type: docType,
+    });
+
+    if (downloadRes.error || !downloadRes.response?.file) {
+      console.error('❌ Gagal download dokumen:', downloadRes);
+      return null;
+    }
+
+    // File dikembalikan Shopee dalam bentuk Base64
+    const fileBase64 = downloadRes.response.file;
+    return Buffer.from(fileBase64, 'base64');
+  }
+
+
+
+
+
+
+
   async toTimestampWIB(date: string, time: string): Promise<number> {
     const localDateTime = new Date(`${date}T${time}+07:00`); // Menggabungkan sebagai zona WIB
     return Math.floor(localDateTime.getTime() / 1000); // Ubah ke detik
