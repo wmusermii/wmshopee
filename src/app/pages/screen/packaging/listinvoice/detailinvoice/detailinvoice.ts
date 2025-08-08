@@ -144,25 +144,65 @@ export class Detailinvoice implements OnInit, OnDestroy {
     return data.filter(record => record.status <= 0);
   }
   async _saveNextJob() {
-
+    this.showPrintDialog = {show:true, title:"Printing", message:"Print this order before take other job?"};
     // this.router.navigate(['/packaging']);
   }
   async confirmPrinting(){
     this.loading=true;
+    this.showPrintDialog = {show:false, title:"Printing", message:"Print this order before take other job?"};
+    await this._generatePrinting(this.jobOrderSN)
 
-
-
-
-
-
-
-    this.showPrintDialog = {show:false, title:"Printing", message:"Print this order before take other job?"}; return
+    return;
   }
   async cancelPrinting() {
     this.showPrintDialog = {show:false, title:"Printing", message:"Print this order before take other job?"}; return
   }
   async _nextJob() {
     this.router.navigate(['/packaging']);
+  }
+  async _generatePrinting(payloadStr: any) {
+    console.log("##### AWAIT PRINTING ", payloadStr);
+    const payload = {order_sn:payloadStr};
+
+
+    fetch('/v2/shopee/send_print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/send_print 0", res);
+        if (!res.ok) throw new Error('q_shopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/send_print 1", data);
+        if (data.code === 20000) {
+          // const dataRecords = data.data;
+          // const dataRecordsTemp = cloneDeep(data.data);;
+          // dataRecordsTemp.forEach((record: { status: number | string }) => {
+          //   if (record.status === 0) {
+          //     record.status = 'OPEN';
+          //   } else if (record.status === 1) {
+          //     record.status = 'PROCEED';
+          //   } else {
+          //     record.status = 'UNKNOWN';
+          //   }
+          // });
+          // this.QueriesData = dataRecordsTemp;
+          this.loading = false;
+        } else {
+          this.loading = false
+          // this.listMenu = [];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/send_print", err);
+        // this.showConfirmDialog = true;
+      });
   }
 }
 interface ItemFields {

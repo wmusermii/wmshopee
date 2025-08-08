@@ -13,6 +13,7 @@ router.post('/shopee/gen_qshopee_job', asyncHandler(authBearerMiddleware),asyncH
 router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem)); // untuk menggenerate table q_shopee generateQShopeeJobs
 router.get('/shopee/get_shop_performance', asyncHandler(authBearerMiddleware),asyncHandler(getShopPerformance)); // untuk mendapatka performa toko terhadap shopee
 router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHandler(getShopInfo)); //mendapatkan Info toko dari Shopee
+router.post('/shopee/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingEmailTo));// Untuk print label invoice
 //##################################### AUTH ROUTES #############
 router.post('/auth/login', asyncHandler(login));
 router.post('/auth/registuser', asyncHandler(registUser));
@@ -32,5 +33,5 @@ router.get('/warehouse/get_sku_count', asyncHandler(authBearerMiddleware),asyncH
 //##################################### EMAIL #############
 router.post('/warehouse/send_email', asyncHandler(sendingEmailTo));// Untuk cek apaka package yang di ambil sudah diambil user lain
 //##################################### Printing #############
-router.post('/warehouse/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingEmailTo));// Untuk cek apaka package yang di ambil sudah diambil user lain
+
 export default router;
