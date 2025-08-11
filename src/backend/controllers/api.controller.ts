@@ -41,7 +41,7 @@ export async function generateQShopeeCurrent(req: Request, res: Response, next: 
     let bodyPayload = {fromdate:date, fromtime:fromtime, totime:totime}
     const userInfo:any = req.userInfo;
     const inserResult = await apiService.qShopeeInsertCurrent(bodyPayload,userInfo);
-    console.log("################################## generateQShopeeCurrent : ",inserResult);
+    // console.log("################################## generateQShopeeCurrent : ",inserResult);
     if(inserResult.code === 20000) {
       await ResponseHelper.send(res, inserResult);return;
     } else {

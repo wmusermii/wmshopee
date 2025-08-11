@@ -46,13 +46,13 @@ export class ApiService {
     const shopeeResult = await this.shopeeRepo.saveQShopee(payload, userinfo);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to insert fetch data!");
     //###################################AMBIL ###################
-    console.log("1. #### HASIL INSERT Q_Shopee ",shopeeResult);
+    // console.log("1. #### HASIL INSERT Q_Shopee ",shopeeResult);
     // console.log("2. #### INPUT HASIL ARRAY ORDER ",arrayOrder);
     console.log("3. #### INPUT KE DALAM INVOICE ");
     const invoiceInsertResult = await this.apiShopeeService.getOrderDetail(arrayOrder)
     if(invoiceInsertResult.length > 0) {
       // console.log("#### SALAH SATU DATA ############################ ",invoiceInsertResult[0]);
-      const listResponse = await this.saveShopeeInvoicesCurrent(payload.id, invoiceInsertResult); //Input Invoices;
+      const listResponse = await this.saveShopeeInvoicesCurrent(shopeeResult[0].id, invoiceInsertResult); //Input Invoices;
       if (!listResponse) {
         return ApiResponse.successNoData(listResponse, "Unable to get data!");
       } else {

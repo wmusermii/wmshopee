@@ -225,6 +225,7 @@ export class ShopeeService {
     return allDetails;
   }
 
+
   public async getPerformance(): Promise<any[]> {
     const path = '/api/v2/account_health/get_shop_performance';
     // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
