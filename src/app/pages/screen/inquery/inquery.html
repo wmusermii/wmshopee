@@ -147,15 +147,11 @@
           </td>
           <!-- Kolom ACTION -->
           <td style="text-align: center;">
-            <!-- <button *ngIf="rowData.totalresi > 0" pButton type="button" label="Process" icon="pi pi-cog"
-              class="p-button-sm p-button-rounded p-button-success"
-              >
-            </button> -->
             <button *ngIf="rowData.totalresi > 0 && rowData.status === 'OPEN'" pButton type="button" class="w-full"
               icon="pi pi-cog" label="Process Jobs" (click)="_processRow(rowData)"></button>
             <button *ngIf="rowData.totalresi > 0 && rowData.status === 'PROCEED'" pButton type="button" class="w-full"
               icon="pi pi-search" label="Sort Items" (click)="_viewPostItem(rowData)" severity="info"></button>
-            <!-- (click)="processRow(rowData)" -->
+
           </td>
         </tr>
       </ng-template>

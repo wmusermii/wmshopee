@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getShopInfo, getShopPerformance, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeToday, getShopInfo, getShopPerformance, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -8,7 +8,9 @@ const router = Router();
 router.get('/echo', echo);
 //##################################### REAL FUNCTION#############
 router.get('/shopee/get_qshopee', asyncHandler(authBearerMiddleware),asyncHandler(getQShopee)); // untuk menggenerate table q_shopee generateQShopeeJobs
+router.get('/shopee/get_qshopeetoday', asyncHandler(authBearerMiddleware),asyncHandler(getQShopeeToday)); // untuk melihat table q_shopee terakhir update per hari ini
 router.post('/shopee/gen_qshopee', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopee)); // untuk menggenerate table q_shopee
+router.post('/shopee/gen_qshopeeCurrent', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopeeCurrent)); // INI YANG POENTING
 router.post('/shopee/gen_qshopee_job', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopeeJobs)); // untuk menggenerate table q_shopee_invoice
 router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem)); // untuk menggenerate table q_shopee generateQShopeeJobs
 router.get('/shopee/get_shop_performance', asyncHandler(authBearerMiddleware),asyncHandler(getShopPerformance)); // untuk mendapatka performa toko terhadap shopee

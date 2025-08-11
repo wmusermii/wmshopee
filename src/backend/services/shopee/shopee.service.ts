@@ -179,7 +179,7 @@ export class ShopeeService {
 
     const timestamp_from = await this.toTimestampWIB(datepick, timeFrom); // e.g. 01:00 WIB
     const timestamp_to = await this.toTimestampWIB(datepick, timeTo);     // e.g. 04:00 WIB
-
+    console.log(`############################# ${datepick}, ${timeFrom}, ${timeTo}`);
     let cursor = '';
     let hasMore = true;
     const allOrders: any[] = [];
@@ -193,24 +193,18 @@ export class ShopeeService {
         page_size: '100',
         response_optional_fields: 'order_status'
       };
-
       if (cursor) {
         params['cursor'] = cursor;
       }
-
       const result = await this.fetchWithAuth(path, params);
-
       const orders = result?.response?.order_list || [];
       if (orders.length > 0) {
         allOrders.push(...orders);
       }
-
       hasMore = result?.response?.more === true;
       cursor = result?.response?.next_cursor || '';
     }
-
     console.log('✅ Total Orders Fetched:', allOrders.length);
-
     return allOrders;
   }
 

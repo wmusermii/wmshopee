@@ -35,7 +35,25 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
-
+export async function generateQShopeeCurrent(req: Request, res: Response, next: NextFunction) {
+  const { date,fromtime, totime } = req.body;
+  try {
+    let bodyPayload = {fromdate:date, fromtime:fromtime, totime:totime}
+    const userInfo:any = req.userInfo;
+    const inserResult = await apiService.qShopeeInsertCurrent(bodyPayload,userInfo);
+    console.log("################################## generateQShopeeCurrent : ",inserResult);
+    if(inserResult.code === 20000) {
+      await ResponseHelper.send(res, inserResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
 export async function getShopPerformance(req: Request, res: Response, next: NextFunction) {
   try {
     const shopperformanceResult = await apiService.qShopeePerformance();
@@ -88,6 +106,23 @@ export async function getQShopee(req: Request, res: Response, next: NextFunction
     const userInfo:any = req.userInfo;
     const inserResult = await apiService.qShopeeGet(userInfo);
     if(inserResult.code === 20000 && inserResult.data.length > 0) {
+      await ResponseHelper.send(res, inserResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+export async function getQShopeeToday(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getQShopeeToday");
+    const userInfo:any = req.userInfo;
+    const inserResult = await apiService.qShopeeGetToday(userInfo);
+    if(inserResult.code === 20000) {
       await ResponseHelper.send(res, inserResult);return;
     } else {
       await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));

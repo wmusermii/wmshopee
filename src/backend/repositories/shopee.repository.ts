@@ -33,8 +33,13 @@ export class ShopeeRepository {
     return await query;
   }
   async saveQShopeeInvoicesDetail(payload:any[]){
-    const query = await db('q_shopee_invoices_detail').insert(payload);
-    return await query;
+    // const query = await db('q_shopee_invoices_detail').insert(payload);
+    // return await query;
+    const chunkSize = 200; // aman untuk SQLite
+    for (let i = 0; i < payload.length; i += chunkSize) {
+      const chunk = payload.slice(i, i + chunkSize);
+      await db('q_shopee_invoices_detail').insert(chunk);
+    }
   }
 
   async viewQShopeePosBySN(payload:any){
@@ -242,8 +247,22 @@ export class ShopeeRepository {
       'qs.created_at'
     ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc");
     return result;
-    // .andWhere('qs.status', 0)
-    // return await query;
+  }
+  async selectQShopeeToday() {
+    const today = new Date().toISOString().substring(0, 10);
+    const result = await db.select([
+      'qs.id',
+      'qs.datepick',
+      'qs.fromtime',
+      'qs.totime',
+      'qs.created_by',
+      'mu.fullname',
+      'qs.status',
+      'qs.totalresi',
+      'qs.created_at'
+    ]).from('q_shopee as qs').leftJoin("m_user as mu","qs.created_by","mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at","desc").first();
+    // console.log("DB SELECT SHOPPY TODAY ", result);
+    return result;
   }
   async getSMTPVariables(){
       const query = await db('m_smtp')

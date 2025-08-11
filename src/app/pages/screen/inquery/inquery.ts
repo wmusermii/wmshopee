@@ -59,7 +59,6 @@ export class Inquery implements OnInit {
       const time = `${hour}:00:01`;
       return { value: time, label: time };
     });
-
     this.cols = [
       { field: 'id', header: '#', class: "text-center", cellclass: "text-end" },
       { field: 'status', header: 'STATUS', class: "text-center", cellclass: "text-center" },
