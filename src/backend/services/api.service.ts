@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/apiResponse";
 import { logInfo } from "../utils/logger";
 import { ShopeeService } from "./shopee/shopee.service";
 import nodemailer from 'nodemailer';
+import { promises as fs } from 'fs';
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
   private userRepo = new UserRepository();
@@ -223,10 +224,13 @@ async updateUser(payload:any, userInfo:any) {
 async sendPrinting(order_sn:any, userInfo:any) {
   const printingObject:any[] = await this.shopeeRepo.selectItemsToPrint({order_sn:order_sn}, userInfo);
   // logInfo("hasil select ",printingObject)
-
-  const hasilprint = await this.apiShopeeService.getShippingLabel(order_sn)
-  console.log("HASIL PRINT ", hasilprint);
-
+  console.log("sendPrinting ", order_sn);
+  const hasilprint = await this.apiShopeeService.getShippingLabelWithArrange(order_sn)
+  console.log("HASIL PRINT ", "hasilprint");
+  if (hasilprint) {
+  await fs.writeFile("label.pdf", hasilprint);
+  console.log("✅ Label berhasil disimpan!");
+}
   return ApiResponse.success(printingObject, "Printing sent successfully");
 }
 

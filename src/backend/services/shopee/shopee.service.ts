@@ -77,6 +77,7 @@ export class ShopeeService {
   private async fetchWithAuth(path: string, queryParams: any = {}): Promise<any> {
     let cred = await this.getCredential();
     let timestamp = getTimestamp();
+
     let sign = this.generateSignature(path, timestamp, cred.access_token, cred.shop_id, cred.client_id, cred.client_secret);
 
     const searchParams = new URLSearchParams({
@@ -93,7 +94,7 @@ export class ShopeeService {
     // logInfo('✅✅ fetchWithAuth :', result)
     if (result.error === 'invalid_acceess_token') {
       // Refresh token and retry once
-      logInfo('✅ Shopee get List Error:', result)
+      // logInfo('✅ Shopee get List Error:', result)
       const newToken = await this.refreshToken();
       timestamp = getTimestamp();
       sign = this.generateSignature(path, timestamp, newToken.access_token, cred.shop_id, cred.client_id, cred.client_secret);
@@ -107,13 +108,72 @@ export class ShopeeService {
       });
       const retryUrl = `${cred.base_api}${path}?${retryParams.toString()}`;
       const retryRes = await fetch(retryUrl);
-      // logInfo('✅ Shopee get List Setelah fetch :', retryRes.json)
       return await retryRes.json();
     }
-
     return result;
   }
+  private async fetchWithAuthMETHOD(path: string, queryParams: any = {},
+  method: 'GET' | 'POST' = 'GET',
+  bodyData?: any): Promise<any> {
+    let cred = await this.getCredential();
+    let timestamp = getTimestamp();
+    let sign = this.generateSignature(path, timestamp, cred.access_token, cred.shop_id, cred.client_id, cred.client_secret);
+    const searchParams = new URLSearchParams({
+      partner_id: cred.client_id,
+      shop_id: cred.shop_id,
+      access_token: cred.access_token,
+      timestamp: String(timestamp),
+      sign,
+      ...queryParams
+    });
 
+    const url = `${cred.base_api}${path}?${searchParams.toString()}`;
+    const options: RequestInit = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    if (method === 'POST' && bodyData) {
+      options.body = JSON.stringify(bodyData);
+    }
+    const res = await fetch(url, options);
+
+    const contentType = res.headers.get("content-type") || "";
+
+    console.log("Status:", res.status, res.statusText);
+    console.log("Content-Type:", contentType);
+
+    let resultYMP;
+    if (contentType.includes("application/json")) {
+      resultYMP = await res.json();
+    } else {
+      resultYMP = await res.text(); // plain text fallback
+    }
+    console.log("Body:", resultYMP);
+
+
+
+    const result = await res.json();
+
+    if (result.error === 'invalid_acceess_token') {
+      // Refresh token and retry once
+      // logInfo('✅ Shopee get List Error:', result)
+      const newToken = await this.refreshToken();
+      timestamp = getTimestamp();
+      sign = this.generateSignature(path, timestamp, newToken.access_token, cred.shop_id, cred.client_id, cred.client_secret);
+      const retryParams = new URLSearchParams({
+        partner_id: cred.client_id,
+        shop_id: cred.shop_id,
+        access_token: newToken.access_token,
+        timestamp: String(timestamp),
+        sign,
+        ...queryParams
+      });
+      const retryUrl = `${cred.base_api}${path}?${retryParams.toString()}`;
+      const retryRes = await fetch(retryUrl, options);
+      return await retryRes.json();
+    }
+    return result;
+  }
   public async getOrderList(datepick: string, timeFrom: string, timeTo: string): Promise<any[]> {
     const path = '/api/v2/order/get_order_list';
 
@@ -236,6 +296,60 @@ export class ShopeeService {
     return Buffer.from(fileBase64, 'base64');
   }
 
+  async getShippingLabelWithArrange(orderSn: string): Promise<Buffer | null> {
+  // 1️⃣ Arrange shipment dulu
+  console.log("###################### ARRANG SHIP ORDER DULU ", orderSn);
+  const arrangePath = '/api/v2/logistics/ship_order';
+  const bodyData:any={
+    order_sn: orderSn,
+    package_number: "",
+    pickup: {
+      address_id: 0,
+      pickup_time_id: "",
+      tracking_number: ""
+    }
+  }
+  const arrangeRes = await this.fetchWithAuthMETHOD(arrangePath,{},"POST", bodyData);
+  console.log("###################### BALIKAN DARI SHIP ORDER");
+  if (arrangeRes.error) {
+    console.error(`❌ Gagal arrange shipment:`, arrangeRes);
+    return null;
+  }
+
+  console.log(`✅ Shipment arranged untuk ${orderSn}`);
+
+  // 2️⃣ Ambil info dokumen
+  const infoPath = '/api/v2/logistics/get_shipping_document_info';
+  const infoRes = await this.fetchWithAuth(infoPath, {
+    order_sn_list: orderSn
+  });
+
+  if (infoRes.error || !infoRes.response?.shipping_document_info) {
+    console.error(`❌ Tidak ada shipping document info untuk ${orderSn}:`, infoRes);
+    return null;
+  }
+
+  const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
+  if (!docType) {
+    console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
+    return null;
+  }
+
+  // 3️⃣ Download dokumen
+  const downloadPath = '/api/v2/logistics/download_shipping_document';
+  const downloadRes = await this.fetchWithAuth(downloadPath, {
+    order_sn_list: orderSn,
+    shipping_document_type: docType
+  });
+
+  if (downloadRes.error || !downloadRes.response?.file) {
+    console.error(`❌ Gagal download dokumen untuk ${orderSn}:`, downloadRes);
+    return null;
+  }
+
+  const fileBase64 = downloadRes.response.file;
+  return Buffer.from(fileBase64, 'base64');
+}
 
 
 
