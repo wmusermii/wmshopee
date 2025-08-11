@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/app/pages/screen/dashboard/temp/dashboard.spec.ts.bak"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
