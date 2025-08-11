@@ -19,14 +19,12 @@
     </div>
   </div>
   <div class="w-full bg-white py-3 px-5 rounded shadow mb-3 md:items-center">
-    <h3>Items Requested</h3>
+
     <p-table [value]="QueriesDataPos" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]" class="w-full"
       stripedRows="true" showGridlines="true" [tableStyle]="{ 'min-width': '30rem' }">
       <ng-template pTemplate="caption">
       <div class="flex items-center justify-between">
-        <!-- <div class="flex items-center gap-3">
-          <a href="javascript:void(0)" (click)="_backtojob()" class="text-blue-600 hover:underline text-sm">&larr; Back to Job</a>
-        </div> -->
+        <h3>Items Requested</h3>
       </div>
     </ng-template>
       <ng-template pTemplate="header">

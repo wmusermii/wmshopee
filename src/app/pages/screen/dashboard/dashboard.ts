@@ -90,6 +90,7 @@ export class Dashboard implements OnInit {
           this.invoicetotalStr = `Invoices : ${this.totalResi} pcs.`
           // const dataRecordsTemp = cloneDeep(data.data);;
           // this.totalSku = dataRecordsTemp; this.loading = false;
+
         } else {
           // this.listInvoices = [];
           this.totalResi = 0;
@@ -148,7 +149,7 @@ export class Dashboard implements OnInit {
         if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
         return res.json();
       })
-      .then(data => {
+      .then(async data => {
         console.log("Response dari API /v2/shopee/get_qshopeetoday", data);
         if (data.code === 20000) {
           this.loading=false;
@@ -161,9 +162,12 @@ export class Dashboard implements OnInit {
           this.disableBtn = false;
           this.totalResi = data.data.totalresi;
           this.invoicetotalStr = `Invoices : ${this.totalResi} pcs.`
+          await this._getViewPosProcess({id:data.data.id})
+
         } else {
           this.loading=false;
           this.disableBtn = false;
+          this.QueriesDataPos=[];
         }
       })
       .catch(err => {
@@ -173,6 +177,14 @@ export class Dashboard implements OnInit {
   }
   async _popupShopee(){
     this.showGenerateDialog= true;
+    let startArray:any = await this.ssrStorage.getItem("FETCHTIME");
+    if(startArray){
+      //################### SETTING JAM BERIKUT ########################
+      let startT:string[] = startArray.split(",");
+      this.starttime = startT[0];
+       let dateTmp= new Date();
+       this.endtime = dateTmp.toLocaleTimeString('en-GB');
+    }
   }
   async _processFetchingShopee(){
     this.loading= true;
@@ -209,8 +221,6 @@ export class Dashboard implements OnInit {
           // const dataRecordsTemp = cloneDeep(data.data);
           console.log("FETCH SETELAH GENERATE ");
           this._lastFetchShopee();
-
-
           this.loading = false;
         } else {
           this.loading = false
@@ -226,6 +236,39 @@ export class Dashboard implements OnInit {
   }
   _goToPackaging() {
     this.router.navigate(['/packaging']);
+  }
+  async _getViewPosProcess(payload:any) {
+    this.loading=true;
+    fetch('/v2/shopee/get_positem', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_positem", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/get_positem ", data);
+        this.loading=false;
+        if (data.code === 20000) {
+          this.showProcedPostDialog = true;
+          const dataRecordsTemp = cloneDeep(data.data);
+          console.log("Data View ", dataRecordsTemp.data);
+          this.QueriesDataPos = dataRecordsTemp.data;
+          this.loading=false;
+        } else {
+          this.QueriesDataPos = [];
+          this.loading=false;
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_qshopee", err);
+      });
   }
 }
 
