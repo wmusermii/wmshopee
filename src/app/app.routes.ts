@@ -63,6 +63,10 @@ export const routes: Routes = [
        loadComponent:() => import("./pages/screen/myprofile/myprofile").then(m => m.Myprofile)
       },
       {
+       path:'printing',
+       loadComponent:() => import("./pages/screen/shopeeprintlist/shopeeprintlist").then(m => m.Shopeeprintlist)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

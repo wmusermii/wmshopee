@@ -1,9 +1,9 @@
 <header class="pt-20 max-w-7xl mx-auto px-2 flex items-center justify-between">
-  <h1 class="text-xl font-bold mt-2">Product</h1>
+  <h1 class="text-lg font-bold mt-2">Product</h1>
   <app-datetime></app-datetime>
 </header>
 <header class="pt-5 max-w-7xl mx-auto px-2 flex items-center justify-between">
-  <h1 class="text-xl font-bold mt-2"></h1>
+  <h1 class="text-lg font-bold mt-2"></h1>
   <button pButton type="button" label="Tambah Data" icon="pi pi-plus"
     class="!bg-orange-500 !text-white hover:!bg-orange-600 !border !border-orange-600 p-button p-component !mt-4"></button>
 </header>
