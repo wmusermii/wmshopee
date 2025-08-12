@@ -6,11 +6,6 @@
     "auditLog": "D:\\Work\\ARYA-WMS-SHOPPIE\\ANG19\\wmshopee\\logs\\.826385f691c047ab8f3633fbcdfa09287b302c75-audit.json",
     "files": [
         {
-            "date": 1753756635883,
-            "name": "D:\\Work\\ARYA-WMS-SHOPPIE\\ANG19\\wmshopee\\logs\\app-2025-07-29.log",
-            "hash": "55a49dc42b4b94e5a8efa2ba4aa6610d57ade7b76b912a1efd99af7f8872cf8f"
-        },
-        {
             "date": 1753840388636,
             "name": "D:\\Work\\ARYA-WMS-SHOPPIE\\ANG19\\wmshopee\\logs\\app-2025-07-30.log",
             "hash": "62136c6c9415b23de4b1d78bda74fe7e9050c76cf2edd4ae2c284bd8e80188a6"
@@ -59,6 +54,11 @@
             "date": 1754877706860,
             "name": "D:\\Work\\ARYA-WMS-SHOPPIE\\ANG19\\wmshopee\\logs\\app-2025-08-11.log",
             "hash": "00402829cea04feb6771ce1c26ff81ffa4f359355706336ca6a0c693b7b7476f"
+        },
+        {
+            "date": 1754968595586,
+            "name": "D:\\Work\\ARYA-WMS-SHOPPIE\\ANG19\\wmshopee\\logs\\app-2025-08-12.log",
+            "hash": "cd3fe773414a70546c56cb75150293d12b728c48dd72265204e76d727e0f9b10"
         }
     ],
     "hashType": "sha256"

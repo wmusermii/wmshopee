@@ -26,6 +26,15 @@ export class Dashboard implements OnInit {
   showProcessResiDialog: boolean = false;
   showProcedPostDialog: boolean = false;
   QueriesDataPos: QueryFields[] = [];
+  selectProduct:QueryFields={
+    id: 0,
+    fromtime: '',
+    totime: '',
+    created_by: '',
+    created_at: '',
+    datepick: '',
+    remarks: ''
+  };
   token: string | null | undefined = undefined;
   userInfo: any | undefined;
   date: Date | undefined = new Date(); // contoh
@@ -235,7 +244,7 @@ export class Dashboard implements OnInit {
     this.showGenerateDialog=false;
   }
   _goToPackaging() {
-    this.router.navigate(['/packaging']);
+    this.router.navigate(['/printing']);
   }
   async _getViewPosProcess(payload:any) {
     this.loading=true;
@@ -269,6 +278,12 @@ export class Dashboard implements OnInit {
       .catch(err => {
         console.log("Response Error Catch /shopee/get_qshopee", err);
       });
+  }
+  async _onRowSelect(payload:any){
+    console.log("Selected 1 : ",payload);
+    console.log("Selected 2 : ",this.selectProduct);
+    this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
+    this._goToPackaging();
   }
 }
 

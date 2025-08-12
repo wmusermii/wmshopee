@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { ShopeeRepository } from '../../repositories/shopee.repository';
 import { logInfo } from '../../utils/logger';
+import { ApiResponse } from '../../utils/apiResponse';
 
 interface ShopeeCredential {
   client_id: string;
@@ -213,11 +214,11 @@ export class ShopeeService {
     const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const allDetails: any[] = [];
     for (const chunk of chunks) {
+      // console.log("############ CHUNK ", chunk);
       const res = await this.fetchWithAuth(path, {
         order_sn_list: chunk,
         response_optional_fields: 'order_status,item_list,total_amount,buyer_username,recipient_address,shipping_carrier,invoice_data' // sesuaikan kebutuhan
       });
-      // console.log("#### ORDER DETAIL : ",res.response.order_list);
       if (res && res.response && res.response.order_list) {
         allDetails.push(...res.response.order_list);
       }
@@ -310,45 +311,82 @@ export class ShopeeService {
     console.error(`❌ Gagal arrange shipment:`, arrangeRes);
     return null;
   }
-
   console.log(`✅ Shipment arranged untuk ${orderSn}`);
-
   // 2️⃣ Ambil info dokumen
   const infoPath = '/api/v2/logistics/get_shipping_document_info';
   const infoRes = await this.fetchWithAuth(infoPath, {
     order_sn_list: orderSn
   });
-
   if (infoRes.error || !infoRes.response?.shipping_document_info) {
     console.error(`❌ Tidak ada shipping document info untuk ${orderSn}:`, infoRes);
     return null;
   }
-
   const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
   if (!docType) {
     console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
     return null;
   }
-
   // 3️⃣ Download dokumen
   const downloadPath = '/api/v2/logistics/download_shipping_document';
   const downloadRes = await this.fetchWithAuth(downloadPath, {
     order_sn_list: orderSn,
     shipping_document_type: docType
   });
-
   if (downloadRes.error || !downloadRes.response?.file) {
     console.error(`❌ Gagal download dokumen untuk ${orderSn}:`, downloadRes);
     return null;
   }
-
   const fileBase64 = downloadRes.response.file;
   return Buffer.from(fileBase64, 'base64');
 }
+async checkAndDownloadLabel(orderSn:string) {
+  try {
+    let orderList:string[]=[];
+    orderList.push(orderSn)
+    // 1. Cek detail order untuk dapatkan status terbaru
+    const orderDetail:any = await this.getOrderDetail(orderList);
+    console.log("Hasil Cek Order DETAIL ",orderDetail);
+    if (!orderDetail) throw new Error('Order tidak ditemukan');
+    // 2. Cek status order, apakah sudah dalam tahap pengiriman
+    if (orderDetail[0].order_status === 'SHIPPED' || orderDetail[0].order_status === 'SHIPPING') {
+      return { status: 'success', orderDetail };
+    } else if (orderDetail[0].order_status === 'PROCESSED') {
+      const trackingInfo = await this.getTrackingNumber(orderSn);//{ tracking_number: 'SPXID055010739228', hint: '' }
+      if(!trackingInfo) return ApiResponse.badRequest(trackingInfo,"Undefined data");
+      // 3. Cek dokumen shipping
+      const docInfo = await this.getShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
+      // const availableDocs = docInfo.response?.shipping_document_type || [];
 
 
 
+      return ApiResponse.success(trackingInfo,"success tracking data");
+    } else {
+      return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail.status}` };
+    }
+  } catch (error) {
+    return ApiResponse.badRequest(error,"Error data");
+  }
+}
 
+async getTrackingNumber(order_sn:string) {
+  const path = '/api/v2/logistics/get_tracking_number';
+ const res = await this.fetchWithAuth(path, {order_sn: order_sn});
+ console.log("#### ORDER TRACKING : ",res.response);
+  return res.response;
+}
+async getShippingDocumentInfo(order_sn:string, tracking_number:string) {
+  const path = '/api/v2/logistics/get_shipping_document_result';
+ const res = await this.fetchWithAuth(path, {
+    order_list: [{
+      order_sn: order_sn,
+      package_number: '',
+      tracking_number: tracking_number
+    }],
+    shipping_document_type: 'NORMAL_AIR_WAYBILL'
+  });
+ console.log("#### DOC TRACKING : ",res.response);
+  return res.response;
+}
 
 
   async toTimestampWIB(date: string, time: string): Promise<number> {

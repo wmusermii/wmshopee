@@ -41,9 +41,31 @@ export class ShopeeRepository {
       await db('q_shopee_invoices_detail').insert(chunk);
     }
   }
+  async getQShopeeItembest(payload:string){
+    const today = new Date().toISOString().substring(0, 10);
+     const query = await db('q_shopee_invoices_detail as qid')
+    .select(
+      'qid.id_q_shopee',
+      'qid.order_sn',
+      'qid.item_id',
+      'qid.item_name',
+      'qid.model_name',
+      'qid.model_quantity_purchased',
+      'qid.image_url',
+      'qid.status',
+      'qi.order_status',
+      'qi.total_amount',
+      'qi.shipping_carrier'
+    ).innerJoin("q_shopee_invoices as qi", "qid.order_sn", "qi.order_sn")
+    .where('qid.status', 0)
+    .whereRaw('DATE(qid.create_time) = ?', [today])
+    .andWhere('qid.item_id', payload)
+    .orderBy('qid.create_time', 'asc');
+    return await query;
+  }
 
   async viewQShopeePosBySN(payload:any){
-    const query = await db('q_shopee_invoices_detail')
+    const query = await db('q_shopee_invoices_detail as ')
     .select(
       'item_id',
       'item_name',

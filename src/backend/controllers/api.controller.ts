@@ -254,9 +254,7 @@ export async function getCountInvoicesAvailable(req: Request, res: Response, nex
 export async function getCountSKUAvailable(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getCountSKUAvailable");
-    // const { order_sn } = req.body;
     const userInfo:any = req.userInfo;
-    // const payload = {order_sn:order_sn}
     const packageResult = await apiService.getCountSKUAvailable();
     if(packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult);return;
@@ -325,17 +323,35 @@ export async function sendingEmailTo(req: Request, res: Response, next: NextFunc
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function getBestDataToPrint(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getBestDataToPrint");
+    const userInfo:any = req.userInfo;
+    const { item_id} = req.body;
+    const packageResult = await apiService.getBestShopeeItems(item_id);
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
 export async function sendingPrinting(req: Request, res: Response, next: NextFunction) {
   try {
-    const { order_sn } = req.body;
+    const { orders } = req.body;
     const userInfo:any = req.userInfo;
-    const packageResult = await apiService.sendPrinting(order_sn,userInfo );
-    // if(packageResult.code === 20000) {
-    //   await ResponseHelper.send(res, packageResult);return;
-    // } else {
-      await ResponseHelper.send(res,packageResult);
-    //   return;
-    // }
+    const packageResult = await apiService.sendPrinting(orders);
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData(orders,"Finish printing label"));
+      return;
+    }
   } catch (error) {
     logError("Error api.controller : ", error)
     // next(error);
