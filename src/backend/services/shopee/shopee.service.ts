@@ -358,14 +358,16 @@ async checkAndDownloadLabel(orderSn:string) {
        const createdocInfo = await this.createShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
       // const availableDocs = docInfo.response?.shipping_document_type || [];
        console.log("#### CRATE DOC TRACKING : ",createdocInfo);
-
-
       const docInfo = await this.getShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
       // const availableDocs = docInfo.response?.shipping_document_type || [];
        console.log("#### DOC TRACKING : ",docInfo);
-
-
       return ApiResponse.success(trackingInfo,"success tracking data");
+    } else if(orderDetail[0].order_status === 'READY_TO_SHIP') {
+
+
+
+
+
     } else {
       return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail.status}` };
     }
