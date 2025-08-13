@@ -39,8 +39,14 @@ export class ApiService {
     const orderList = await this.apiShopeeService.getOrderList(formattedDate, payload.fromtime, payload.totime);
     const totalResi = orderList.length;
     logInfo("✅ Sudah di List ", totalResi);
+    // logInfo("✅ order Sudah di List ", orderList[0]);
+    const packageList = await this.apiShopeeService.getShipmentList(formattedDate, payload.fromtime, payload.totime);
+    const packageLength = packageList.length;
+    logInfo("✅ package Sudah di List ", packageList[0]);
+
     let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
     payload.totalresi = totalResi;
+    // logInfo("✅ Sudah di List Extract ", payload.totalresi);
     // payload.listresi = JSON.stringify(arrayOrder); SUDAH TIDAK PERLU LAGI
     payload.listresi=JSON.stringify([]);
     const shopeeResult = await this.shopeeRepo.saveQShopee(payload, userinfo);
@@ -52,7 +58,7 @@ export class ApiService {
     const invoiceInsertResult = await this.apiShopeeService.getOrderDetail(arrayOrder)
     if(invoiceInsertResult.length > 0) {
       // console.log("#### SALAH SATU DATA ############################ ",invoiceInsertResult[0]);
-      const listResponse = await this.saveShopeeInvoicesCurrent(shopeeResult[0].id, invoiceInsertResult); //Input Invoices;
+      const listResponse = await this.saveShopeeInvoicesCurrent(shopeeResult[0].id, invoiceInsertResult,packageList); //Input Invoices;
       if (!listResponse) {
         return ApiResponse.successNoData(listResponse, "Unable to get data!");
       } else {
@@ -227,8 +233,11 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
-   async saveShopeeInvoicesCurrent(id: number, orderDetails: any[]) {
+   async saveShopeeInvoicesCurrent(id: number, orderDetails: any[], packageList:any[]) {
     // 1. Persiapan data untuk table q_shopee_invoices
+    const packageMap = Object.fromEntries(
+      packageList.map(p => [p.order_sn, p.package_number])
+    );
 
     const invoices = orderDetails.map((order) => ({
       id_q_shopee: id,
@@ -238,7 +247,8 @@ export class ApiService {
       ship_by_date: this.toDatetimeString(order.ship_by_date),
       status: 0,
       order_sn: order.order_sn,
-      shipping_carrier: order.shipping_carrier
+      shipping_carrier: order.shipping_carrier,
+      package_number: packageMap[order.order_sn] ?? null // aman kalau tidak ada
     }));
 
     // 2. Persiapan data untuk table q_shopee_invoices_detail
@@ -262,7 +272,6 @@ export class ApiService {
         });
       });
     });
-
     // 3. Insert ke kedua tabel
     const invoicesResult = await this.shopeeRepo.saveQShopeeInvoices(invoices);
     const detailsResult = await this.shopeeRepo.saveQShopeeInvoicesDetail(invoiceDetails); // <- tambahkan fungsi ini

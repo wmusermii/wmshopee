@@ -4,21 +4,25 @@ import { logInfo } from '../utils/logger';
 export class ShopeeRepository {
   async saveQShopee(payload:any, userInfo:any) {
     // Pastikan fromdate diformat jadi YYYY-MM-DD
+     console.log("PAYLOAD INSERT ",payload);
+    payload.fromdate = await this.convertDateFormat(payload.fromdate);
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); // hasilnya "2025-07-24"
+    // console.log("PAYLOAD INSERT ",payload);
     const query = await db('q_shopee').insert(
         {
           fromtime: payload.fromtime,
           totime: payload.totime,
           created_by: userInfo.iduser,
+          totalresi:payload.totalresi,
+          listresi:payload.listresi,
           created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
           datepick: formattedDate,
-          totalresi:payload.totalresi,
-          listresi:payload.listresi
         }
       ).returning('id');
 
     return await query;
   }
+
   async updateQShopee(payload:any) {
     const query = await db('q_shopee').update(
         {
@@ -337,5 +341,11 @@ export class ShopeeRepository {
       ).where("id",'1000001').returning('id');
 
     return await query;
+  }
+  async convertDateFormat(dateStr: string): Promise<string> {
+  // Misal inputnya "13-08-2025"
+  console.log("CONVERT DATE FROM ",dateStr);
+  const [day, month, year] = dateStr.split('-');
+  return `${year}-${month}-${day}`;
   }
 }

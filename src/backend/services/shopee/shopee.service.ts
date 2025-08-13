@@ -177,14 +177,12 @@ export class ShopeeService {
   }
   public async getOrderList(datepick: string, timeFrom: string, timeTo: string): Promise<any[]> {
     const path = '/api/v2/order/get_order_list';
-
     const timestamp_from = await this.toTimestampWIB(datepick, timeFrom); // e.g. 01:00 WIB
     const timestamp_to = await this.toTimestampWIB(datepick, timeTo);     // e.g. 04:00 WIB
     console.log(`############################# ${datepick}, ${timeFrom}, ${timeTo}`);
     let cursor = '';
     let hasMore = true;
     const allOrders: any[] = [];
-
     while (hasMore) {
       const params: Record<string, any> = {
         time_range_field: 'create_time',
@@ -208,7 +206,32 @@ export class ShopeeService {
     console.log('✅ Total Orders Fetched:', allOrders.length);
     return allOrders;
   }
-
+  public async getShipmentList(datepick: string, timeFrom: string, timeTo: string): Promise<any[]> {
+    const path = '/api/v2/order/get_shipment_list';
+    // const timestamp_from = await this.toTimestampWIB(datepick, timeFrom); // e.g. 01:00 WIB
+    // const timestamp_to = await this.toTimestampWIB(datepick, timeTo);     // e.g. 04:00 WIB
+    // console.log(`############################# ${datepick}, ${timeFrom}, ${timeTo}`);
+    let cursor = '';
+    let hasMore = true;
+    const allOrders: any[] = [];
+    while (hasMore) {
+      const params: Record<string, any> = {
+        page_size: '100'
+      };
+      if (cursor) {
+        params['cursor'] = cursor;
+      }
+      const result = await this.fetchWithAuth(path, params);
+      const orders = result?.response?.order_list || [];
+      if (orders.length > 0) {
+        allOrders.push(...orders);
+      }
+      hasMore = result?.response?.more === true;
+      cursor = result?.response?.next_cursor || '';
+    }
+    console.log('✅ Total Shipment Fetched:', allOrders.length);
+    return allOrders;
+  }
   public async getOrderDetail(orderSnList: string[]): Promise<any[]> {
     const path = '/api/v2/order/get_order_detail';
     const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
@@ -365,7 +388,7 @@ async checkAndDownloadLabel(orderSn:string) {
     } else if(orderDetail[0].order_status === 'READY_TO_SHIP') {
 
 
-
+      return;
 
 
     } else {
