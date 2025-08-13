@@ -276,7 +276,6 @@ export class ApiService {
     const invoicesResult = await this.shopeeRepo.saveQShopeeInvoices(invoices);
     const detailsResult = await this.shopeeRepo.saveQShopeeInvoicesDetail(invoiceDetails); // <- tambahkan fungsi ini
     const updateQShopee = await this.shopeeRepo.updateQShopee({ id: id });
-
     // 4. Ambil semua data untuk dikembalikan
     const rowQueryShopee = await this.shopeeRepo.selectQShopeeToday();
     if (!rowQueryShopee) {
