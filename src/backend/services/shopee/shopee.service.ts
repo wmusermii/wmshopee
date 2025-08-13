@@ -2,7 +2,8 @@ import crypto from 'crypto';
 import { ShopeeRepository } from '../../repositories/shopee.repository';
 import { logInfo } from '../../utils/logger';
 import { ApiResponse } from '../../utils/apiResponse';
-
+import fs from 'fs';
+import path from 'path';
 interface ShopeeCredential {
   client_id: string;
   client_secret: string;
@@ -114,8 +115,8 @@ export class ShopeeService {
     return result;
   }
   private async fetchWithAuthMETHOD(path: string, queryParams: any = {},
-  method: 'GET' | 'POST' = 'GET',
-  bodyData?: any): Promise<any> {
+    method: 'GET' | 'POST' = 'GET',
+    bodyData?: any): Promise<any> {
     let cred = await this.getCredential();
     let timestamp = getTimestamp();
     let sign = this.generateSignature(path, timestamp, cred.access_token, cred.shop_id, cred.client_id, cred.client_secret);
@@ -134,27 +135,29 @@ export class ShopeeService {
       headers: { 'Content-Type': 'application/json' }
     };
     if (method === 'POST' && bodyData) {
+      // console.log("BODY PAYLOAD ", bodyData);
       options.body = JSON.stringify(bodyData);
     }
     const res = await fetch(url, options);
 
     const contentType = res.headers.get("content-type") || "";
 
-    console.log("Status:", res.status, res.statusText);
-    console.log("Content-Type:", contentType);
+    console.log("fetchWithAuthMETHOD Status:", res.status, res.statusText);
+    console.log("fetchWithAuthMETHOD Content-Type:", contentType);
 
     let resultYMP;
     if (contentType.includes("application/json")) {
       resultYMP = await res.json();
+      // console.log("Body:", resultYMP);
     } else {
-      resultYMP = await res.text(); // plain text fallback
+      // resultYMP = await res.text(); // plain text fallback
+      resultYMP = res.body;
+      // console.log("Body:", resultYMP);
     }
     // console.log("Body:", resultYMP);
-    console.log("Body:", resultYMP.response.result_list);
-
-
-    const result = await res.json();
-
+    // const result = await res.json();
+    const result = resultYMP;
+    // console.log("RESULT : ", result);
     if (result.error === 'invalid_acceess_token') {
       // Refresh token and retry once
       // logInfo('✅ Shopee get List Error:', result)
@@ -188,7 +191,7 @@ export class ShopeeService {
         time_range_field: 'create_time',
         time_from: timestamp_from,
         time_to: timestamp_to,
-        order_status:'READY_TO_SHIP',
+        order_status: 'READY_TO_SHIP',
         page_size: '100',
         response_optional_fields: 'order_status'
       };
@@ -254,24 +257,57 @@ export class ShopeeService {
     const path = '/api/v2/account_health/get_shop_performance';
     // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const res = await this.fetchWithAuth(path);
-    if(res && res.response) {
+    if (res && res.response) {
 
       return res.response.overall_performance
     }
-    const allDetails: any |undefined = undefined;
-    return allDetails;
-  }
-   public async getShopInfo(): Promise<any[]> {
-    const path = '/api/v2/shop/get_profile';
-    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
-    const res = await this.fetchWithAuth(path);
-    if(res && res.response) {
-      return res.response
-    }
-    const allDetails: any |undefined = undefined;
+    const allDetails: any | undefined = undefined;
     return allDetails;
   }
 
+  public async getShopInfo(): Promise<any[]> {
+    const path = '/api/v2/shop/get_profile';
+    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    const res = await this.fetchWithAuth(path);
+    if (res && res.response) {
+      return res.response
+    }
+    const allDetails: any | undefined = undefined;
+    return allDetails;
+  }
+  //######################## STEP PRINT LABEL SHOPEE API########################
+  public async getShippingParameter(order: any): Promise<any[]> {
+    // const path = '/api/v2/logistics/get_shipping_parameter';
+    // // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    // const res = await this.fetchWithAuth(path,{
+    //     order_sn: order.order_sn,
+    //     package_number:order.package_number
+    //   });
+    // console.log("RETURN DARI PARAMETER : ",res);
+    // if(res && res.response) {
+    //   return res.response
+    // }
+    const shipParameter = await this.shopeeRepo.getShippingVariables(2);
+    return shipParameter;
+  }
+  public async getShipOrder(order: any, addressObj: any): Promise<any> {
+    const path = '/api/v2/logistics/ship_order';
+    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
+      order_sn: order.order_sn,
+      package_number: order.package_number,
+      pickup: { address_id: addressObj.address_id }
+    });
+    // console.log("RETURN DARI SHOP : ",res);
+    if (res) {
+      return res
+    }
+    const shipParameter = null;
+    return shipParameter;
+  }
+
+
+  //######################## STEP PRINT LABEL ########################
   async getLocalDateTime(): Promise<string> {
     const now = new Date();
     const offsetMs = now.getTimezoneOffset() * 60000;
@@ -316,120 +352,170 @@ export class ShopeeService {
   }
 
   async getShippingLabelWithArrange(orderSn: string): Promise<Buffer | null> {
-  // 1️⃣ Arrange shipment dulu
-  console.log("###################### ARRANG SHIP ORDER DULU ", orderSn);
-  const arrangePath = '/api/v2/logistics/ship_order';
-  const bodyData:any={
-    order_sn: orderSn,
-    package_number: "",
-    pickup: {
-      address_id: 0,
-      pickup_time_id: "",
-      tracking_number: ""
+    // 1️⃣ Arrange shipment dulu
+    console.log("###################### ARRANG SHIP ORDER DULU ", orderSn);
+    const arrangePath = '/api/v2/logistics/ship_order';
+    const bodyData: any = {
+      order_sn: orderSn,
+      package_number: "",
+      pickup: {
+        address_id: 0,
+        pickup_time_id: "",
+        tracking_number: ""
+      }
+    }
+    const arrangeRes = await this.fetchWithAuthMETHOD(arrangePath, {}, "POST", bodyData);
+    console.log("###################### BALIKAN DARI SHIP ORDER");
+    if (arrangeRes.error) {
+      console.error(`❌ Gagal arrange shipment:`, arrangeRes);
+      return null;
+    }
+    console.log(`✅ Shipment arranged untuk ${orderSn}`);
+    // 2️⃣ Ambil info dokumen
+    const infoPath = '/api/v2/logistics/get_shipping_document_info';
+    const infoRes = await this.fetchWithAuth(infoPath, {
+      order_sn_list: orderSn
+    });
+    if (infoRes.error || !infoRes.response?.shipping_document_info) {
+      console.error(`❌ Tidak ada shipping document info untuk ${orderSn}:`, infoRes);
+      return null;
+    }
+    const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
+    if (!docType) {
+      console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
+      return null;
+    }
+    // 3️⃣ Download dokumen
+    const downloadPath = '/api/v2/logistics/download_shipping_document';
+    const downloadRes = await this.fetchWithAuth(downloadPath, {
+      order_sn_list: orderSn,
+      shipping_document_type: docType
+    });
+    if (downloadRes.error || !downloadRes.response?.file) {
+      console.error(`❌ Gagal download dokumen untuk ${orderSn}:`, downloadRes);
+      return null;
+    }
+    const fileBase64 = downloadRes.response.file;
+    return Buffer.from(fileBase64, 'base64');
+  }
+  async checkAndDownloadLabel(orders: any[]): Promise<any> {
+    try {
+
+      let orderObj: any = orders[0];
+      let shippingParameter: any = {};
+      let orderList: string[] = [];
+      orderList.push(orderObj.order_sn)
+      // 1. Cek detail order untuk dapatkan status terbaru
+      const orderDetail: any = await this.getOrderDetail(orderList);
+      console.log("Hasil Cek Order DETAIL STATUS : ", orderDetail[0].order_status);
+      if (!orderDetail) throw new Error('Order tidak ditemukan');
+      if (orderDetail[0].order_status === 'READY_TO_SHIP') {
+        shippingParameter = await this.getShippingParameter(orderObj);
+        // console.log("SHIPPING PARAMETER RTS : ",shippingParameter);
+      }
+      if (orderDetail[0].order_status === 'SHIPPED') {
+        shippingParameter = await this.getShippingParameter(orderObj);
+        // TEST CREATE SHOP ORDER ###########################
+        const shipOrderREsult = await this.getShipOrder(orderObj, shippingParameter);
+        // console.log("SHIPPING ORDER SHIP PRC : ", shipOrderREsult);
+        if (shipOrderREsult.error) {
+          // const trackingInfo = await this.getTrackingNumber(orderObj.order_sn);
+          // console.log("HASIL TRACKING ", trackingInfo);
+          // const createdocInfo = await this.createShippingDocumentInfo(orderObj.order_sn, trackingInfo.tracking_number);
+          // console.log("#### CRATE DOC TRACKING : ",createdocInfo);
+          // const docInfo = await this.getShippingDocumentInfo(orderObj.order_sn, trackingInfo.tracking_number);
+          // console.log("#### DOC TRACKING : ",docInfo);
+          const stream  = await this.downloadShippingDocumentInfo(orderObj.order_sn);
+          // console.log("#### download TRACKING : ",stream);
+          // Simpan stream ke file PDF
+          const path = `label_${orderObj.order_sn}.pdf`;
+          await this.streamToFile(stream, path);
+          console.log('File PDF berhasil disimpan!');
+          // const fileStream = fs.createWriteStream(path);
+          // return new Promise<any>((resolve, reject) => {
+          //       stream.pipe(fileStream);
+          //       stream.on('error', (error: any) => {
+          //         reject(error);
+          //       });
+          //       fileStream.on('finish', () => {
+          //         console.log(`File PDF berhasil disimpan di ${path}`);
+          //         resolve(path);
+          //       });
+          //       fileStream.on('error', (error) => {
+          //         reject(error);
+          //       });
+          // });
+        }
+      }
+      return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail}` };
+      // 2. Cek status order, apakah sudah dalam tahap pengiriman
+      // if (orderDetail[0].order_status === 'SHIPPING') {
+      //   return { status: 'success', orderDetail };
+      // } else if (orderDetail[0].order_status === 'SHIPPED' || orderDetail[0].order_status === 'PROCESSED') {
+      //   const trackingInfo = await this.getTrackingNumber(orderSn);//{ tracking_number: 'SPXID055010739228', hint: '' }
+      //   // console.log("HASIL TRACKING ",trackingInfo);
+      //   if(!trackingInfo) return ApiResponse.badRequest(trackingInfo,"Undefined data");
+      //   // 3. Cek dokumen shipping
+      //    const createdocInfo = await this.createShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
+      //   // const availableDocs = docInfo.response?.shipping_document_type || [];
+      //    console.log("#### CRATE DOC TRACKING : ",createdocInfo);
+      //   const docInfo = await this.getShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
+      //   // const availableDocs = docInfo.response?.shipping_document_type || [];
+      //    console.log("#### DOC TRACKING : ",docInfo);
+      //   return ApiResponse.success(trackingInfo,"success tracking data");
+      // } else if(orderDetail[0].order_status === 'READY_TO_SHIP') {
+      //   return;
+      // } else {
+      //   return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail.status}` };
+      // }
+    } catch (error) {
+      return ApiResponse.badRequest(error, "Error data");
     }
   }
-  const arrangeRes = await this.fetchWithAuthMETHOD(arrangePath,{},"POST", bodyData);
-  console.log("###################### BALIKAN DARI SHIP ORDER");
-  if (arrangeRes.error) {
-    console.error(`❌ Gagal arrange shipment:`, arrangeRes);
-    return null;
+
+  async getTrackingNumber(order_sn: string) {
+    const path = '/api/v2/logistics/get_tracking_number';
+    const res = await this.fetchWithAuth(path, { order_sn: order_sn });
+    return res.response;
   }
-  console.log(`✅ Shipment arranged untuk ${orderSn}`);
-  // 2️⃣ Ambil info dokumen
-  const infoPath = '/api/v2/logistics/get_shipping_document_info';
-  const infoRes = await this.fetchWithAuth(infoPath, {
-    order_sn_list: orderSn
-  });
-  if (infoRes.error || !infoRes.response?.shipping_document_info) {
-    console.error(`❌ Tidak ada shipping document info untuk ${orderSn}:`, infoRes);
-    return null;
+
+  async createShippingDocumentInfo(order_sn: string, tracking_number: string) {
+    const path = '/api/v2/logistics/create_shipping_document';
+    const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', {
+      order_list: [{
+        order_sn: order_sn,
+        tracking_number: tracking_number,
+        shipping_document_type: "NORMAL_AIR_WAYBILL"
+      }],
+
+    });
+
+    return res.response;
   }
-  const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
-  if (!docType) {
-    console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
-    return null;
+  async getShippingDocumentInfo(order_sn: string, tracking_number: string) {
+
+    const path = '/api/v2/logistics/get_shipping_document_result';
+    const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', {
+      order_list: [{
+        order_sn: order_sn,
+        shipping_document_type: "NORMAL_AIR_WAYBILL"
+      }],
+
+    });
+
+    return res.response;
   }
-  // 3️⃣ Download dokumen
-  const downloadPath = '/api/v2/logistics/download_shipping_document';
-  const downloadRes = await this.fetchWithAuth(downloadPath, {
-    order_sn_list: orderSn,
-    shipping_document_type: docType
-  });
-  if (downloadRes.error || !downloadRes.response?.file) {
-    console.error(`❌ Gagal download dokumen untuk ${orderSn}:`, downloadRes);
-    return null;
+  async downloadShippingDocumentInfo(order_sn: string) {
+    const path = '/api/v2/logistics/download_shipping_document';
+    const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', {
+      shipping_document_type: "NORMAL_AIR_WAYBILL",
+      order_list: [{
+        order_sn: order_sn
+      }],
+    });
+    console.log("RESPONSE");
+    return res;
   }
-  const fileBase64 = downloadRes.response.file;
-  return Buffer.from(fileBase64, 'base64');
-}
-async checkAndDownloadLabel(orderSn:string) {
-  try {
-    let orderList:string[]=[];
-    orderList.push(orderSn)
-    // 1. Cek detail order untuk dapatkan status terbaru
-    const orderDetail:any = await this.getOrderDetail(orderList);
-    console.log("Hasil Cek Order DETAIL STATUS : ",orderDetail[0].order_status);
-    if (!orderDetail) throw new Error('Order tidak ditemukan');
-    // 2. Cek status order, apakah sudah dalam tahap pengiriman
-    if (orderDetail[0].order_status === 'SHIPPING') {
-      return { status: 'success', orderDetail };
-    } else if (orderDetail[0].order_status === 'SHIPPED' || orderDetail[0].order_status === 'PROCESSED') {
-      const trackingInfo = await this.getTrackingNumber(orderSn);//{ tracking_number: 'SPXID055010739228', hint: '' }
-      // console.log("HASIL TRACKING ",trackingInfo);
-      if(!trackingInfo) return ApiResponse.badRequest(trackingInfo,"Undefined data");
-      // 3. Cek dokumen shipping
-       const createdocInfo = await this.createShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
-      // const availableDocs = docInfo.response?.shipping_document_type || [];
-       console.log("#### CRATE DOC TRACKING : ",createdocInfo);
-      const docInfo = await this.getShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
-      // const availableDocs = docInfo.response?.shipping_document_type || [];
-       console.log("#### DOC TRACKING : ",docInfo);
-      return ApiResponse.success(trackingInfo,"success tracking data");
-    } else if(orderDetail[0].order_status === 'READY_TO_SHIP') {
-
-
-      return;
-
-
-    } else {
-      return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail.status}` };
-    }
-  } catch (error) {
-    return ApiResponse.badRequest(error,"Error data");
-  }
-}
-
-async getTrackingNumber(order_sn:string) {
-  const path = '/api/v2/logistics/get_tracking_number';
- const res = await this.fetchWithAuth(path, {order_sn: order_sn});
-  return res.response;
-}
-
-async createShippingDocumentInfo(order_sn:string, tracking_number:string) {
-  const path = '/api/v2/logistics/create_shipping_document';
- const res = await this.fetchWithAuthMETHOD(path, {},'POST',{
-    order_list: [{
-      order_sn: order_sn,
-      tracking_number:tracking_number
-    }],
-    shipping_document_type: "NORMAL_AIR_WAYBILL"
-  });
-
-  return res.response;
-}
-async getShippingDocumentInfo(order_sn:string, tracking_number:string) {
-
-  const path = '/api/v2/logistics/get_shipping_document_result';
- const res = await this.fetchWithAuthMETHOD(path, {},'POST',{
-    order_list: [{
-      order_sn: order_sn
-    }],
-    shipping_document_type: "NORMAL_AIR_WAYBILL"
-  });
-
-  return res.response;
-}
-
 
   async toTimestampWIB(date: string, time: string): Promise<number> {
     const localDateTime = new Date(`${date}T${time}+07:00`); // Menggabungkan sebagai zona WIB
@@ -442,4 +528,26 @@ async getShippingDocumentInfo(order_sn:string, tracking_number:string) {
     }
     return chunks;
   }
+  async streamToFile(stream: ReadableStream, filePath: string): Promise<void> {
+  const reader = stream.getReader();
+  const writer = fs.createWriteStream(filePath);
+
+  // Fungsi untuk baca terus data dan tulis ke file
+  const pump = async (): Promise<void> => {
+    const { done, value } = await reader.read();
+    if (done) {
+      writer.end();
+      return;
+    }
+    writer.write(Buffer.from(value));
+    return pump();
+  };
+
+  await pump();
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+}
 }

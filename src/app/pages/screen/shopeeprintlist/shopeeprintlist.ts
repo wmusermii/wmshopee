@@ -102,7 +102,7 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
       .then(data => {
         console.log("Response dari API /shopee/send_print 1", data);
         this.loading=false;
-
+        this.router.navigate(['/dashboard']);
       })
       .catch(err => {
         this.loading=false;
@@ -130,6 +130,7 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
         order_status: item.order_status,
         total_amount: item.total_amount,
         shipping_carrier: item.shipping_carrier,
+        package_number:item.package_number,
         ship_by_date: item.ship_by_date || '', // kalau ada field ini di data asli
         items: []
       };
@@ -155,6 +156,7 @@ interface orderFields{
   order_status:string;
   total_amount:number;
   shipping_carrier:string;
+  package_number:string | null;
   ship_by_date:string;
   items:itemsFields[];
 }

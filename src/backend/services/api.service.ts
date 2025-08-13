@@ -296,11 +296,6 @@ export class ApiService {
       return ApiResponse.success(invoicesResult, "Records found");
     }
   }
-
-
-
-
-
   async sendEmailNotification(to: string, subject: string, message: string) {
     // console.log('sendEmailNotification called with:', { to, subject, message });
     const smtpVariable = await this.shopeeRepo.getSMTPVariables();
@@ -348,9 +343,14 @@ export class ApiService {
     }
   }
   async sendPrinting(orders: any) {
+
+
+    //#################### PINDAHKAN DATA INVOICE KEDALAM BULK
+    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
+    console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
     // console.log("######## SERVICE ORDERS ", orders);
-    const test:any = orders[0];
-    const hasilprint = await this.apiShopeeService.checkAndDownloadLabel(test.order_sn);
+    // const test:any = orders[0];
+    const hasilprint = await this.apiShopeeService.checkAndDownloadLabel(orders);
     console.log("Hasil PRINT ", hasilprint);
 
     // const printingObject: any[] = await this.shopeeRepo.selectItemsToPrint({ order_sn: order_sn }, userInfo);

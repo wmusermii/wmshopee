@@ -4,7 +4,7 @@ import { logInfo } from '../utils/logger';
 export class ShopeeRepository {
   async saveQShopee(payload:any, userInfo:any) {
     // Pastikan fromdate diformat jadi YYYY-MM-DD
-     console.log("PAYLOAD INSERT ",payload);
+    //  console.log("PAYLOAD INSERT ",payload);
     payload.fromdate = await this.convertDateFormat(payload.fromdate);
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); // hasilnya "2025-07-24"
     // console.log("PAYLOAD INSERT ",payload);
@@ -60,6 +60,7 @@ export class ShopeeRepository {
       'qi.order_status',
       'qi.total_amount',
       'qi.shipping_carrier',
+      'qi.package_number',
       'qi.ship_by_date'
     ).innerJoin("q_shopee_invoices as qi", "qid.order_sn", "qi.order_sn")
     .where('qid.status', 0)
@@ -68,7 +69,47 @@ export class ShopeeRepository {
     .orderBy('qid.create_time', 'asc');
     return await query;
   }
+  async copyInvoiceToBulkData(orders:any[]){
+    // console.log("PARAMS DI INVOICE ", orders);
+    // ambil semua order_sn
+    const orderSNList = orders.map(item => item.order_sn);
+    const invoices:any[] = await db('q_shopee_invoices')
+      .select('*')
+      .whereIn('order_sn', orderSNList);
+      // logInfo("### BANYAK INVOICES ##### ",orderSNList );
+      if (invoices.length === 0) {
+        console.log('Tidak ada data yang cocok.');
+        return;
+      }
 
+    // insert ke q_shopee_invoices_bulk
+    await db('q_shopee_invoices_bulk').insert(invoices);
+
+    const invoicesDetail = await db('q_shopee_invoices_detail')
+      .select('*')
+      .whereIn('order_sn', orderSNList);
+      if (invoicesDetail.length === 0) {
+        console.log('Tidak ada data yang cocok.');
+        return;
+      }
+
+    // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
+    await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
+
+    //############## UPDATE DELETE TABLE INVOICE UTAMA
+    await db('q_shopee_invoices_bulk').update({
+          status: 1,
+          updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
+        }).whereIn('order_sn', orderSNList);
+
+    await db('q_shopee_invoices').delete().whereIn('order_sn',orderSNList);
+    // await db('q_shopee_invoices_detail_bulk').update({
+    //       status: 1,
+    //       updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
+    //     }).whereIn('order_sn', orderSNList);
+
+    return {message:"Success update table"}
+  }
   async viewQShopeePosBySN(payload:any){
     const query = await db('q_shopee_invoices_detail as ')
     .select(
@@ -305,6 +346,22 @@ export class ShopeeRepository {
         'accesstoken',
         'port'
       ).first();
+      return await query;
+  }
+  async getShippingVariables(flagcode:number){
+      const query = await db('m_logistic')
+      .select(
+        'address_id',
+        'region',
+        'state',
+        'city',
+        'district',
+        'town',
+        'address',
+        'zipcode',
+        'address_flag',
+        'time_slot_list'
+      ).where("address_flag", flagcode).first();
       return await query;
   }
   //################# SHOPEE ATTRB ###############################
