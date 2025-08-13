@@ -55,7 +55,8 @@ export class ShopeeRepository {
       'qid.status',
       'qi.order_status',
       'qi.total_amount',
-      'qi.shipping_carrier'
+      'qi.shipping_carrier',
+      'qi.ship_by_date'
     ).innerJoin("q_shopee_invoices as qi", "qid.order_sn", "qi.order_sn")
     .where('qid.status', 0)
     .whereRaw('DATE(qid.create_time) = ?', [today])

@@ -344,6 +344,7 @@ export class ApiService {
     const test:any = orders[0];
     const hasilprint = await this.apiShopeeService.checkAndDownloadLabel(test.order_sn);
     console.log("Hasil PRINT ", hasilprint);
+
     // const printingObject: any[] = await this.shopeeRepo.selectItemsToPrint({ order_sn: order_sn }, userInfo);
     // logInfo("hasil select ",printingObject)
     // console.log("sendPrinting ", order_sn);

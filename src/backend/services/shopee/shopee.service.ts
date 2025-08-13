@@ -127,8 +127,8 @@ export class ShopeeService {
       sign,
       ...queryParams
     });
-
     const url = `${cred.base_api}${path}?${searchParams.toString()}`;
+    // console.log("#### URL : ", url);
     const options: RequestInit = {
       method,
       headers: { 'Content-Type': 'application/json' }
@@ -149,8 +149,8 @@ export class ShopeeService {
     } else {
       resultYMP = await res.text(); // plain text fallback
     }
-    console.log("Body:", resultYMP);
-
+    // console.log("Body:", resultYMP);
+    console.log("Body:", resultYMP.response.result_list);
 
 
     const result = await res.json();
@@ -345,18 +345,24 @@ async checkAndDownloadLabel(orderSn:string) {
     orderList.push(orderSn)
     // 1. Cek detail order untuk dapatkan status terbaru
     const orderDetail:any = await this.getOrderDetail(orderList);
-    console.log("Hasil Cek Order DETAIL ",orderDetail);
+    console.log("Hasil Cek Order DETAIL STATUS : ",orderDetail[0].order_status);
     if (!orderDetail) throw new Error('Order tidak ditemukan');
     // 2. Cek status order, apakah sudah dalam tahap pengiriman
-    if (orderDetail[0].order_status === 'SHIPPED' || orderDetail[0].order_status === 'SHIPPING') {
+    if (orderDetail[0].order_status === 'SHIPPING') {
       return { status: 'success', orderDetail };
-    } else if (orderDetail[0].order_status === 'PROCESSED') {
+    } else if (orderDetail[0].order_status === 'SHIPPED' || orderDetail[0].order_status === 'PROCESSED') {
       const trackingInfo = await this.getTrackingNumber(orderSn);//{ tracking_number: 'SPXID055010739228', hint: '' }
+      // console.log("HASIL TRACKING ",trackingInfo);
       if(!trackingInfo) return ApiResponse.badRequest(trackingInfo,"Undefined data");
       // 3. Cek dokumen shipping
+       const createdocInfo = await this.createShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
+      // const availableDocs = docInfo.response?.shipping_document_type || [];
+       console.log("#### CRATE DOC TRACKING : ",createdocInfo);
+
+
       const docInfo = await this.getShippingDocumentInfo(orderSn, trackingInfo.tracking_number);
       // const availableDocs = docInfo.response?.shipping_document_type || [];
-
+       console.log("#### DOC TRACKING : ",docInfo);
 
 
       return ApiResponse.success(trackingInfo,"success tracking data");
@@ -371,20 +377,31 @@ async checkAndDownloadLabel(orderSn:string) {
 async getTrackingNumber(order_sn:string) {
   const path = '/api/v2/logistics/get_tracking_number';
  const res = await this.fetchWithAuth(path, {order_sn: order_sn});
- console.log("#### ORDER TRACKING : ",res.response);
+  return res.response;
+}
+
+async createShippingDocumentInfo(order_sn:string, tracking_number:string) {
+  const path = '/api/v2/logistics/create_shipping_document';
+ const res = await this.fetchWithAuthMETHOD(path, {},'POST',{
+    order_list: [{
+      order_sn: order_sn,
+      tracking_number:tracking_number
+    }],
+    shipping_document_type: "NORMAL_AIR_WAYBILL"
+  });
+
   return res.response;
 }
 async getShippingDocumentInfo(order_sn:string, tracking_number:string) {
+
   const path = '/api/v2/logistics/get_shipping_document_result';
- const res = await this.fetchWithAuth(path, {
+ const res = await this.fetchWithAuthMETHOD(path, {},'POST',{
     order_list: [{
-      order_sn: order_sn,
-      package_number: '',
-      tracking_number: tracking_number
+      order_sn: order_sn
     }],
-    shipping_document_type: 'NORMAL_AIR_WAYBILL'
+    shipping_document_type: "NORMAL_AIR_WAYBILL"
   });
- console.log("#### DOC TRACKING : ",res.response);
+
   return res.response;
 }
 
