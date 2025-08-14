@@ -6,9 +6,11 @@ import {
 } from '@angular/ssr/node';
 import backendRouter from './backend/routes/api.routes'
 import express from 'express';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const serverDistFolder = join(import.meta.dirname); // Folder dist/server
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
@@ -42,6 +44,15 @@ app.use(
     redirect: false,
   }),
 );
+
+/**
+ * === TAMBAHAN UNTUK UPLOAD ===
+ * Serve folder upload yang ada di dalam dist/upload
+ * Sesuaikan path folder upload dengan lokasi fisik folder upload Anda
+ */
+const uploadFolder = resolve(serverDistFolder, '../upload'); // dist/upload relatif dari dist/server
+app.use('/upload', express.static(uploadFolder));
+
 
 /**
  * Handle all other requests by rendering the Angular application.

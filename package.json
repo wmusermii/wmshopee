@@ -5,8 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "postupload": "cpx \"upload/**/*\" dist/wmshopee/upload",
     "postbuild": "cpx \"data/**/*\" dist/wmshopee/server/data",
-    "builddata": "npm run build && npm run postbuild",
+    "builddata": "npm run build && npm run postbuild && npm run postupload",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:wmshopee": "node dist/wmshopee/server/server.mjs"

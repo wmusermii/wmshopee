@@ -400,7 +400,6 @@ export class ShopeeService {
   }
   async checkAndDownloadLabel(orders: any[]): Promise<any> {
     try {
-
       let orderObj: any = orders[0];
       let shippingParameter: any = {};
       let orderList: string[] = [];
@@ -413,6 +412,7 @@ export class ShopeeService {
         shippingParameter = await this.getShippingParameter(orderObj);
         // console.log("SHIPPING PARAMETER RTS : ",shippingParameter);
       }
+
       if (orderDetail[0].order_status === 'SHIPPED') {
         shippingParameter = await this.getShippingParameter(orderObj);
         // TEST CREATE SHOP ORDER ###########################
@@ -426,9 +426,9 @@ export class ShopeeService {
           // const docInfo = await this.getShippingDocumentInfo(orderObj.order_sn, trackingInfo.tracking_number);
           // console.log("#### DOC TRACKING : ",docInfo);
           const stream  = await this.downloadShippingDocumentInfo(orderObj.order_sn);
-          // console.log("#### download TRACKING : ",stream);
+          console.log("#### download TRACKING : ",stream);
           // Simpan stream ke file PDF
-          const path = `label_${orderObj.order_sn}.pdf`;
+          const path = `/upload/label_${orderObj.order_sn}.pdf`;
           await this.streamToFile(stream, path);
           console.log('File PDF berhasil disimpan!');
           // const fileStream = fs.createWriteStream(path);
@@ -513,7 +513,7 @@ export class ShopeeService {
         order_sn: order_sn
       }],
     });
-    console.log("RESPONSE");
+    // console.log("RESPONSE");
     return res;
   }
 
