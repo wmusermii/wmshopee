@@ -3,14 +3,7 @@ import { ShopeeRepository } from '../../repositories/shopee.repository';
 import { logInfo } from '../../utils/logger';
 import { ApiResponse } from '../../utils/apiResponse';
 import fs from 'fs';
-import path, { join, resolve } from 'node:path';
-import { fileURLToPath } from 'url';
-
-// Dapatkan path file saat ini dari import.meta.url
-const __filename = fileURLToPath(import.meta.url);
-
-// Dapatkan direktori dari __filename
-const __dirname = path.dirname(__filename);
+import path from 'path';
 interface ShopeeCredential {
   client_id: string;
   client_secret: string;
@@ -149,7 +142,7 @@ export class ShopeeService {
 
     const contentType = res.headers.get("content-type") || "";
 
-    // console.log("fetchWithAuthMETHOD Status:", res.status, res.statusText);
+    console.log("fetchWithAuthMETHOD Status:", res.status, res.statusText);
     console.log("fetchWithAuthMETHOD Content-Type:", contentType);
 
     let resultYMP;
@@ -334,7 +327,7 @@ export class ShopeeService {
       return null;
     }
 
-    // Ambil tipe dokumen yang tersedia (contoh: "THERMAL_AIR_WAYBILL")
+    // Ambil tipe dokumen yang tersedia (contoh: "NORMAL_AIR_WAYBILL")
     const docType = infoRes.response.shipping_document_info[0]?.available_shipping_document_type?.[0];
     if (!docType) {
       console.error(`❌ Tidak ada dokumen tersedia untuk order_sn ${orderSn}`);
@@ -407,65 +400,95 @@ export class ShopeeService {
   }
   async checkAndDownloadLabel(orders: any[]): Promise<any> {
     try {
-      let orderObj1: any = orders[11];
-      let orderObj2: any = orders[12];
-      let orderObj3: any = orders[13];
-      let orderObj4: any = orders[14];
-      let orderObj5: any = orders[15];
-      let orderObj6: any = orders[16];
-      let orderObj7: any = orders[17];
-      let orderObj8: any = orders[18];
-      let orderObj9: any = orders[19];
-      let orderObj10: any = orders[20];
+      let orderObj1: any = orders[1];
+      let orderObj2: any = orders[2];
+      let orderObj3: any = orders[3];
       let shippingParameter: any = {};
       let orderList: string[] = [];
-      orderList.push(orderObj1.order_sn);orderList.push(orderObj2.order_sn);orderList.push(orderObj3.order_sn);
-      orderList.push(orderObj4.order_sn);orderList.push(orderObj5.order_sn);orderList.push(orderObj6.order_sn);
-      orderList.push(orderObj7.order_sn);orderList.push(orderObj8.order_sn);orderList.push(orderObj9.order_sn);
-      orderList.push(orderObj10.order_sn);
+      orderList.push(orderObj1.order_sn);
+      orderList.push(orderObj2.order_sn)
+      orderList.push(orderObj3.order_sn)
       // 1. Cek detail order untuk dapatkan status terbaru
       const orderDetail: any = await this.getOrderDetail(orderList);
       // console.log("Hasil Cek Order DETAIL STATUS : ", orderDetail);
       // console.log("Kode Order : ", orderDetail);
       if (!orderDetail) throw new Error('Order tidak ditemukan');
       if (orderDetail[0].order_status === 'READY_TO_SHIP' || orderDetail[0].order_status === 'PROCESSED') {
-        shippingParameter = await this.getShippingParameter(orderDetail[0]);
-        const trackingInfo: any[] = await this.getMasTrackingNumber(orderList);
-        // console.log("HASIL TRACKING ", trackingInfo);
-        const createDocuments: any = await this.createMassShippingDocumentInfo(trackingInfo);
+        shippingParameter = await this.getShippingParameter(orderObj1);
+        // const orderListTemp: string[] = await this.keepOrderSnAndAddShipping(orderDetail);
+        // console.log("isi orderListTemp ", orderListTemp);
+        const trackingInfo:any = await this.getMasTrackingNumber(orderList);
+        console.log("HASIL TRACKING ", trackingInfo);
+        const createDocuments:any = await this.createMassShippingDocumentInfo(trackingInfo);
         console.log("HASIL CREATE DOC ", createDocuments);
-        const hasilCreateDocArray: any[] = createDocuments.result_list;
-        // Buat Set order_sn yang ada fail_error di failOrderSnSet
-        const failOrderSnSet = new Set(hasilCreateDocArray.filter(item => item.fail_error).map(item => item.order_sn));
-        // console.log("HASIL failOrderSnSet FILTER ", failOrderSnSet);
-        // Filter array1 hanya yang order_sn-nya tidak ada di failOrderSnSet
-        const filteredArray1 = trackingInfo.filter(item => !failOrderSnSet.has(item.order_sn));
-        //  console.log("HASIL FILTER ", filteredArray1);
-        const docInfo = await this.getMasshippingDocumentInfo(filteredArray1);
-        console.log("HASIL DOC MASS TRACKING : ", docInfo.result_list);
-        const ordersToPrint = await this.tostringArrayOnly(docInfo.result_list);
-        console.log("ORDER YANG DI PRINT : ", ordersToPrint);
-        await this.delay(1000); // tunggu selama 10 detik (10000 ms)
-        const uploadFolder = resolve(__dirname, '../upload');
-        const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        console.log(" DI PRINT : ", massDownloadRESULT);
-        //########################################################################################################################
-        // const stream = await this.downloadShippingDocumentInfo(orderDetail[0].order_sn);
-        // const uploadFolder = resolve(__dirname, '../upload');
-        // const pathBaru = resolve(uploadFolder, `label_${orderDetail[0].order_sn}.pdf`);
-        // console.log("PATHBARU ", pathBaru);
-        // // const pathNew = `/upload/label_${orderDetail[0].order_sn}.pdf`;
-        // await this.streamToFile(stream, pathBaru);
-        // console.log('File PDF berhasil disimpan!');
-        //########################################################################################################################
+        const docInfo = await this.getMasshippingDocumentInfo(trackingInfo);
+        console.log("HASIL DOC MASH TRACKING : ",docInfo);
+        await this.delay(2000); // tunggu selama 10 detik (10000 ms)
+        // const stream  = await this.downloadShippingDocumentInfo('250813N9U7NRTS');
+        // console.log("#### download TRACKING : ",stream);
+        const stream  = await this.downloadShippingDocumentInfo(orderDetail[0].order_sn);
+          // Simpan stream ke file PDF
+          const path = `/upload/label_${orderDetail[0].order_sn}.pdf`;
+          await this.streamToFile(stream, path);
+          console.log('File PDF berhasil disimpan!');
+//########################################################################################################################
+        // const trackingInfo = await this.getTrackingNumber(orderDetail[0].order_sn);
+        //   console.log("HASIL TRACKING ", trackingInfo);
+        //   const createdocInfo = await this.createShippingDocumentInfo(orderDetail[0].order_sn, trackingInfo.tracking_number);
+        //   console.log("#### CRATE DOC TRACKING : ",createdocInfo);
+        //   const docInfo = await this.getShippingDocumentInfo(orderDetail[0].order_sn, trackingInfo.tracking_number);
+        //   console.log("#### DOC TRACKING : ",docInfo);
+        //   await this.delay(3000); // tunggu selama 10 detik (10000 ms)
+        //   const stream  = await this.downloadShippingDocumentInfo(orderDetail[0].order_sn);
+        //   console.log("#### download TRACKING : ",stream);
+        //   // Simpan stream ke file PDF
+        //   const path = `/upload/label_${orderDetail[0].order_sn}.pdf`;
+        //   await this.streamToFile(stream, path);
+        //   console.log('File PDF berhasil disimpan!');
       }
 
       if (orderDetail[0].order_status === 'SHIPPED') {
+        // shippingParameter = await this.getShippingParameter(orderObj);
+        // // TEST CREATE SHOP ORDER ###########################
+        // const shipOrderREsult = await this.getShipOrder(orderObj, shippingParameter);
+        // console.log("SHIPPING ORDER SHIP PRC : ", shipOrderREsult);
         return;
+        // if (shipOrderREsult.error) {
+          // const trackingInfo = await this.getTrackingNumber(orderObj.order_sn);
+          // console.log("HASIL TRACKING ", trackingInfo);
+          // const createdocInfo = await this.createShippingDocumentInfo(orderObj.order_sn, trackingInfo.tracking_number);
+          // console.log("#### CRATE DOC TRACKING : ",createdocInfo);
+          // const docInfo = await this.getShippingDocumentInfo(orderObj.order_sn, trackingInfo.tracking_number);
+          // console.log("#### DOC TRACKING : ",docInfo);
+
+
+          // const stream  = await this.downloadShippingDocumentInfo(orderObj.order_sn);
+          // console.log("#### download TRACKING : ",stream);
+          // // Simpan stream ke file PDF
+          // const path = `/upload/label_${orderObj.order_sn}.pdf`;
+          // await this.streamToFile(stream, path);
+          // console.log('File PDF berhasil disimpan!');
+
+
+
+          // const fileStream = fs.createWriteStream(path);
+          // return new Promise<any>((resolve, reject) => {
+          //       stream.pipe(fileStream);
+          //       stream.on('error', (error: any) => {
+          //         reject(error);
+          //       });
+          //       fileStream.on('finish', () => {
+          //         console.log(`File PDF berhasil disimpan di ${path}`);
+          //         resolve(path);
+          //       });
+          //       fileStream.on('error', (error) => {
+          //         reject(error);
+          //       });
+          // });
+        // }
       }
       return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${orderDetail}` };
     } catch (error) {
-      console.log("NGAPA", error);
       return ApiResponse.badRequest(error, "Error data");
     }
   }
@@ -473,34 +496,34 @@ export class ShopeeService {
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
-    // console.log("RESP TRACKING ",res);
+    console.log("RESP TRACKING ",res);
     return res.response;
   }
 
   async getMasTrackingNumber(orders: any[]): Promise<any[]> {
-    const result: any[] = [];
-    for (const order of orders) {
-      const objectTracking = await this.getTrackingNumber(order);
-      if (objectTracking) {
-        result.push({
-          tracking_number: objectTracking.tracking_number,
-          order_sn: order // atau order.order_sn kalau orders isinya object
-        });
+      const result: any[] = [];
+      for (const order of orders) {
+        const objectTracking = await this.getTrackingNumber(order);
+        if (objectTracking) {
+          result.push({
+            tracking_number: objectTracking.tracking_number,
+            order_sn: order // atau order.order_sn kalau orders isinya object
+          });
+        }
       }
-    }
-    return result;
+      return result;
   }
   async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
-    let result: any[] = [];
-    result = await this.createShippingDocumentInfoBULK(orders);
-    // result = createDocument
+      let result: any[] = [];
+      result = await this.createShippingDocumentInfoBULK(orders);
+        // result = createDocument
 
-    return result;
+      return result;
   }
   async createShippingDocumentInfoBULK(orders: any[]) {
     // console.log("createShippingDocumentInfoBULK ",orders);
-    let arrayData = { order_list: await this.addShippingType(orders) };
-    console.log("ARRAY DATA BULK ", arrayData);
+    let arrayData = {order_list:await this.addShippingType(orders)};
+    console.log("ARRAY DATA BULK ",arrayData);
     const path = '/api/v2/logistics/create_shipping_document';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', arrayData);
     // console.log("TRACKING ",res);
@@ -512,15 +535,15 @@ export class ShopeeService {
       order_list: [{
         order_sn: order_sn,
         tracking_number: tracking_number,
-        shipping_document_type: "THERMAL_AIR_WAYBILL"
+        shipping_document_type: "NORMAL_AIR_WAYBILL"
       }],
     });
     return res.response;
   }
-  async getMasshippingDocumentInfo(orders: any[]) {
+  async getMasshippingDocumentInfo(orders:any[]) {
     // console.log("getMasshippingDocumentInfo ",orders);
-    let arrayData = { order_list: await this.keepOrderSnAndAddShipping(orders) };
-    // console.log("ARRAY DATA ", arrayData);
+    let arrayData = {order_list:await this.keepOrderSnAndAddShipping(orders)};
+    console.log("ARRAY DATA ",arrayData);
     const path = '/api/v2/logistics/get_shipping_document_result';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', arrayData);
     // console.log("Balikan Mass ",res);
@@ -531,7 +554,7 @@ export class ShopeeService {
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', {
       order_list: [{
         order_sn: order_sn,
-        shipping_document_type: "THERMAL_AIR_WAYBILL"
+        shipping_document_type: "NORMAL_AIR_WAYBILL"
       }],
 
     });
@@ -540,35 +563,13 @@ export class ShopeeService {
   async downloadShippingDocumentInfo(order_sn: string) {
     const path = '/api/v2/logistics/download_shipping_document';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', {
-      shipping_document_type: "THERMAL_AIR_WAYBILL",
+      shipping_document_type: "NORMAL_AIR_WAYBILL",
       order_list: [{
         order_sn: order_sn
       }],
     });
+    // console.log("RESPONSE");
     return res;
-  }
-  async downloadMassShippingDocumentInfo(orders: string[], uploadFolder: string): Promise<string[]> {
-    if (!fs.existsSync(uploadFolder)) {
-      fs.mkdirSync(uploadFolder, { recursive: true });
-    }
-    const savedFiles: string[] = [];
-    for (const order_sn of orders) {
-      const apiPath = '/api/v2/logistics/download_shipping_document';
-      // Panggil API untuk tiap order_sn
-      const stream = await this.fetchWithAuthMETHOD(apiPath, {}, 'POST', {
-        shipping_document_type: "THERMAL_AIR_WAYBILL",
-        order_list: [{
-          order_sn:order_sn
-        }],
-      });
-      // Nama file simpan, misal label_orderSn.pdf
-      console.log("DOWNLOAD ",stream);
-      const filePath = resolve(uploadFolder, `label_${order_sn}.pdf`);
-      // const fileStream = fs.createWriteStream(filePath);
-      await this.streamToFile(stream, filePath);
-      savedFiles.push(filePath);
-    }
-    return savedFiles; // kembalikan array path file hasil simpanan
   }
 
   async toTimestampWIB(date: string, time: string): Promise<number> {
@@ -583,56 +584,56 @@ export class ShopeeService {
     return chunks;
   }
   async streamToFile(stream: ReadableStream, filePath: string): Promise<void> {
-    const reader = stream.getReader();
-    const writer = fs.createWriteStream(filePath);
+  const reader = stream.getReader();
+  const writer = fs.createWriteStream(filePath);
 
-    // Fungsi untuk baca terus data dan tulis ke file
-    const pump = async (): Promise<void> => {
-      const { done, value } = await reader.read();
-      if (done) {
-        writer.end();
-        return;
-      }
-      writer.write(Buffer.from(value));
-      return pump();
-    };
+  // Fungsi untuk baca terus data dan tulis ke file
+  const pump = async (): Promise<void> => {
+    const { done, value } = await reader.read();
+    if (done) {
+      writer.end();
+      return;
+    }
+    writer.write(Buffer.from(value));
+    return pump();
+  };
 
-    await pump();
+  await pump();
 
-    return new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  }
-  async addShippingType(data: any[]): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+}
+  async  addShippingType(data: any[]): Promise<any[]> {
     for (const item of data) {
       // misal ini operasi async, kita simulasikan delay
       await new Promise(resolve => setTimeout(resolve, 50));
 
-      item.shipping_document_type = "THERMAL_AIR_WAYBILL";
+      item.shipping_document_type = "NORMAL_AIR_WAYBILL";
     }
     return data;
   }
   async keepOrderSnAndAddShipping(data: any[]): Promise<any[]> {
-    const result: any[] = [];
-    for (const item of data) {
-      await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
-      result.push({
-        order_sn: item.order_sn
-      });
+      const result: any[] = [];
+      for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
+        result.push({
+          order_sn: item.order_sn
+        });
+      }
+      return result;
     }
-    return result;
-  }
-  async delay(ms: number) {
+    async delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   async tostringArrayOnly(data: any[]): Promise<string[]> {
-    const result: string[] = [];
-    for (const item of data) {
-      await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
-      result.push(item.order_sn);
-    }
-    return result;
+      const result: string[] = [];
+      for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
+        result.push(item.order_sn);
+      }
+      return result;
   }
 
 }

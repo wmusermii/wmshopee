@@ -47,6 +47,15 @@ export class ShopeeRepository {
   }
   async getQShopeeItembest(payload:string){
     const today = new Date().toISOString().substring(0, 10);
+    // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
+
+    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
+
+    // langsung ambil list order_sn saja
+    const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
+    // tunggu dulu sebelum lanjut (simulasi async, misalnya ada proses lain)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // console.log("HASIL AMBIL data ", orderList);
      const query = await db('q_shopee_invoices_detail as qid')
     .select(
       'qid.id_q_shopee',
@@ -63,11 +72,9 @@ export class ShopeeRepository {
       'qi.package_number',
       'qi.ship_by_date'
     ).innerJoin("q_shopee_invoices as qi", "qid.order_sn", "qi.order_sn")
-    .where('qid.status', 0)
-    .whereRaw('DATE(qid.create_time) = ?', [today])
-    .andWhere('qid.item_id', payload)
-    .orderBy('qid.create_time', 'asc');
+    .whereIn('qid.order_sn', orderList);
     return await query;
+    // return [];
   }
   async copyInvoiceToBulkData(orders:any[]){
     // console.log("PARAMS DI INVOICE ", orders);
