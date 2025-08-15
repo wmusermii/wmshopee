@@ -5,7 +5,7 @@ import { ApiResponse } from '../../utils/apiResponse';
 import fs from 'fs';
 import path, { join, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
-
+import { PDFDocument } from 'pdf-lib';
 // Dapatkan path file saat ini dari import.meta.url
 const __filename = fileURLToPath(import.meta.url);
 
@@ -419,14 +419,15 @@ export class ShopeeService {
       let orderObj10: any = orders[20];
       let shippingParameter: any = {};
       let orderList: string[] = [];
-      orderList.push(orderObj1.order_sn);orderList.push(orderObj2.order_sn);orderList.push(orderObj3.order_sn);
-      orderList.push(orderObj4.order_sn);orderList.push(orderObj5.order_sn);orderList.push(orderObj6.order_sn);
-      orderList.push(orderObj7.order_sn);orderList.push(orderObj8.order_sn);orderList.push(orderObj9.order_sn);
+      orderList.push(orderObj1.order_sn); orderList.push(orderObj2.order_sn); orderList.push(orderObj3.order_sn);
+      orderList.push(orderObj4.order_sn); orderList.push(orderObj5.order_sn); orderList.push(orderObj6.order_sn);
+      orderList.push(orderObj7.order_sn); orderList.push(orderObj8.order_sn); orderList.push(orderObj9.order_sn);
       orderList.push(orderObj10.order_sn);
       // 1. Cek detail order untuk dapatkan status terbaru
-      const orderDetail: any = await this.getOrderDetail(orderList);
+      let orderDetail: any = await this.getOrderDetail(orderList);
       // console.log("Hasil Cek Order DETAIL STATUS : ", orderDetail);
       // console.log("Kode Order : ", orderDetail);
+      orderDetail = orderDetail.filter((order: { order_status: string; }) => order.order_status === 'PROCESSED');
       if (!orderDetail) throw new Error('Order tidak ditemukan');
       if (orderDetail[0].order_status === 'READY_TO_SHIP' || orderDetail[0].order_status === 'PROCESSED') {
         shippingParameter = await this.getShippingParameter(orderDetail[0]);
@@ -558,19 +559,37 @@ export class ShopeeService {
       const stream = await this.fetchWithAuthMETHOD(apiPath, {}, 'POST', {
         shipping_document_type: "THERMAL_AIR_WAYBILL",
         order_list: [{
-          order_sn:order_sn
+          order_sn: order_sn
         }],
       });
       // Nama file simpan, misal label_orderSn.pdf
-      console.log("DOWNLOAD ",stream);
+      // console.log("DOWNLOAD ",stream);
       const filePath = resolve(uploadFolder, `label_${order_sn}.pdf`);
       // const fileStream = fs.createWriteStream(filePath);
       await this.streamToFile(stream, filePath);
       savedFiles.push(filePath);
     }
-    return savedFiles; // kembalikan array path file hasil simpanan
+    // return savedFiles; // kembalikan array path file hasil simpanan
+    // Gabungkan file-file PDF tadi jadi satu file pdf gabungan
+    const combinedFilePath = resolve(uploadFolder, 'combined_labels.pdf');
+    await this.mergePdfFiles(savedFiles, combinedFilePath);
+    let resultCombine:any[]=[];
+    resultCombine.push(combinedFilePath);
+    return resultCombine; // kembalikan path file gabungan
   }
+  async mergePdfFiles(sourceFiles: string[], outputFile: string): Promise<void> {
+    const mergedPdf = await PDFDocument.create();
 
+    for (const filePath of sourceFiles) {
+      const pdfBytes = fs.readFileSync(filePath);
+      const pdf = await PDFDocument.load(pdfBytes);
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
+
+    const mergedPdfBytes = await mergedPdf.save();
+    fs.writeFileSync(outputFile, mergedPdfBytes);
+  }
   async toTimestampWIB(date: string, time: string): Promise<number> {
     const localDateTime = new Date(`${date}T${time}+07:00`); // Menggabungkan sebagai zona WIB
     return Math.floor(localDateTime.getTime() / 1000); // Ubah ke detik
