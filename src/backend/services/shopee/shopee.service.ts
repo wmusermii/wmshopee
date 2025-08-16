@@ -466,34 +466,38 @@ export class ShopeeService {
   async checkAndDownloadLabelNew(orders: any[]): Promise<any> {
     try {
       let returnDownload:any = {};
-      console.log("ORDER YANG DI PRINT 1 ", orders.length);
+      console.log("Raw Orders to Print : ", orders.length);
       let orderOnlyList = await this.tostringArrayOnly(orders);
-      // console.log("HASIL STRING ORDERS ", orderOnlyList.length);
       // 1. Check manakah yang sudah ada tracking ordernya
       const trackingInfo: any = await this.getMasTrackingNumberMulti(orderOnlyList);
       // console.log("HASIL MASS TRACKING ", trackingInfo);
       // 2. Ambil yang sudah ada tracking ordernya saja
       if(trackingInfo.tracked_order.length > 0) {
         orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
-        console.log("ORDER YANG DI PRINT 2 ", orderOnlyList.length);
+        console.log("String Array Order to create Doc : ", orderOnlyList.length);
         //3. Create Document yang sudah ada track nya
         const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
-        console.log("HASIL CREATE DOC ", createDocuments.created_orders.length);
-        // console.log("HASIL ERROR DOC ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-        await this.delay(1000); // tunggu selama 10 detik (10000 ms)
+        console.log("Result created doc : ", createDocuments.created_orders.length);
+        console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+        await this.delay(500); // tunggu selama 10 detik (10000 ms)
+        if(createDocuments.created_orders.length < 1){
+          return {code:'crd001', message:'download label success', data:createDocuments};return
+        }
         const uploadFolder = resolve(__dirname, '../upload');
-
         const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
         // const ordersToPrint = await this.tostringArrayOnly(createDocuments.error_orders);
-        console.log("YANG DI DOWNLOAD : ",ordersToPrint);
+        console.log("String Array Order to download doc : ",ordersToPrint.length);
         const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        console.log(" JADI PRINT : ", massDownloadRESULT);
-        if(massDownloadRESULT) return {status:'success', message:'success', data:massDownloadRESULT}
+        console.log(" Download results : ", massDownloadRESULT);
+        if(massDownloadRESULT) return {code:'dow001', message:'download label success', data:massDownloadRESULT};return;
+      } else {
+        console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
+        returnDownload={code:"track001",message:"Tracking orders found!", data:trackingInfo}
       }
 
-      return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${result}` };
+      return returnDownload;
     } catch (error) {
-      console.log("NGAPA (486) : ", error);
+      console.log("NGAPA (497) : ", error);
       return ApiResponse.badRequest(error, "Error data");
     }
   }
@@ -540,14 +544,9 @@ export class ShopeeService {
     const result = {tracked_order:resultTrack, notracked_order:resultNoTrack}
     return result;
   }
-
-
-
-  async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
+async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
     let result: any[] = [];
     result = await this.createShippingDocumentInfoBULK(orders);
-    // result = createDocument
-
     return result;
   }
 
