@@ -346,22 +346,12 @@ export class ApiService {
 
 
     //#################### PINDAHKAN DATA INVOICE KEDALAM BULK
-    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
-    console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
-    // console.log("######## SERVICE ORDERS ", orders);
-    // const test:any = orders[0];
-    const hasilprint = await this.apiShopeeService.checkAndDownloadLabel(orders);
+    // const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
+    // console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
+    //#################### PINDAHKAN DATA DARI HASIL PRINT
+    const hasilprint = await this.apiShopeeService.checkAndDownloadLabelNew(orders);
     console.log("Hasil PRINT ", hasilprint);
 
-    // const printingObject: any[] = await this.shopeeRepo.selectItemsToPrint({ order_sn: order_sn }, userInfo);
-    // logInfo("hasil select ",printingObject)
-    // console.log("sendPrinting ", order_sn);
-    // const hasilprint = await this.apiShopeeService.getShippingLabelWithArrange(order_sn)
-    // console.log("HASIL PRINT ", "hasilprint");
-    // if (hasilprint) {
-    //   await fs.writeFile("label.pdf", hasilprint);
-    //   console.log("✅ Label berhasil disimpan!");
-    // }
     return ApiResponse.success(orders, "Printing sent successfully");
   }
 

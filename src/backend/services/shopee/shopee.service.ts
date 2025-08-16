@@ -6,6 +6,7 @@ import fs from 'fs';
 import path, { join, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
 import { PDFDocument } from 'pdf-lib';
+import { result } from 'lodash';
 // Dapatkan path file saat ini dari import.meta.url
 const __filename = fileURLToPath(import.meta.url);
 
@@ -103,7 +104,7 @@ export class ShopeeService {
     // logInfo('✅✅ fetchWithAuth :', result)
     if (result.error === 'invalid_acceess_token') {
       // Refresh token and retry once
-      // logInfo('✅ Shopee get List Error:', result)
+      logInfo('✅ Shopee refresh on fetchWithAuth Error:', result)
       const newToken = await this.refreshToken();
       timestamp = getTimestamp();
       sign = this.generateSignature(path, timestamp, newToken.access_token, cred.shop_id, cred.client_id, cred.client_secret);
@@ -136,38 +137,31 @@ export class ShopeeService {
       ...queryParams
     });
     const url = `${cred.base_api}${path}?${searchParams.toString()}`;
-    // console.log("#### URL : ", url);
     const options: RequestInit = {
       method,
       headers: { 'Content-Type': 'application/json' }
     };
     if (method === 'POST' && bodyData) {
-      // console.log("BODY PAYLOAD ", bodyData);
       options.body = JSON.stringify(bodyData);
     }
     const res = await fetch(url, options);
-
     const contentType = res.headers.get("content-type") || "";
 
-    // console.log("fetchWithAuthMETHOD Status:", res.status, res.statusText);
-    console.log("fetchWithAuthMETHOD Content-Type:", contentType);
+    console.log("RESPONS DOWNLOAD ",res);
 
+
+    console.log("fetchWithAuthMETHOD Content-Type:", contentType);
     let resultYMP;
     if (contentType.includes("application/json")) {
       resultYMP = await res.json();
-      // console.log("Body:", resultYMP);
     } else {
       // resultYMP = await res.text(); // plain text fallback
       resultYMP = res.body;
-      // console.log("Body:", resultYMP);
     }
-    // console.log("Body:", resultYMP);
-    // const result = await res.json();
     const result = resultYMP;
-    // console.log("RESULT : ", result);
     if (result.error === 'invalid_acceess_token') {
       // Refresh token and retry once
-      // logInfo('✅ Shopee get List Error:', result)
+      logInfo('✅ Shopee refresh on fetchWithAuthMETHOD Error:', result)
       const newToken = await this.refreshToken();
       timestamp = getTimestamp();
       sign = this.generateSignature(path, timestamp, newToken.access_token, cred.shop_id, cred.client_id, cred.client_secret);
@@ -460,7 +454,6 @@ export class ShopeeService {
         // console.log('File PDF berhasil disimpan!');
         //########################################################################################################################
       }
-
       if (orderDetail[0].order_status === 'SHIPPED') {
         return;
       }
@@ -470,7 +463,40 @@ export class ShopeeService {
       return ApiResponse.badRequest(error, "Error data");
     }
   }
+  async checkAndDownloadLabelNew(orders: any[]): Promise<any> {
+    try {
+      let returnDownload:any = {};
+      console.log("ORDER YANG DI PRINT 1 ", orders.length);
+      let orderOnlyList = await this.tostringArrayOnly(orders);
+      // console.log("HASIL STRING ORDERS ", orderOnlyList.length);
+      // 1. Check manakah yang sudah ada tracking ordernya
+      const trackingInfo: any = await this.getMasTrackingNumberMulti(orderOnlyList);
+      // console.log("HASIL MASS TRACKING ", trackingInfo);
+      // 2. Ambil yang sudah ada tracking ordernya saja
+      if(trackingInfo.tracked_order.length > 0) {
+        orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+        console.log("ORDER YANG DI PRINT 2 ", orderOnlyList.length);
+        //3. Create Document yang sudah ada track nya
+        const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
+        console.log("HASIL CREATE DOC ", createDocuments.created_orders.length);
+        // console.log("HASIL ERROR DOC ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+        await this.delay(1000); // tunggu selama 10 detik (10000 ms)
+        const uploadFolder = resolve(__dirname, '../upload');
 
+        const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
+        // const ordersToPrint = await this.tostringArrayOnly(createDocuments.error_orders);
+        console.log("YANG DI DOWNLOAD : ",ordersToPrint);
+        const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
+        console.log(" JADI PRINT : ", massDownloadRESULT);
+        if(massDownloadRESULT) return {status:'success', message:'success', data:massDownloadRESULT}
+      }
+
+      return { status: 'pending', message: `Order belum siap dikirim, status saat ini: ${result}` };
+    } catch (error) {
+      console.log("NGAPA (486) : ", error);
+      return ApiResponse.badRequest(error, "Error data");
+    }
+  }
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
@@ -491,6 +517,32 @@ export class ShopeeService {
     }
     return result;
   }
+  async getMasTrackingNumberMulti(orders: any[]): Promise<any> {
+    const resultTrack: any[] = [];
+    const resultNoTrack: any[] = [];
+    for (const order of orders) {
+      const objectTracking = await this.getTrackingNumber(order);
+      if (objectTracking) {
+        if(objectTracking.tracking_number !== '') {
+          resultTrack.push({
+            tracking_number: objectTracking.tracking_number,
+            order_sn: order // atau order.order_sn kalau orders isinya object
+          });
+        } else {
+          resultNoTrack.push({
+            tracking_number: objectTracking.tracking_number,
+            order_sn: order // atau order.order_sn kalau orders isinya object
+          });
+        }
+      }
+    }
+    //###################################################
+    const result = {tracked_order:resultTrack, notracked_order:resultNoTrack}
+    return result;
+  }
+
+
+
   async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
     let result: any[] = [];
     result = await this.createShippingDocumentInfoBULK(orders);
@@ -498,13 +550,31 @@ export class ShopeeService {
 
     return result;
   }
+
+  async createMassShippingDocumentInfoMulti(orders: any[]): Promise<any> {
+
+    let resultCreated:any[] = [];
+    let resultError:any[]=[];
+    const resultCreateArray = await this.createShippingDocumentInfoBULK(orders);
+    // Ambil hanya data yang tidak punya fail_error
+    resultCreated = await resultCreateArray.result_list.filter((item: { fail_error: any; }) => !item.fail_error);
+    resultError = await resultCreateArray.result_list.filter((item: { fail_error: any; }) => item.fail_error);
+    const result: any = {created_orders:resultCreated,error_orders:resultError};
+    return result;
+  }
+
+
+
+
+
+
   async createShippingDocumentInfoBULK(orders: any[]) {
     // console.log("createShippingDocumentInfoBULK ",orders);
     let arrayData = { order_list: await this.addShippingType(orders) };
-    console.log("ARRAY DATA BULK ", arrayData);
+    // console.log("ARRAY DATA BULK ", arrayData);
     const path = '/api/v2/logistics/create_shipping_document';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', arrayData);
-    // console.log("TRACKING ",res);
+    console.log("TRACKING ",res);
     return res.response;
   }
   async createShippingDocumentInfo(order_sn: string, tracking_number: string) {
@@ -548,7 +618,8 @@ export class ShopeeService {
     });
     return res;
   }
-  async downloadMassShippingDocumentInfo(orders: string[], uploadFolder: string): Promise<string[]> {
+  async downloadMassShippingDocumentInfo(orders: string[], uploadFolder: string): Promise<any> {
+
     if (!fs.existsSync(uploadFolder)) {
       fs.mkdirSync(uploadFolder, { recursive: true });
     }
@@ -562,20 +633,20 @@ export class ShopeeService {
           order_sn: order_sn
         }],
       });
-      // Nama file simpan, misal label_orderSn.pdf
-      // console.log("DOWNLOAD ",stream);
       const filePath = resolve(uploadFolder, `label_${order_sn}.pdf`);
-      // const fileStream = fs.createWriteStream(filePath);
       await this.streamToFile(stream, filePath);
       savedFiles.push(filePath);
     }
     // return savedFiles; // kembalikan array path file hasil simpanan
     // Gabungkan file-file PDF tadi jadi satu file pdf gabungan
-    const combinedFilePath = resolve(uploadFolder, 'combined_labels.pdf');
+    const timestamp = Date.now(); // milisecond sekarang
+    const fileName:string = `${timestamp}_labels.pdf`;
+    const combinedFilePath = resolve(uploadFolder, fileName);
     await this.mergePdfFiles(savedFiles, combinedFilePath);
-    let resultCombine:any[]=[];
-    resultCombine.push(combinedFilePath);
-    return resultCombine; // kembalikan path file gabungan
+    // let resultCombine:any[]=[];
+    // resultCombine.push(combinedFilePath);
+    let result = {fileName:fileName, orders:orders}
+    return result; // kembalikan path file gabungan
   }
   async mergePdfFiles(sourceFiles: string[], outputFile: string): Promise<void> {
     const mergedPdf = await PDFDocument.create();
