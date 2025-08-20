@@ -47,10 +47,11 @@ export class ShopeeRepository {
   }
   async getQShopeeItembest(payload:string){
     const today = new Date().toISOString().substring(0, 10);
+    // console.log("######### TODAY : ", today);
     // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
 
     const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
-
+    // console.log("######### TODAY INVOICE : ", invoicesOfItem);
     // langsung ambil list order_sn saja
     const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
     // tunggu dulu sebelum lanjut (simulasi async, misalnya ada proses lain)
@@ -127,6 +128,7 @@ export class ShopeeRepository {
     )
     .sum({ qty: 'model_quantity_purchased' })
     .where('status', 0)
+    .andWhere('id_q_shopee',payload.id)
     .groupBy('item_id')
     .orderBy('qty', 'desc');
     return await query;

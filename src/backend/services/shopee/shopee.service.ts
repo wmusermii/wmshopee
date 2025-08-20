@@ -277,29 +277,31 @@ export class ShopeeService {
     return allDetails;
   }
   //######################## STEP PRINT LABEL SHOPEE API########################
-  public async getShippingParameter(order: any): Promise<any[]> {
-    // const path = '/api/v2/logistics/get_shipping_parameter';
-    // // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
-    // const res = await this.fetchWithAuth(path,{
-    //     order_sn: order.order_sn,
-    //     package_number:order.package_number
-    //   });
+  public async getShippingParameter(order: any): Promise<any> {
+    const path = '/api/v2/logistics/get_shipping_parameter';
+    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
+    const res = await this.fetchWithAuth(path,{
+        order_sn: order.order_sn
+      });
     // console.log("RETURN DARI PARAMETER : ",res);
-    // if(res && res.response) {
-    //   return res.response
-    // }
-    const shipParameter = await this.shopeeRepo.getShippingVariables(2);
-    return shipParameter;
+    if(res && res.response) {
+      return res.response
+    }
+    return {status:"error", message:"Error Shipping parameter"}
+    // const shipParameter = await this.shopeeRepo.getShippingVariables(2);
+    // return shipParameter;
   }
   public async getShipOrder(order: any, addressObj: any): Promise<any> {
     const path = '/api/v2/logistics/ship_order';
-    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
       order_sn: order.order_sn,
       package_number: order.package_number,
-      pickup: { address_id: addressObj.address_id }
+      pickup: {
+        address_id: addressObj.address_id,
+        pickup_time_id: addressObj.pickup_time.pickup_time_id
+      }
     });
-    // console.log("RETURN DARI SHOP : ",res);
+    console.log("RETURN DARI SHOP ORDER : ",res);
     if (res) {
       return res
     }
@@ -470,7 +472,7 @@ export class ShopeeService {
       let orderOnlyList = await this.tostringArrayOnly(orders);
       // 1. Check manakah yang sudah ada tracking ordernya
       const trackingInfo: any = await this.getMasTrackingNumberMulti(orderOnlyList);
-      // console.log("HASIL MASS TRACKING ", trackingInfo);
+      console.log("HASIL MASS TRACKING ", trackingInfo);
       // 2. Ambil yang sudah ada tracking ordernya saja
       if(trackingInfo.tracked_order.length > 0) {
         orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
@@ -493,6 +495,18 @@ export class ShopeeService {
       } else {
         console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
         returnDownload={code:"track001",message:"Tracking orders found!", data:trackingInfo}
+
+        console.log("TRY CREATE ORDER ##############################");
+        const shippingParameter = await this.getShippingParameter(trackingInfo.notracked_order[0]);
+        // console.log("SHIP PARAM ############################## ", shippingParameter.pickup.address_list);
+        const address_id = shippingParameter.pickup.address_list[0].address_id;
+        const pickup_times = shippingParameter.pickup.address_list[0].time_slot_list[0];
+        const shipParam = {address_id:address_id, pickup_time:pickup_times};
+        // console.log("SHIP PARAM ############################## ", shipParam);
+        // const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
+        // console.log("HASIL ORDER SHIP ############################## ", orderShip);
+
+
       }
 
       return returnDownload;
@@ -504,7 +518,7 @@ export class ShopeeService {
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
-    // console.log("RESP TRACKING ",res);
+    console.log("RESP TRACKING ",res);
     return res.response;
   }
 
