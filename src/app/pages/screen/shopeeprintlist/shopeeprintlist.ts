@@ -101,14 +101,17 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
       })
       .then(data => {
         console.log("Response dari API /shopee/send_print 1", data);
+        if(data.code === 20000) {
+          const fileNameOri = data.data.data.fileName;
+          // const fileName = response.data.data.fileName;
+          const url = `${window.location.origin}/upload/${fileNameOri}`;
+          window.open(url, '_blank');
+        }
         this.loading=false;
         this.router.navigate(['/dashboard']);
       })
       .catch(err => {
         this.loading=false;
-        // this.orders=[];
-        //   this.invoicetotal = this.orders.length
-        //   this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
         console.log("Response Error Catch /shopee/send_print", err);
       });
   }

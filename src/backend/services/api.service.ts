@@ -343,16 +343,16 @@ export class ApiService {
     }
   }
   async sendPrinting(orders: any) {
-
-
     //#################### PINDAHKAN DATA INVOICE KEDALAM BULK
     // const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
     // console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
     //#################### PINDAHKAN DATA DARI HASIL PRINT
     const hasilprint = await this.apiShopeeService.checkAndDownloadLabelNew(orders);
-    console.log("Hasil PRINT ", hasilprint);
-
-    return ApiResponse.success(orders, "Printing sent successfully");
+    console.log("Hasil Download ", hasilprint);
+    const ordersToDelete = hasilprint.data.orders;
+    console.log("Order yang di delete : ", ordersToDelete);
+    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete);
+    return ApiResponse.success(hasilprint, "Printing sent successfully");
   }
 
 

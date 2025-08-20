@@ -487,26 +487,22 @@ export class ShopeeService {
         }
         const uploadFolder = resolve(__dirname, '../upload');
         const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
-        // const ordersToPrint = await this.tostringArrayOnly(createDocuments.error_orders);
         console.log("String Array Order to download doc : ",ordersToPrint.length);
         const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        console.log(" Download results : ", massDownloadRESULT);
-        if(massDownloadRESULT) return {code:'dow001', message:'download label success', data:massDownloadRESULT};return;
+        // console.log(" Download results : ", massDownloadRESULT);
+        if(massDownloadRESULT) return {code:'success', message:'download label success', data:massDownloadRESULT};return;
       } else {
         console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
         returnDownload={code:"track001",message:"Tracking orders found!", data:trackingInfo}
-
-        console.log("TRY CREATE ORDER ##############################");
+        console.log("=== Try create shipping order ===");
         const shippingParameter = await this.getShippingParameter(trackingInfo.notracked_order[0]);
         // console.log("SHIP PARAM ############################## ", shippingParameter.pickup.address_list);
         const address_id = shippingParameter.pickup.address_list[0].address_id;
         const pickup_times = shippingParameter.pickup.address_list[0].time_slot_list[0];
         const shipParam = {address_id:address_id, pickup_time:pickup_times};
         // console.log("SHIP PARAM ############################## ", shipParam);
-        // const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
-        // console.log("HASIL ORDER SHIP ############################## ", orderShip);
-
-
+        const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
+        console.log("Order ships report ############################## ", orderShip);
       }
 
       return returnDownload;
@@ -632,7 +628,6 @@ async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
     return res;
   }
   async downloadMassShippingDocumentInfo(orders: string[], uploadFolder: string): Promise<any> {
-
     if (!fs.existsSync(uploadFolder)) {
       fs.mkdirSync(uploadFolder, { recursive: true });
     }
