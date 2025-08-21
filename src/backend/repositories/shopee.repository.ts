@@ -89,7 +89,7 @@ export class ShopeeRepository {
     // insert ke q_shopee_invoices_bulk
     const insertInvoiceBulk_Result = await db('q_shopee_invoices_bulk').insert(invoices).returning('order_sn');
 
-    console.log("Hasil di pindah Invoice Bulk ", insertInvoiceBulk_Result);
+    // console.log("Hasil di pindah Invoice Bulk ", insertInvoiceBulk_Result);
 
     // orderSNList
     const invoicesDetail = await db('q_shopee_invoices_detail')

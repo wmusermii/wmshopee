@@ -32,9 +32,7 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
     this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
     this.itemIDForce = this.ssrStorage.getItem("FORCEITEMID");
-
     console.log("HASIL Session ", this.itemIDForce.item_id);
-
     this._refreshListPrint();
   }
   ngOnDestroy(): void {
@@ -104,8 +102,12 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
         if(data.code === 20000) {
           const fileNameOri = data.data.data.fileName;
           // const fileName = response.data.data.fileName;
-          const url = `${window.location.origin}/upload/${fileNameOri}`;
-          window.open(url, '_blank');
+          // const url = `${window.location.origin}/upload/${fileNameOri}`;
+          // window.open(url, '_blank');
+           const url = `${window.location.origin}/upload/${fileNameOri}?t=${Date.now()}`; // anti-cache
+            setTimeout(() => {
+              window.open(url, '_blank');
+            }, 1000); // kasih jeda biar file ready
         }
         this.loading=false;
         this.router.navigate(['/dashboard']);

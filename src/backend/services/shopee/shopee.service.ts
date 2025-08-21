@@ -147,7 +147,7 @@ export class ShopeeService {
     const res = await fetch(url, options);
     const contentType = res.headers.get("content-type") || "";
 
-    console.log("RESPONS DOWNLOAD ",res);
+    // console.log("RESPONS DOWNLOAD ",res);
 
 
     console.log("fetchWithAuthMETHOD Content-Type:", contentType);
@@ -241,11 +241,12 @@ export class ShopeeService {
     const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const allDetails: any[] = [];
     for (const chunk of chunks) {
-      // console.log("############ CHUNK ", chunk);
+      console.log("############ CHUNK ", chunk);
       const res = await this.fetchWithAuth(path, {
         order_sn_list: chunk,
         response_optional_fields: 'order_status,item_list,total_amount,buyer_username,recipient_address,shipping_carrier,invoice_data' // sesuaikan kebutuhan
       });
+      console.log("Get Order Detail ", res);
       if (res && res.response && res.response.order_list) {
         allDetails.push(...res.response.order_list);
       }
@@ -279,7 +280,6 @@ export class ShopeeService {
   //######################## STEP PRINT LABEL SHOPEE API########################
   public async getShippingParameter(order: any): Promise<any> {
     const path = '/api/v2/logistics/get_shipping_parameter';
-    // const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const res = await this.fetchWithAuth(path,{
         order_sn: order.order_sn
       });
@@ -288,14 +288,31 @@ export class ShopeeService {
       return res.response
     }
     return {status:"error", message:"Error Shipping parameter"}
-    // const shipParameter = await this.shopeeRepo.getShippingVariables(2);
-    // return shipParameter;
+  }
+
+  public async getMassShippingParameter(orders: any[]): Promise<any> {
+     const resultShipParam: any[] = [];
+    const resultNoShipParam: any[] = [];
+    for (const order of orders) {
+      const shipingParam = await this.getShippingParameter(order);
+      if (shipingParam) {
+        const address_id = shipingParam.pickup.address_list[0].address_id;
+        const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
+        const shipParam = {order, address_id:address_id, pickup_time:pickup_times};
+        resultShipParam.push(shipParam);
+      } else {
+        const shipParam = {order, address_id:null, pickup_time:null};
+        resultNoShipParam.push(shipParam);
+      }
+    }
+    //###################################################
+    const result = {shipping_Param:resultShipParam, noshipping_Param:resultNoShipParam}
+    return result;
   }
   public async getShipOrder(order: any, addressObj: any): Promise<any> {
     const path = '/api/v2/logistics/ship_order';
     const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
       order_sn: order.order_sn,
-      package_number: order.package_number,
       pickup: {
         address_id: addressObj.address_id,
         pickup_time_id: addressObj.pickup_time.pickup_time_id
@@ -308,7 +325,27 @@ export class ShopeeService {
     const shipParameter = null;
     return shipParameter;
   }
-
+  public async getMassShipOrder(addressObj: any[]): Promise<any> {
+      const resultShipOrder: any[] = [];
+    const resultNoShipOrder: any[] = [];
+    for (const order of addressObj) {
+      console.log("Object Track order ", order);
+      // console.log("Address Track order ", addressObj);
+      const shipingParam = await this.getShipOrder(order.order,order);
+      if (shipingParam) {
+        // const address_id = shipingParam.pickup.address_list[0].address_id;
+        // const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
+        // const shipParam = {order, address_id:address_id, pickup_time:pickup_times};
+        // resultShipParam.push(shipParam);
+      } else {
+        // const shipParam = {order, address_id:null, pickup_time:null};
+        // resultNoShipParam.push(shipParam);
+      }
+    }
+    //###################################################
+    const result = {shipped_orders:resultShipOrder, noshipped_orders:resultNoShipOrder}
+    return result;
+  }
 
   //######################## STEP PRINT LABEL ########################
   async getLocalDateTime(): Promise<string> {
@@ -445,7 +482,7 @@ export class ShopeeService {
         await this.delay(1000); // tunggu selama 10 detik (10000 ms)
         const uploadFolder = resolve(__dirname, '../upload');
         const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        console.log(" DI PRINT : ", massDownloadRESULT);
+        console.log(" Printing Orders : ", massDownloadRESULT);
         //########################################################################################################################
         // const stream = await this.downloadShippingDocumentInfo(orderDetail[0].order_sn);
         // const uploadFolder = resolve(__dirname, '../upload');
@@ -490,18 +527,20 @@ export class ShopeeService {
         console.log("String Array Order to download doc : ",ordersToPrint.length);
         const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
         // console.log(" Download results : ", massDownloadRESULT);
-        if(massDownloadRESULT) return {code:'success', message:'download label success', data:massDownloadRESULT};return;
+        if(massDownloadRESULT) return {code:'success', message:'download label success', data:massDownloadRESULT};
+        return;
       } else {
         console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
-        returnDownload={code:"track001",message:"Tracking orders found!", data:trackingInfo}
+        returnDownload={code:"001",message:"Tracking orders found!", data:trackingInfo}
         console.log("=== Try create shipping order ===");
-        const shippingParameter = await this.getShippingParameter(trackingInfo.notracked_order[0]);
-        // console.log("SHIP PARAM ############################## ", shippingParameter.pickup.address_list);
-        const address_id = shippingParameter.pickup.address_list[0].address_id;
-        const pickup_times = shippingParameter.pickup.address_list[0].time_slot_list[0];
-        const shipParam = {address_id:address_id, pickup_time:pickup_times};
+        const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
+        console.log("SHIP PARAM ############################## ", shippingParameter);
+        // const address_id = shippingParameter.pickup.address_list[0].address_id;
+        // const pickup_times = shippingParameter.pickup.address_list[0].time_slot_list[0];
+        // const shipParam = {address_id:address_id, pickup_time:pickup_times};
         // console.log("SHIP PARAM ############################## ", shipParam);
-        const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
+        // const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
+        const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
         console.log("Order ships report ############################## ", orderShip);
       }
 
@@ -633,6 +672,9 @@ async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
     }
     const savedFiles: string[] = [];
     for (const order_sn of orders) {
+       let orderSNArray:any[] =[order_sn]
+       const checkOrderDetail = await this.getOrderDetail(orderSNArray);
+      // console.log("Check Order Detail Dahulu ", checkOrderDetail);
       const apiPath = '/api/v2/logistics/download_shipping_document';
       // Panggil API untuk tiap order_sn
       const stream = await this.fetchWithAuthMETHOD(apiPath, {}, 'POST', {
@@ -658,14 +700,12 @@ async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
   }
   async mergePdfFiles(sourceFiles: string[], outputFile: string): Promise<void> {
     const mergedPdf = await PDFDocument.create();
-
     for (const filePath of sourceFiles) {
       const pdfBytes = fs.readFileSync(filePath);
       const pdf = await PDFDocument.load(pdfBytes);
       const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
       copiedPages.forEach((page) => mergedPdf.addPage(page));
     }
-
     const mergedPdfBytes = await mergedPdf.save();
     fs.writeFileSync(outputFile, mergedPdfBytes);
   }
