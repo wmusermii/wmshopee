@@ -332,14 +332,18 @@ export class ShopeeService {
       console.log("Object Track order ", order);
       // console.log("Address Track order ", addressObj);
       const shipingParam = await this.getShipOrder(order.order,order);
+      console.log("Ketika ship order ", shipingParam);
       if (shipingParam) {
-        // const address_id = shipingParam.pickup.address_list[0].address_id;
-        // const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
-        // const shipParam = {order, address_id:address_id, pickup_time:pickup_times};
-        // resultShipParam.push(shipParam);
+        if(shipingParam.error !== '') {
+          const objectShipOrder = {request_id:shipingParam.request_id, order_sn:order.order.order_sn}
+          resultShipOrder.push(objectShipOrder);
+        } else {
+          const objectNoShipOrder = {request_id:shipingParam.request_id, order_sn:order.order.order_sn}
+          resultNoShipOrder.push(objectNoShipOrder);
+        }
       } else {
-        // const shipParam = {order, address_id:null, pickup_time:null};
-        // resultNoShipParam.push(shipParam);
+        const objectNoShipOrder = {request_id:shipingParam.request_id, order_sn:order.order.order_sn}
+        resultNoShipOrder.push(objectNoShipOrder);
       }
     }
     //###################################################
@@ -537,6 +541,19 @@ export class ShopeeService {
         console.log("SHIP PARAM ############################## ", shippingParameter);
         const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
         console.log("Order ships report ############################## ", orderShip);
+
+        orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+        const trackingInfo2: any = await this.getMasTrackingNumberMulti(orderOnlyList);
+      console.log("HASIL MASS TRACKING ", trackingInfo);
+
+
+
+
+
+
+
+
+
       }
       return returnDownload;
     } catch (error) {
