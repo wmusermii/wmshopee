@@ -481,8 +481,8 @@ export class ShopeeService {
         console.log("ORDER YANG DI PRINT : ", ordersToPrint);
         await this.delay(1000); // tunggu selama 10 detik (10000 ms)
         const uploadFolder = resolve(__dirname, '../upload');
-        const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        console.log(" Printing Orders : ", massDownloadRESULT);
+        // const massDownloadRESULT = await this.downloadShippingDocumentInfo(ordersToPrint, uploadFolder)
+        // console.log(" Printing Orders : ", massDownloadRESULT);
         //########################################################################################################################
         // const stream = await this.downloadShippingDocumentInfo(orderDetail[0].order_sn);
         // const uploadFolder = resolve(__dirname, '../upload');
@@ -535,15 +535,9 @@ export class ShopeeService {
         console.log("=== Try create shipping order ===");
         const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
         console.log("SHIP PARAM ############################## ", shippingParameter);
-        // const address_id = shippingParameter.pickup.address_list[0].address_id;
-        // const pickup_times = shippingParameter.pickup.address_list[0].time_slot_list[0];
-        // const shipParam = {address_id:address_id, pickup_time:pickup_times};
-        // console.log("SHIP PARAM ############################## ", shipParam);
-        // const orderShip = await this.getShipOrder(trackingInfo.notracked_order[0], shipParam)
         const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
         console.log("Order ships report ############################## ", orderShip);
       }
-
       return returnDownload;
     } catch (error) {
       console.log("NGAPA (497) : ", error);
@@ -723,7 +717,6 @@ async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
   async streamToFile(stream: ReadableStream, filePath: string): Promise<void> {
     const reader = stream.getReader();
     const writer = fs.createWriteStream(filePath);
-
     // Fungsi untuk baca terus data dan tulis ke file
     const pump = async (): Promise<void> => {
       const { done, value } = await reader.read();
@@ -734,9 +727,7 @@ async createMassShippingDocumentInfo(orders: any[]): Promise<any[]> {
       writer.write(Buffer.from(value));
       return pump();
     };
-
     await pump();
-
     return new Promise((resolve, reject) => {
       writer.on('finish', resolve);
       writer.on('error', reject);
