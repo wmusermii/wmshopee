@@ -306,6 +306,25 @@ export async function getAllSKUAvailable(req: Request, res: Response, next: Next
     return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
   }
 }
+export async function getAllWarhouseAvailable(req: Request, res: Response, next: NextFunction) {
+ try {
+    console.log("####################################### getAllWarhouseAvailable");
+    const userInfo:any = req.userInfo;
+    const packageResult = await apiService.getAllWarehouses();
+    if(packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult);return;
+    } else {
+      await ResponseHelper.send(res,ApiResponse.successNoData([],"Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res,ApiResponse.serverError(error+""));return;
+  }
+}
+
+
 export async function sendingEmailTo(req: Request, res: Response, next: NextFunction) {
   try {
     const { to, subject, message} = req.body;

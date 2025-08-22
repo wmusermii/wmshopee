@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeToday, getShopInfo, getShopPerformance, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeToday, getShopInfo, getShopPerformance, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -32,7 +32,7 @@ router.post('/warehouse/update_items_packages', asyncHandler(authBearerMiddlewar
 router.get('/warehouse/get_resi_count', asyncHandler(authBearerMiddleware),asyncHandler(getCountInvoicesAvailable)); // Untuk melihat jumlah total invoices belum di kerjakan
 router.get('/warehouse/get_sku_all', asyncHandler(authBearerMiddleware),asyncHandler(getAllSKUAvailable)); // Untuk melihat jumlah total barang
 router.get('/warehouse/get_sku_count', asyncHandler(authBearerMiddleware),asyncHandler(getCountSKUAvailable)); // Untuk melihat jumlah total barang
-
+router.get('/warehouse/get_warehouse_all', asyncHandler(authBearerMiddleware),asyncHandler(getAllWarhouseAvailable)); // Untuk melihat warehouse yang ada
 //##################################### EMAIL #############
 router.post('/warehouse/send_email', asyncHandler(sendingEmailTo));// Untuk cek apaka package yang di ambil sudah diambil user lain
 //##################################### Printing #############

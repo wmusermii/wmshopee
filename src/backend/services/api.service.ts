@@ -7,9 +7,11 @@ import { logInfo } from "../utils/logger";
 import { ShopeeService } from "./shopee/shopee.service";
 import nodemailer from 'nodemailer';
 import { promises as fs } from 'fs';
+import { WarehouseRepository } from "../repositories/warehouse.repository";
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
   private userRepo = new UserRepository();
+  private warehouseRepo = new WarehouseRepository();
   private apiShopeeService = new ShopeeService();//Jangan Di hapus dahulu
   async qShopeeInsert(payload: any, userinfo: any) {
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10);
@@ -134,6 +136,22 @@ export class ApiService {
     }
     return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
   }
+
+  async getAllWarehouses() {
+    const shopeeResult = await this.warehouseRepo.findAllWarehouse();
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+  async getViewWarehousesById(warehouse_id:string) {
+    const shopeeResult = await this.warehouseRepo.findWarehouseById(warehouse_id);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+
+
+
   async getPackagesAvailable(userinfo: any) {
     const shopeeResult = await this.shopeeRepo.selectPackagesAvailable();
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");

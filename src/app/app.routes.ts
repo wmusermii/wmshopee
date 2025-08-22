@@ -53,9 +53,20 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/screen/packaging/listinvoice/detailinvoice/detailinvoice').then(m => m.Detailinvoice),
       },
       {
-       path:'warehouse/product',
+       path:'management/product',
        canActivate:[authGuard],
        loadComponent:() => import("./pages/screen/product/product.component").then(m => m.ProductComponent)
+      },
+      {
+       path:'management/warehouse',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/warehouselist/warehouselist").then(m => m.Warehouselist)
+      },
+      {
+       path:'management/stockopname',
+       canActivate:[authGuard],
+       loadComponent:() => import("./pages/screen/stockopname/stockopname").then(m => m.Stockopname)
+
       },
       {
        path:'profile',

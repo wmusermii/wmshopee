@@ -99,8 +99,12 @@ export class ShopeeRepository {
         console.log('Tidak ada data yang cocok.');
         return;
       }
-    // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
+    logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
     await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
+    // ####################### Masukan ke t_inventory ########################
+    const insertInventory= await this.transformInventoryItems(invoicesDetail);
+    logInfo("### BANYAK INVENTORY ",insertInventory.length)
+    await db('t_inventory').insert(insertInventory);
     //############## UPDATE DELETE TABLE INVOICE UTAMA
     // orderSNList
     await db('q_shopee_invoices_bulk').update({
@@ -412,4 +416,19 @@ export class ShopeeRepository {
   const [day, month, year] = dateStr.split('-');
   return `${year}-${month}-${day}`;
   }
+  async transformInventoryItems(items: any[]): Promise<any[]> {
+  return items.map((item) => {
+    const cleanItemId = item.item_id.replace(/\.0$/, ""); // hilangkan .0
+    const cleanModelId = item.model_id; // hilangkan .0
+    return {
+      product_id: `${cleanItemId}${cleanModelId}`, // gabung jadi string
+      trx_date: item.create_time,
+      trx_type: "OUT", // static
+      qty: item.model_quantity_purchased,
+      ref_id: item.order_sn,
+      note: "",
+      warehouse_id: 2, // static
+    };
+  });
+}
 }
