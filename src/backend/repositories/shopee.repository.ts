@@ -99,14 +99,16 @@ export class ShopeeRepository {
         console.log('Tidak ada data yang cocok.');
         return;
       }
-    logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
+    // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
     await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
     // ####################### Masukan ke t_inventory ########################
-    const insertInventory= await this.transformInventoryItems(invoicesDetail);
-    logInfo("### BANYAK INVENTORY ",insertInventory.length)
-    await db('t_inventory').insert(insertInventory);
+    // const insertInventory= await this.transformInventoryItems(invoicesDetail);
+    // logInfo("### BANYAK INVENTORY ",insertInventory.length)
+    // await db('t_inventory').insert(insertInventory);
     //############## UPDATE DELETE TABLE INVOICE UTAMA
     // orderSNList
+    // flowstock:'OUT',
+    //       wh_id:2,
     await db('q_shopee_invoices_bulk').update({
           status: 1,
           updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),

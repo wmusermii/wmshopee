@@ -101,6 +101,10 @@ export class Warehouselist implements OnInit {
   onSubmit() {
 
   }
+  // Helper getter untuk akses kontrol form di template
+  get f() {
+    return this.warehouseForm.controls;
+  }
 }
 interface Column {
   field: string;

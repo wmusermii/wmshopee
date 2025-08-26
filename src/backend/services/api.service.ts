@@ -8,10 +8,12 @@ import { ShopeeService } from "./shopee/shopee.service";
 import nodemailer from 'nodemailer';
 import { promises as fs } from 'fs';
 import { WarehouseRepository } from "../repositories/warehouse.repository";
+import { OpnameRepository } from "../repositories/opname.repository";
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
   private userRepo = new UserRepository();
   private warehouseRepo = new WarehouseRepository();
+  private stockopnameRepo = new OpnameRepository();
   private apiShopeeService = new ShopeeService();//Jangan Di hapus dahulu
   async qShopeeInsert(payload: any, userinfo: any) {
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10);
@@ -150,6 +152,24 @@ export class ApiService {
     return ApiResponse.success(shopeeResult, "Records found");
   }
 
+
+ async getAllOpname() {
+    const shopeeResult = await this.stockopnameRepo.findAllHeaderOpname();
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+
+   async insertHeaderOpname(payload:any) {
+    console.log("####### insertHeaderOpname : ",payload);
+
+
+
+    const shopeeResult = await this.stockopnameRepo.insertOpname(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
 
 
   async getPackagesAvailable(userinfo: any) {

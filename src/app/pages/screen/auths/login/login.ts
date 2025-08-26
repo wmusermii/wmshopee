@@ -34,13 +34,6 @@ export class Login {
     console.log("Payload form ", objPayload);
     // const payload = {credential:btoa(`${objPayload.username}:${objPayload.password}`)}
     const credential = btoa(`${objPayload.username}:${objPayload.password}`);
-// {
-//     "username": "admin",
-//     "password": "manage"
-// }
-
-
-
     fetch('/v2/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
