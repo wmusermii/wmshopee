@@ -41,9 +41,7 @@
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
           <p-button styleClass="custom-rb" icon="pi pi-search" aria-label="search" label="View" [rounded]="true" [text]="true"
-            severity="secondary" />
-          <!-- <p-button styleClass="custom-rb" icon="pi pi-file-edit" aria-label="edit" [rounded]="true" [text]="true"
-            severity="info" /> -->
+            severity="secondary" (onClick)="_detailOpname(rowData)" />
           <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
             severity="danger" />
         </td>

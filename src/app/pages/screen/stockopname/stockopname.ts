@@ -30,11 +30,7 @@ export class Stockopname implements OnInit {
   totalOpname: number = 0;
   allOpnames!: opname[];
   cols!: Column[];
-  warehouseArray:any[] = [
-
-  ]
-  // {warehouse_id:1,warehouse_code:"WRH1", warehouse_name:"Gudang Utama", is_store:0 },
-  //   {warehouse_id:2,warehouse_code:"STR", warehouse_name:"Toko Utama", is_store:1 }
+  warehouseArray:any[] = []
   rows = 10;
   globalFilter: string = '';
    opnameForm = new FormGroup({
@@ -46,7 +42,7 @@ export class Stockopname implements OnInit {
   async ngOnInit(): Promise<void> {
     this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
-
+    this.ssrStorage.removeItem("OPITM");
     this.cols = [
       { field: 'id_opname', header: 'Id Opname' },
       { field: 'opname_date', header: 'Opname Date' },
@@ -202,6 +198,11 @@ export class Stockopname implements OnInit {
   }
   async _cancelGenerate():Promise<void> {
     this.showGenerateDialog=false;
+  }
+  async _detailOpname(payload:any):Promise<void> {
+    console.log("Data tod detail ", payload);
+    this.ssrStorage.setItem("OPITM", payload.id_opname)
+    this.router.navigate([`/management/stockopname/view`]);
   }
 }
 interface Column {

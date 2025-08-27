@@ -63,10 +63,15 @@ export const routes: Routes = [
        loadComponent:() => import("./pages/screen/warehouselist/warehouselist").then(m => m.Warehouselist)
       },
       {
-       path:'management/stockopname',
-       canActivate:[authGuard],
-       loadComponent:() => import("./pages/screen/stockopname/stockopname").then(m => m.Stockopname)
-
+        path:'management/stockopname',
+        canActivate:[authGuard],
+        loadComponent:() => import("./pages/screen/stockopname/stockopname").then(m => m.Stockopname)
+      },
+      {
+        path:'management/stockopname/view',
+        canActivate:[authGuard],
+        loadComponent:() => import("./pages/screen/stockopname/stockopnamedetail/stockopnamedetail").then(m => m.Stockopnamedetail),
+        data: { renderMode: 'server' }
       },
       {
        path:'profile',
