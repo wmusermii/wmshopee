@@ -241,12 +241,12 @@ export class ShopeeService {
     const chunks = this.chunkArray(orderSnList, 50); // atau pakai lodash.chunk
     const allDetails: any[] = [];
     for (const chunk of chunks) {
-      console.log("############ CHUNK ", chunk);
+      // console.log("############ CHUNK ", chunk);
       const res = await this.fetchWithAuth(path, {
         order_sn_list: chunk,
         response_optional_fields: 'order_status,item_list,total_amount,buyer_username,recipient_address,shipping_carrier,invoice_data' // sesuaikan kebutuhan
       });
-      console.log("Get Order Detail ", res);
+      // console.log("Get Order Detail ", res);
       if (res && res.response && res.response.order_list) {
         allDetails.push(...res.response.order_list);
       }

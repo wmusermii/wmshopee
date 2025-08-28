@@ -9,11 +9,20 @@
     [rowsPerPageOptions]="[10, 50, 100]">
     <ng-template #caption>
       <div class="flex flex-col gap-2">
-        <!-- Baris atas: Title dan Add Button -->
+        <!-- Baris atas: Title dan Button group -->
         <div class="flex items-center justify-between">
-          <span class="text-xl font-bold">Stock Opname</span>
-          <!-- <p-button icon="pi pi-plus" (onClick)="_addProduct()" label="Add Product" rounded raised /> -->
-          <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Stock Opname" rounded raised />
+          <span class="text-md">Stocks in {{opnameObj.warehouse_name}} ({{opnameObj.opname_date}})</span>
+
+          <!-- Tombol kanan -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <p-button icon="pi pi-chevron-left" label="Back" (onClick)="_backToList()" variant="outlined" rounded
+              raised />
+
+            <p-button icon="pi pi-file-excel" label="Export" (onClick)="_backToList()" severity="success" rounded
+              raised />
+
+            <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Opname" rounded raised />
+          </div>
         </div>
       </div>
     </ng-template>
@@ -26,65 +35,75 @@
         <th style="text-align: center;">Action</th>
       </tr>
     </ng-template>
-
     <ng-template pTemplate="body" let-rowData>
       <tr>
-        <td>
-          {{rowData.id_opname}}
-        </td>
+        <td>{{rowData.opname_id}}</td>
+        <td>{{rowData.product_id}}</td>
+        <td style="text-align: end;">{{rowData.system_qty}}</td>
+        <td style="text-align: end;">{{rowData.physical_qty}}</td>
+        <td style="text-align: end;">{{rowData.adjustment_qty}}</td>
         <td style="text-align: center;">{{rowData.opname_date}}</td>
-        <td>{{rowData.warehouse_name}}</td>
-        <td style="text-align: center;">
-          <!-- {{rowData.is_store}} -->
-          <p-chip *ngIf="rowData.status == 0" label="OPEN" icon="pi pi-lock-open" />
-          <p-chip *ngIf="rowData.status == 1" label="CLOSED" icon="pi pi-lock" class="text-green-400" />
-        </td>
+        <td>{{rowData.created_by}}</td>
+        <td>{{rowData.id_opname}}</td>
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
           <p-button styleClass="custom-rb" icon="pi pi-edit" aria-label="search" [rounded]="true" [text]="true"
-            severity="secondary" (onClick)="_detailOpname(rowData)" />
+            severity="secondary" (onClick)="_editOpname(rowData)" />
           <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
             severity="danger" />
         </td>
       </tr>
     </ng-template>
   </p-table>
+  <div *ngIf="showStocksDialog"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-screen-xl sm:max-w-2/3 overflow-auto">
+    <p-table #table [columns]="cols" [value]="opnames" class="w-full" stripedRows="true" showGridlines="true"
+      autoLayout="true" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="[10,50,100]">
+      <ng-template #caption>
+      <div class="flex flex-col gap-2">
+        <!-- Baris atas: Title dan Button group -->
+        <div class="flex items-center justify-between">
+          <span class="text-md">Stocks in {{opnameObj.warehouse_name}} ({{opnameObj.opname_date}})</span>
 
-
-  <div *ngIf="showGenerateDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">
-      <div class="flex items-start gap-4">
-        <!-- Text Section -->
-        <div class="flex-1">
-          <h2 class="text-lg font-semibold text-gray-800 mb-2">Physical Item</h2>
-          <form [formGroup]="opnameForm" (ngSubmit)="_onSubmit()" novalidate class="space-y-2">
-            <div class="space-y-3">
-              <div class="flex flex-col mb-2">
-                <label for="opname_date" class="mb-2">SO Periode</label>
-                <!-- <input type="text" class="w-full" pInputText formControlName="opname_date" id="opname_date" /> -->
-                <p-datepicker [showTime]="true" formControlName="opname_date" dateFormat="dd MM yy"
-                  [showOnFocus]="false" [showIcon]="true" class="w-full"
-                  inputStyleClass="w-full text-center"></p-datepicker>
-              </div>
-              <div class="flex flex-col mb-2">
-                <label for="warehouse_name" class="mb-2">Warehouse</label>
-                <!-- <input type="text" class="w-full" pInputText formControlName="warehouse_name" id="warehouse_name" /> -->
-                <p-select id="warehouse_name" [options]="warehouseArray" formControlName="wh_obj"
-                  optionLabel="warehouse_name" [showClear]="false" placeholder="Select warehouse" class="w-full" />
-              </div>
-            </div>
-            <!-- <button pButton type="submit" class="w-full" [disabled]="!opnameForm.valid" style="margin-top: 1.5rem;"
-              label="Save Data"></button> -->
-            <div class="py-5">&nbsp;</div>
-            <div class="flex justify-end gap-4 mt-6">
-              <p-button label="Yes, Generate" type="submit" [disabled]="!opnameForm.valid" severity="warn"></p-button>
-              <p-button label="Cancel" severity="secondary" (onClick)="_cancelGenerate()"></p-button>
-            </div>
-          </form>
+          <!-- Tombol kanan -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <p-button icon="pi pi-times" label="Back" variant="outlined" (onClick)="_closeProduct()" severity="danger" rounded />
+          </div>
         </div>
       </div>
-    </div>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th [pSortableColumn]="col.field" *ngFor="let col of columns"
+          [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
+          {{ col.header }}<p-sortIcon field="col.field" />
+        </th>
+        <th style="text-align: center;">Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+        <td>{{rowData.opname_id}}</td>
+        <td>{{rowData.product_id}}</td>
+        <td style="text-align: end;">{{rowData.system_qty}}</td>
+        <td style="text-align: end;">{{rowData.physical_qty}}</td>
+        <td style="text-align: end;">{{rowData.adjustment_qty}}</td>
+        <td style="text-align: center;">{{rowData.opname_date}}</td>
+        <td>{{rowData.created_by}}</td>
+        <td>{{rowData.id_opname}}</td>
+        <!-- Kolom ACTION -->
+        <td style="text-align: center;">
+          <p-button styleClass="custom-rb" icon="pi pi-edit" aria-label="search" [rounded]="true" [text]="true"
+            severity="secondary" (onClick)="_editOpname(rowData)" />
+          <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
+            severity="danger" />
+        </td>
+      </tr>
+    </ng-template>
+    </p-table>
   </div>
+</div>
   <div *ngIf="loading"
     class="absolute inset-0 flex items-center justify-center rounded-md z-50 bg-[rgba(255,255,255,0.5)]">
     <div role="status">

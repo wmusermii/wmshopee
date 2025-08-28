@@ -201,7 +201,7 @@ export class Stockopname implements OnInit {
   }
   async _detailOpname(payload:any):Promise<void> {
     console.log("Data tod detail ", payload);
-    this.ssrStorage.setItem("OPITM", payload.id_opname)
+    this.ssrStorage.setItem("OPITM", payload)
     this.router.navigate([`/management/stockopname/view`]);
   }
 }

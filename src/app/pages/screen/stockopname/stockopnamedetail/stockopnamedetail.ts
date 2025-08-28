@@ -23,13 +23,15 @@ import { LocalstorageService } from '../../../../guard/ssr/localstorage/localsto
 export class Stockopnamedetail implements OnInit, OnDestroy {
 
   userInfo: any | undefined;
-  opnameID:any | undefined;
+  opnameID:number | undefined;
+  opnameObj:any | undefined;
   date: Date | undefined;
   value: string | undefined;
   loading: boolean = false;
   token: string | null | undefined = undefined;
   opnames!: opname[];
   showGenerateDialog:boolean = false;
+  showStocksDialog:boolean = false;
   totalOpname: number = 0;
   allOpnames!: opname[];
   cols!: Column[];
@@ -48,8 +50,11 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
     // throw new Error('Method not implemented.');
      this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
-    this.opnameID = this.ssrStorage.getItem("OPITM");
-    // this.ssrStorage.removeItem("OPITM");
+    this.opnameObj = this.ssrStorage.getItem("OPITM");
+
+    this.opnameID = this.opnameObj.id_opname;
+    console.log("OPNAME ", this.opnameObj);
+    console.log("ID OPNAME ", this.opnameID);
      this.cols = [
       { field: 'opname_id', header: 'OP Id' },
       { field: 'product_id', header: 'Product Id' },
@@ -63,6 +68,8 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     // throw new Error('Method not implemented.');
+    this.ssrStorage.removeItem('OPITM');
+
   }
   async _onSubmit():Promise<void> {
     // return {}
@@ -70,11 +77,17 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
 
     }
   }
-  _addStock(){
-
+  _closeProduct() {
+     this.showStocksDialog = false;
   }
-  async _detailOpname(payload:any):Promise<void>{
-
+  _addStock(){
+    this.showStocksDialog = true;
+  }
+  _backToList(){
+    this.router.navigate([`/management/stockopname`]);
+  }
+  async _editOpname(payload:any):Promise<void>{
+    console.log(payload);
   }
 
    async _cancelGenerate():Promise<void> {
