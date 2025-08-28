@@ -340,19 +340,30 @@ export async function getAllStockopname(req: Request, res: Response, next: NextF
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+
+export async function getAllSKUOnTransaction(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getAllSKUOnTransaction");
+    const userInfo: any = req.userInfo;
+    const packageResult = await apiService.getAllSKUOntTransaction();
+    if (packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
+
 export async function insertStockopname(req: Request, res: Response, next: NextFunction) {
   const { opname_date, wh_id, wh_obj } = req.body;
   try {
-    //   {
-    //     "opname_date": "2025-08-26T13:03:14.047Z",
-    //     "wh_id": "",
-    //     "wh_obj": {
-    //         "warehouse_id": 2,
-    //         "warehouse_code": "STR",
-    //         "warehouse_name": "Pickup Store",
-    //         "is_store": 1
-    //     }
-    // }
     console.log("####################################### insertStockopname ", opname_date);
     const userInfo: any = req.userInfo;
     // Buat Date object dari UTC string
@@ -376,6 +387,46 @@ export async function insertStockopname(req: Request, res: Response, next: NextF
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+export async function getStockDetailopnameByIdOP(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getStockDetailopnameByIdOP");
+    const { id_opname } = req.body;
+    const userInfo: any = req.userInfo;
+    const packageResult = await apiService.getAllStockOpnameById(req.body);
+    if (packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+export async function insertStockDetailopname(req: Request, res: Response, next: NextFunction) {
+  const { id_opname,opname_date,wh_id,physical_qty,product_id,product_name,item_id,model_name,model_id } = req.body;
+  try {
+    // console.log("####################################### insertStockopname ", opname_date);
+    const userInfo: any = req.userInfo;
+    const formatted = null;
+    const packageResult = await apiService.insertDetailOpname(req.body);
+    if (packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
+
 export async function sendingEmailTo(req: Request, res: Response, next: NextFunction) {
   try {
     const { to, subject, message } = req.body;

@@ -162,15 +162,19 @@ export class ApiService {
 
    async insertHeaderOpname(payload:any) {
     console.log("####### insertHeaderOpname : ",payload);
-
-
-
     const shopeeResult = await this.stockopnameRepo.insertOpname(payload);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
-
+  async insertDetailOpname(payload:any) {
+    // console.log("####### insertDetailOpname : ",payload);
+    const shopeeResult = await this.stockopnameRepo.insertDetailOpname(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to create data!");
+    // const shopeeResult = null;
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
 
   async getPackagesAvailable(userinfo: any) {
     const shopeeResult = await this.shopeeRepo.selectPackagesAvailable();
@@ -214,6 +218,24 @@ export class ApiService {
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
+  async getAllSKUOntTransaction() {
+    const shopeeResult = await this.shopeeRepo.selectSKUOnTransaction();
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+  async getAllStockOpnameById(payload:any) {
+    const shopeeResult = await this.shopeeRepo.selectStockWithSummary(payload);
+
+    // console.log("DATA RESULT GET OPNAME DETAIL ", shopeeResult);
+
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    //################## Berhasil Isi #######################
+    return ApiResponse.success(shopeeResult, "Records found");
+  }
+
+
+
   async viewShopeePosByID(payload: any, userinfo: any) {
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");

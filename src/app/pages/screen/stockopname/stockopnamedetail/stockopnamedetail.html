@@ -3,7 +3,7 @@
   <app-datetime></app-datetime>
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6 mt-2">
-
+  <!-- <pre>{{opnames | json}}</pre> -->
   <p-table #table [columns]="cols" [value]="opnames" class="w-full" stripedRows="true" showGridlines="true"
     autoLayout="true" [paginator]="true" [rows]="rows" [tableStyle]="{ 'min-width': '60rem' }"
     [rowsPerPageOptions]="[10, 50, 100]">
@@ -12,7 +12,6 @@
         <!-- Baris atas: Title dan Button group -->
         <div class="flex items-center justify-between">
           <span class="text-md">Stocks in {{opnameObj.warehouse_name}} ({{opnameObj.opname_date}})</span>
-
           <!-- Tombol kanan -->
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <p-button icon="pi pi-chevron-left" label="Back" (onClick)="_backToList()" variant="outlined" rounded
@@ -26,29 +25,28 @@
         </div>
       </div>
     </ng-template>
-    <ng-template pTemplate="header" let-columns>
+    <ng-template pTemplate="header" let-columns2>
       <tr>
-        <th [pSortableColumn]="col.field" *ngFor="let col of columns"
+        <th [pSortableColumn]="col.field" *ngFor="let col of columns2"
           [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
           {{ col.header }}<p-sortIcon field="col.field" />
         </th>
         <th style="text-align: center;">Action</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-rowData>
+    <ng-template pTemplate="body" let-rowData2>
       <tr>
-        <td>{{rowData.opname_id}}</td>
-        <td>{{rowData.product_id}}</td>
-        <td style="text-align: end;">{{rowData.system_qty}}</td>
-        <td style="text-align: end;">{{rowData.physical_qty}}</td>
-        <td style="text-align: end;">{{rowData.adjustment_qty}}</td>
-        <td style="text-align: center;">{{rowData.opname_date}}</td>
-        <td>{{rowData.created_by}}</td>
-        <td>{{rowData.id_opname}}</td>
+        <td>{{rowData2.opname_id}}</td>
+        <td>{{rowData2.product_name}}</td>
+        <td>{{rowData2.model_name}}</td>
+        <td style="text-align: end;" class="font-bold">{{rowData2.system_qty}}</td>
+        <td style="text-align: end;" class="font-bold">{{rowData2.physical_qty}}</td>
+        <td style="text-align: end;" class="font-bold">{{rowData2.physical_qty - rowData2.system_qty}}</td>
+        <td style="text-align: center;">{{rowData2.opname_date}}</td>
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
-          <p-button styleClass="custom-rb" icon="pi pi-edit" aria-label="search" [rounded]="true" [text]="true"
-            severity="secondary" (onClick)="_editOpname(rowData)" />
+          <p-button styleClass="custom-rb" icon="pi pi-pencil" aria-label="search" [rounded]="true" [text]="true"
+            severity="secondary" (onClick)="_editOpname(rowData2)" />
           <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
             severity="danger" />
         </td>
@@ -58,17 +56,25 @@
   <div *ngIf="showStocksDialog"
      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
   <div class="bg-white rounded-lg shadow-lg w-full max-w-screen-xl sm:max-w-2/3 overflow-auto">
-    <p-table #table [columns]="cols" [value]="opnames" class="w-full" stripedRows="true" showGridlines="true"
-      autoLayout="true" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="[10,50,100]">
+    <p-table #table [columns]="cols2" [value]="stkopnames" class="w-full" stripedRows="true" showGridlines="true"
+      autoLayout="true" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="[10,50,100]"
+      selectionMode="single" [(selection)]="selectedStkOpname" dataKey="id_stock"
+      (onRowSelect)="onRowSelect($event)"
+      >
       <ng-template #caption>
       <div class="flex flex-col gap-2">
         <!-- Baris atas: Title dan Button group -->
         <div class="flex items-center justify-between">
-          <span class="text-md">Stocks in {{opnameObj.warehouse_name}} ({{opnameObj.opname_date}})</span>
+          <p-inputgroup class="w-full px-5">
+            <p-inputgroup-addon>
+                    <p-button icon="pi pi-search" severity="secondary" variant="text"/>
+                </p-inputgroup-addon>
+                <input pInputText #search placeholder="Keyword" class="w-full" [(ngModel)]="globalFilter" (input)="onGlobalSearch()" />
 
+            </p-inputgroup>
           <!-- Tombol kanan -->
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <p-button icon="pi pi-times" label="Back" variant="outlined" (onClick)="_closeProduct()" severity="danger" rounded />
+            <p-button icon="pi pi-times"  variant="outlined" (onClick)="_closeProduct()" severity="danger" rounded />
           </div>
         </div>
       </div>
@@ -79,31 +85,59 @@
           [ngStyle]="{ 'text-align': col.class === 'text-center' ? 'center' : (col.class === 'text-end' ? 'right' : 'left') }">
           {{ col.header }}<p-sortIcon field="col.field" />
         </th>
-        <th style="text-align: center;">Action</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
-      <tr>
-        <td>{{rowData.opname_id}}</td>
-        <td>{{rowData.product_id}}</td>
-        <td style="text-align: end;">{{rowData.system_qty}}</td>
-        <td style="text-align: end;">{{rowData.physical_qty}}</td>
-        <td style="text-align: end;">{{rowData.adjustment_qty}}</td>
-        <td style="text-align: center;">{{rowData.opname_date}}</td>
-        <td>{{rowData.created_by}}</td>
-        <td>{{rowData.id_opname}}</td>
-        <!-- Kolom ACTION -->
-        <td style="text-align: center;">
-          <p-button styleClass="custom-rb" icon="pi pi-edit" aria-label="search" [rounded]="true" [text]="true"
-            severity="secondary" (onClick)="_editOpname(rowData)" />
-          <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
-            severity="danger" />
-        </td>
-      </tr>
+      <tr [pSelectableRow]="rowData">
+          <td>
+            <div class="flex items-start space-x-4">
+              <img [src]="rowData.image_url"
+                [alt]="rowData.model_name" class="w-10 h-10 object-cover rounded" />
+            </div>
+          </td>
+          <td>
+            {{rowData.item_name}}
+          </td>
+          <td>{{rowData.model_name}}</td>
+        </tr>
     </ng-template>
     </p-table>
   </div>
 </div>
+<div *ngIf="showStockDetailDialog"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 overflow-auto">
+
+    <!-- Gambar Produk -->
+    <div class="flex justify-center mb-4">
+      <img [src]="selectedStkOpname.image_url"
+           [alt]="selectedStkOpname.model_name"
+           class="w-48 h-48 object-cover rounded-lg" />
+    </div>
+
+    <!-- Nama Item + Model -->
+    <div class="text-center font-semibold text-lg mb-4">
+      {{ selectedStkOpname.item_name }}, {{ selectedStkOpname.model_name }}
+    </div>
+
+    <!-- Input Physical Stock -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium mb-2" for="physicalStock">Physical Stock</label>
+      <input type="number" id="physicalStock" [(ngModel)]="physicalStock"
+             class="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <!-- Button Submit & Cancel -->
+    <div class="flex justify-end gap-4">
+      <p-button label="Cancel" icon="pi pi-times" (onClick)="closeStockDetailDialog()"
+                severity="danger" rounded></p-button>
+      <p-button label="Submit" icon="pi pi-check" (onClick)="submitPhysicalStock()"
+                severity="success" rounded></p-button>
+    </div>
+
+  </div>
+</div>
+
   <div *ngIf="loading"
     class="absolute inset-0 flex items-center justify-center rounded-md z-50 bg-[rgba(255,255,255,0.5)]">
     <div role="status">

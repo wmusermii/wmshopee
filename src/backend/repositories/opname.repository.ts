@@ -24,8 +24,13 @@ export class OpnameRepository {
     return result;
   }
   async insertOpname(payload:any):Promise<any> {
-    console.log("################ PAYLOAD ", payload);
+    // console.log("################ PAYLOAD ", payload);
      const query = await db('stock_opname').insert(payload).returning("id_opname");
+    return await query;
+  }
+  async insertDetailOpname(payload:any):Promise<any> {
+    // console.log("################ PAYLOAD DETAIL ", payload);
+     const query = await db('stock_opname_detail').insert(payload).returning("opname_id");
     return await query;
   }
   async updateOpname(payload:any, id_opname:string):Promise<any> {
