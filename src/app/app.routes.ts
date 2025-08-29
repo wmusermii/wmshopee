@@ -74,6 +74,18 @@ export const routes: Routes = [
         data: { renderMode: 'server' }
       },
       {
+        path:'settings/shopee',
+        canActivate:[authGuard],
+        loadComponent:() => import("./pages/screen/shopeemanagement/shopeemanagement").then(m => m.Shopeemanagement),
+        data: { renderMode: 'server' }
+      },
+      {
+        path:'settings/user',
+        canActivate:[authGuard],
+        loadComponent:() => import("./pages/screen/usermanagement/usermanagement").then(m => m.Usermanagement),
+        data: { renderMode: 'server' }
+      },
+      {
        path:'profile',
        canActivate:[authGuard],
        loadComponent:() => import("./pages/screen/myprofile/myprofile").then(m => m.Myprofile)

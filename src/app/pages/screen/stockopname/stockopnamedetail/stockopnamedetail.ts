@@ -220,10 +220,10 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
         console.log("Response dari API DATA ", data);
         if(data.code === 20000) {
           this.loading=false;
-
+          await this._refreshStockOnOpname();
         } else {
           this.loading=false;
-
+          await this._refreshStockOnOpname();
         }
       })
       .catch(err => {

@@ -435,6 +435,21 @@ const query = await db('stock_opname_detail as s')
   }
     return result;
   }
+  async selectQShopeeAttributes() {
+    const result = await db.select([
+      'ms.id',
+      'ms.access_token',
+      'ms.refresh_token',
+      'ms.shop_id',
+      'ms.code',
+      'ms.client_id',
+      'ms.client_secret',
+      'ms.redirect_uri',
+      'ms.base_api'
+    ]).from('m_shopee as ms').first();
+
+    return result;
+  }
   async getSMTPVariables() {
     const query = await db('m_smtp')
       .select(

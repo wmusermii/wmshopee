@@ -31,6 +31,12 @@ export class Registration {
     },
     {
       code:'100000000005', label:'Packager', description:'Responsible for the invoices and items requested checked!'
+    },
+    {
+      code:'100000000006', label:'Spv Packager', description:'Responsible for the invoices and items requested checked!'
+    },
+    {
+      code:'100000000007', label:'Operator', description:'Responsible for anything!'
     }
   ]
   registerForm = new FormGroup({
@@ -54,18 +60,6 @@ loading = false;
 onRegister() {
   if (this.registerForm.valid) {
     console.log('Register data:', this.registerForm.value);
-//     {
-//     "fullname": "Ryan Muktiadhi",
-//     "mobilename": "087872195524",
-//     "email": "wmusermii@gmail.com",
-//     "username": "ryanmu",
-//     "password": "",
-//     "groupCode": {
-//         "code": "100000000002",
-//         "label": "Supervisor",
-//         "description": "Oversees the work of others, guiding and managing a team to ensure tasks are completed effectively"
-//     }
-// }
     // TODO: Implementasi submit ke backend
   }
 }
