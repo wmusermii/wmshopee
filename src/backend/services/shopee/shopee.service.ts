@@ -529,11 +529,11 @@ export class ShopeeService {
         }
         const uploadFolder = resolve(__dirname, '../upload');
         const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
-        console.log("String Array Order to download doc : ", ordersToPrint.length);
+        console.log("String Array Order to download doc 1 : ", ordersToPrint.length);
         const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
         // console.log(" Download results : ", massDownloadRESULT);
-        if (massDownloadRESULT) return { code: 'success', message: 'download label success', data: massDownloadRESULT };
-        return;
+        if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
+          return ApiResponse.successNoData(massDownloadRESULT,"No download success");
       } else {
         console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
         returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
@@ -562,7 +562,7 @@ export class ShopeeService {
           const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
           // console.log(" Download results : ", massDownloadRESULT);
           if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2,"Download success");
-          return;
+          return ApiResponse.successNoData(massDownloadRESULT2,"No download success");
         }
       }
       return returnDownload;
