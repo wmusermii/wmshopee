@@ -112,3 +112,38 @@
 [2025-08-29 10:09:21] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
 [2025-08-29 10:10:47] INFO: ✅ Sudah di List  19
 [2025-08-29 10:10:48] INFO: ✅ package Sudah di List  {"order_sn":"2508282D5T1TCV","package_number":"OFG210082873285015"}
+[2025-08-29 13:13:28] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-29 13:13:49] INFO: ✅ Shopee refresh on fetchWithAuth Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33d7aececc673b3c8a0fd6400"}
+[2025-08-29 13:13:49] INFO: ✅ Shopee refresh on fetchWithAuth Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f33d7aececc5f3485b63d60c00"}
+[2025-08-29 13:13:49] INFO: Update data token : 
+[2025-08-29 13:13:50] INFO: Update data token : 
+[2025-08-29 13:21:41] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\60e5be1f-6616-4924-ac26-449926d33a2f\data\admdb.sqlite
+[2025-08-29 13:21:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\74b32b59-2fa9-4fe3-9e06-50dde7aa31b3\data\admdb.sqlite
+[2025-08-29 13:21:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e840f22d-8ef7-4d11-9404-27f79c6483a6\data\admdb.sqlite
+[2025-08-29 13:21:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\93270613-1412-439d-ac9b-0dcb82328ffb\data\admdb.sqlite
+[2025-08-29 13:21:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\bbbbb561-eb3f-4000-83bb-4d7bac35c1c5\data\admdb.sqlite
+[2025-08-29 13:22:08] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-29 13:23:42] INFO: ✅ Sudah di List  39
+[2025-08-29 13:23:42] INFO: ✅ package Sudah di List  {"order_sn":"250829418H9YVE","package_number":"OFG210138799247030"}
+[2025-08-29 13:38:02] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\3308d6f5-253b-41e0-934a-d7776f241ad4\data\admdb.sqlite
+[2025-08-29 13:38:03] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0e7a2c48-8ae8-49f7-a62f-96f5d2f2d922\data\admdb.sqlite
+[2025-08-29 13:38:03] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ecbc8853-0f2c-438e-8b03-8a9f275f8e1c\data\admdb.sqlite
+[2025-08-29 13:38:03] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\049d7402-9c49-4e9b-80b5-ddb660794c31\data\admdb.sqlite
+[2025-08-29 13:38:03] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\21023e95-fc16-4b01-a5c2-c64cfacaa410\data\admdb.sqlite
+[2025-08-29 13:38:11] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-29 13:38:29] INFO: ✅ Sudah di List  42
+[2025-08-29 13:38:29] INFO: ✅ package Sudah di List  {"order_sn":"250829418H9YVE","package_number":"OFG210138799247030"}
+[2025-08-29 13:39:25] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\f7255724-cb20-42fb-85f5-d9973bb89f9a\data\admdb.sqlite
+[2025-08-29 13:39:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\a035f913-97cb-41e6-9176-a5e42a713471\data\admdb.sqlite
+[2025-08-29 13:39:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6151bec4-3578-457e-9e68-e95f04b569e0\data\admdb.sqlite
+[2025-08-29 13:39:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\79683b6a-61ff-4e33-abbe-b9a7af1b3afb\data\admdb.sqlite
+[2025-08-29 13:39:27] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\3efabb60-29b1-4ac7-b880-2a0e05e38811\data\admdb.sqlite
+[2025-08-29 13:39:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-08-29 13:40:52] INFO: ✅ Sudah di List  44
+[2025-08-29 13:40:53] INFO: ✅ package Sudah di List  {"order_sn":"250829418H9YVE","package_number":"OFG210138799247030"}
+[2025-08-29 13:43:04] INFO: Ketika ship order 2 
+[2025-08-29 13:43:05] INFO: Ketika ship order 2 
+[2025-08-29 13:46:25] INFO: Ketika ship order 2 
+[2025-08-29 13:46:26] INFO: Ketika ship order 2 
+[2025-08-29 13:46:27] INFO: Ketika ship order 2 
+[2025-08-29 13:46:28] INFO: Ketika ship order 2 

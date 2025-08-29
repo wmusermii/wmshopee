@@ -133,7 +133,7 @@ export class ShopeeRepository {
       )
       .sum({ qty: 'model_quantity_purchased' })
       .where('status', 0)
-      .andWhere('id_q_shopee', payload.id)
+      .andWhereRaw(`date(create_time) = date('now','localtime')`)
       .groupBy('item_id')
       .orderBy('qty', 'desc');
     return await query;
@@ -424,6 +424,15 @@ const query = await db('stock_opname_detail as s')
       'qs.created_at'
     ]).from('q_shopee as qs').leftJoin("m_user as mu", "qs.created_by", "mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at", "desc").first();
     // console.log("DB SELECT SHOPPY TODAY ", result);
+    if (result) {
+    // Hitung jumlah order_sn unik dari q_shopee_invoices_detail untuk hari ini
+    const totalResi = await db('q_shopee_invoices_detail as qsid')
+      .countDistinct('qsid.order_sn as totalresi')
+      .whereRaw('DATE(qsid.create_time) = ?', [today])
+      .first();
+
+    result.totalresi = totalResi?.totalresi ?? 0;
+  }
     return result;
   }
   async getSMTPVariables() {
