@@ -447,8 +447,11 @@ const query = await db('stock_opname_detail as s')
       'ms.redirect_uri',
       'ms.base_api'
     ]).from('m_shopee as ms').first();
-
     return result;
+  }
+  async updateQShopeeAttributes(payload: any) {
+    const query = await db('m_shopee').update(payload).returning('id');
+    return await query;
   }
   async getSMTPVariables() {
     const query = await db('m_smtp')

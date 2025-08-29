@@ -188,7 +188,23 @@ export async function getQShopeeAttribute(req: Request, res: Response, next: Nex
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
-
+export async function updateQShopeeAttribute(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### updateQShopeeAttribute");
+    const userInfo: any = req.userInfo;
+    const inserResult = await apiService.qShopeeUpdateAttributes(req.body);
+    if (inserResult.code === 20000) {
+      await ResponseHelper.send(res, inserResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData({}, "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
 export async function getItemsInPackage(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getItemsInPackage");

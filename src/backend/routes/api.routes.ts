@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateQShopeeAttribute, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -19,7 +19,7 @@ router.post('/shopee/get_data_print', asyncHandler(authBearerMiddleware),asyncHa
 router.post('/shopee/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingPrinting));// Untuk print label invoice
 
 router.get('/shopee/get_attributes', asyncHandler(authBearerMiddleware),asyncHandler(getQShopeeAttribute));
-router.get('/shopee/update_attributes', asyncHandler(authBearerMiddleware),asyncHandler(getQShopeeAttribute));
+router.post('/shopee/update_attributes', asyncHandler(authBearerMiddleware),asyncHandler(updateQShopeeAttribute));
 
 //##################################### AUTH ROUTES #############
 router.post('/auth/login', asyncHandler(login));

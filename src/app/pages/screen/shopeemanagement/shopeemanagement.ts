@@ -89,13 +89,13 @@ export class Shopeemanagement implements OnInit {
   }
   async _updateAttribute(payload: any) {
     this.loading = true;
-    fetch('/v2/warehouse/update_stockopname', {
+    fetch('/v2/shopee/update_attributes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
       },
-      body: JSON.stringify({ payload })
+      body: JSON.stringify(payload)
     })
       .then(res => {
         console.log("Response dari API ", res);
@@ -107,7 +107,7 @@ export class Shopeemanagement implements OnInit {
         console.log("Response dari API DATA ", data);
         if (data.code === 20000) {
           // this.showGenerateDialog=false;
-          // await this._refreshStockOpname();
+          await this._refreshAttribute();
         } else {
           this.loading = false;
           // this.errorMessage = {error:true, severity:"error", message:`${data.message}`, icon:"pi pi-times"}
@@ -122,7 +122,19 @@ export class Shopeemanagement implements OnInit {
   onCancel() {
     // this.registerForm.reset();
   }
-  onSubmit() {
-
+  async onSubmit() {
+      console.log("Payload ", this.shopeeAttrForm.value);
+      this.loading= true;
+      // {
+      //     "access_token": "eyJhbGciOiJIUzI1NiJ9.CKbmehABGMPA4zggASieisXFBjD66NoVOAFAAQ._u9JPUw0it2JTXA9lD-aF7xlztAI00sLhcROYbKJHFc",
+      //     "refresh_token": "eyJhbGciOiJIUzI1NiJ9.CKbmehABGMPA4zggAiieisXFBjDk8d2TCTgBQAE.6qOudd_04cGbzoRL-RNRpCAq1uexBgIPr7a0Eh0VhPg",
+      //     "shop_id": "119070787",
+      //     "code": "6169496d4c6a4d72684a615475574842",
+      //     "client_id": "2011942",
+      //     "client_secret": "shpk6e44424a53644f786f636a62434741496d6e4944454d566e526e5a654a63",
+      //     "redirect_uri": "https://muktiryan.github.io/shopee-oauth-redirect/",
+      //     "base_api": "https://partner.shopeemobile.com"
+      // }
+      if(this.shopeeAttrForm.valid) await this._updateAttribute(this.shopeeAttrForm.value);
   }
 }

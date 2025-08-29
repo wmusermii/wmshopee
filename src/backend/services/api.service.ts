@@ -130,7 +130,15 @@ export class ApiService {
       return ApiResponse.success(shopeeResult, "Records found");
     }
   }
-
+   async qShopeeUpdateAttributes(payload: any) {
+    const shopeeResult = await this.shopeeRepo.updateQShopeeAttributes(payload);
+    console.log("HASIL UPDATE ATTRB ", shopeeResult);
+    if (!shopeeResult) {
+      return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    } else {
+      return ApiResponse.success(shopeeResult, "Records found");
+    }
+  }
   async qShopeePerformance() {
     const shopeeResult = await this.apiShopeeService.getPerformance();
     if (shopeeResult) {
