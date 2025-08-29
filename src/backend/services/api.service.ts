@@ -409,10 +409,14 @@ export class ApiService {
     //#################### PINDAHKAN DATA DARI HASIL PRINT
     const hasilprint = await this.apiShopeeService.checkAndDownloadLabelNew(orders);
     console.log("Hasil Download ", hasilprint);
+
+    if(hasilprint.code !== 20000) {
+      return ApiResponse.successNoData(hasilprint, "Error on printing!");
+    }
     const ordersToDelete = hasilprint.data.orders;
     console.log("Order yang di delete : ", ordersToDelete);
     const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete);
-    return ApiResponse.success(hasilprint, "Printing sent successfully");
+    return ApiResponse.success(selectInvoiceUpdate, "Printing sent successfully");
   }
 
 

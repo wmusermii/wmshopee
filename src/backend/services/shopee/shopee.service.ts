@@ -329,21 +329,20 @@ export class ShopeeService {
     const resultShipOrder: any[] = [];
     const resultNoShipOrder: any[] = [];
     for (const order of addressObj) {
-      console.log("Object Track order ", order);
-      // console.log("Address Track order ", addressObj);
       const shipingParam = await this.getShipOrder(order.order, order);
-      logInfo("Ketika ship order 1 ", shipingParam);
-
+      // logInfo("Ketika ship order 1 ", shipingParam);
       if (shipingParam) {
-        logInfo("Ketika ship order 2 ", shipingParam.error);
         if (shipingParam.error === '') {
+          logInfo("Ketika ship order 2 ");
           const objectShipOrder = { request_id: shipingParam.request_id, order_sn: order.order.order_sn }
           resultShipOrder.push(objectShipOrder);
         } else {
+          logInfo("Ketika ship order 3 ", shipingParam.error);
           const objectNoShipOrder = { request_id: shipingParam.request_id, order_sn: order.order.order_sn }
           resultNoShipOrder.push(objectNoShipOrder);
         }
       } else {
+        logInfo("Ketika ship order 4 ", "shipingParam kosong");
         const objectNoShipOrder = { request_id: shipingParam.request_id, order_sn: order.order.order_sn }
         resultNoShipOrder.push(objectNoShipOrder);
       }
@@ -540,7 +539,7 @@ export class ShopeeService {
         returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
         console.log("=== Try create shipping order ===");
         const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
-        console.log("SHIP PARAM ############################## ", shippingParameter);
+        // console.log("SHIP PARAM ############################## ", shippingParameter);
         const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
         console.log("Order ships result ######### : ", orderShip);
         await this.delay(1000);
@@ -559,9 +558,10 @@ export class ShopeeService {
           const uploadFolder2 = resolve(__dirname, '../upload');
           const ordersToPrint2 = await this.tostringArrayOnly(createDocuments2.created_orders);
           console.log("String Array Order to download doc 2 : ", ordersToPrint2.length);
+          await this.delay(1500);
           const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
           // console.log(" Download results : ", massDownloadRESULT);
-          if (massDownloadRESULT2) return { code: 'success', message: 'download label success', data: massDownloadRESULT2 };
+          if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2,"Download success");
           return;
         }
       }
@@ -574,7 +574,7 @@ export class ShopeeService {
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
-    console.log("RESP TRACKING ", res);
+    //console.log("RESP TRACKING ", res);
     return res.response;
   }
 
