@@ -47,7 +47,6 @@ export class Stockopname implements OnInit {
       { field: 'id_opname', header: 'Id Opname' },
       { field: 'opname_date', header: 'Opname Date' },
       { field: 'warehouse_name', header: 'Warehouse' },
-      { field: 'status', header: 'Status' },
     ];
     await this._refreshWarehouse();
     await this._refreshStockOpname();

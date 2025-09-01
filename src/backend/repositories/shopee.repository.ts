@@ -232,7 +232,36 @@ const query = await db('stock_opname_detail as s')
 
     return query;
   }
+async selectStockWithSummaryAdj(payload: any) {
+    const sub = db('q_shopee_invoices_detail_bulk')
+  .select('item_id', 'model_id')
+  .sum('model_quantity_purchased as sum_qty')
+  .where('create_time', '>', payload.opname_date)
+  .groupBy('item_id', 'model_id')
+  .as('b');
+const query = await db('stock_opname_detail as s')
+  .where('s.id_opname', payload.id_opname)
+  .leftJoin(sub, (join: Knex.JoinClause) => {
+    join.on('s.item_id', '=', 'b.item_id').andOn('s.model_id', '=', 'b.model_id');
+  })
+  .select(
+    's.opname_id',
+    's.product_id',
+    db.raw('COALESCE(b.sum_qty,0) AS system_qty'),
+    's.physical_qty',
+    db.raw('(s.physical_qty - COALESCE(b.sum_qty, 0)) AS adjustment_qty'),
+    's.opname_date',
+    's.created_by',
+    's.id_opname',
+    's.item_id',
+    's.product_name',
+    's.model_id',
+    's.model_name'
+  )
+  .orderBy('s.opname_date', 'asc');
 
+    return query;
+  }
 
 
   async selectPackagesAvailable() {

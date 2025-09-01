@@ -32,12 +32,12 @@
           {{rowData.id_opname}}
         </td>
         <td style="text-align: center;">{{rowData.opname_date}}</td>
-        <td>{{rowData.warehouse_name}}</td>
-        <td style="text-align: center;">
-          <!-- {{rowData.is_store}} -->
-          <p-chip *ngIf="rowData.status == 0" label="OPEN" icon="pi pi-lock-open" />
-          <p-chip *ngIf="rowData.status == 1" label="CLOSED" icon="pi pi-lock" class="text-green-400" />
+        <td>
+          <!-- {{rowData.warehouse_name}} -->
+          <p-chip *ngIf="rowData.is_store == 0" label="{{rowData.warehouse_name}}" icon="pi pi-warehouse" />
+          <p-chip *ngIf="rowData.is_store == 1" label="{{rowData.warehouse_name}}" icon="pi pi-shop" />
         </td>
+
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
           <p-button styleClass="custom-rb" icon="pi pi-search" aria-label="search" label="View" [rounded]="true" [text]="true"

@@ -109,7 +109,9 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
         console.log("Response dari API get_stockopnamedetail ", data);
         if(data.code === 20000) {
           this.loading=false;
-            const updatedStk = data.data;
+            let updatedStk = data.data;
+            updatedStk = await this.mapOpnameData(updatedStk);
+            console.log("updated data ", updatedStk);
             this.loading=false;
             this.opnames = updatedStk;
             this.allOpnames= updatedStk;
@@ -168,6 +170,44 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
   _backToList(){
     this.router.navigate([`/management/stockopname`]);
   }
+
+  async _exportList():Promise<void>{
+    const payload= this.opnameObj;
+    console.log("Payload ", payload);
+    fetch('/v2/warehouse/get_stockopnamedetailExport', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API ", res);
+        // logInfo
+        if (!res.ok) throw new Error('Login gagal');
+        return res.json();
+      })
+      .then(async data => {
+        console.log("Response dari API get_stockopnamedetailExport ", data);
+        if(data.code === 20000) {
+          this.loading=false;
+
+          const url = `${data.data}?t=${Date.now()}`; // anti-cache
+            setTimeout(() => {
+              window.open(url, '_blank');
+            }, 1000);
+
+
+        } else {
+          this.loading=false;
+        }
+      })
+      .catch(err => {
+        console.log("Response Error ", err);
+      });
+  }
+
   async _editOpname(payload:any):Promise<void>{
     console.log(payload);
   }
@@ -230,7 +270,12 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
         console.log("Response Error ", err);
       });
   }
-
+ async mapOpnameData(data: any[]): Promise<any[]> {
+  return data.map(item => ({
+    ...item,
+    adjustment_qty: item.physical_qty - item.system_qty
+  }));
+}
 }
 interface Column {
   field: string;

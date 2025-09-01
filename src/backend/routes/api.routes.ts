@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateQShopeeAttribute, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, getStockDetailopnameByIdOPExcel, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateQShopeeAttribute, updateUser, viewQShopeePosItem } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -44,6 +44,7 @@ router.post('/warehouse/update_stockopname', asyncHandler(authBearerMiddleware),
 router.post('/warehouse/delete_stockopname', asyncHandler(authBearerMiddleware),asyncHandler(insertStockopname));
 router.get('/warehouse/get_stocks_so', asyncHandler(authBearerMiddleware),asyncHandler(getAllSKUOnTransaction)); // Untuk melihat barang yang ada selama transaksi
 router.post('/warehouse/get_stockopnamedetail', asyncHandler(authBearerMiddleware),asyncHandler(getStockDetailopnameByIdOP));
+router.post('/warehouse/get_stockopnamedetailExport', asyncHandler(authBearerMiddleware),asyncHandler(getStockDetailopnameByIdOPExcel));
 router.post('/warehouse/insert_stockopnamedetail', asyncHandler(authBearerMiddleware),asyncHandler(insertStockDetailopname));
 
 //##################################### EMAIL #############

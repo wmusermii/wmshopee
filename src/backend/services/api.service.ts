@@ -9,6 +9,7 @@ import nodemailer from 'nodemailer';
 import { promises as fs } from 'fs';
 import { WarehouseRepository } from "../repositories/warehouse.repository";
 import { OpnameRepository } from "../repositories/opname.repository";
+import { Request } from "express";
 export class ApiService {
   private shopeeRepo = new ShopeeRepository();
   private userRepo = new UserRepository();
@@ -248,7 +249,20 @@ export class ApiService {
     //################## Berhasil Isi #######################
     return ApiResponse.success(shopeeResult, "Records found");
   }
+   async getAllStockOpnameByIdExcel(payload:any, req:Request) {
+    const shopeeResult = await this.shopeeRepo.selectStockWithSummaryAdj(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    const printResult = await this.apiShopeeService.exportToCSV(shopeeResult);
+    console.log("+++++ HASIL CSV : ", printResult);
+    //################## Berhasil Isi #######################
+    const fileUrl = `${req.protocol}://${req.get('host')}/upload/${printResult}`;
 
+
+
+
+
+    return ApiResponse.success(fileUrl, "Records found");
+  }
 
 
   async viewShopeePosByID(payload: any, userinfo: any) {

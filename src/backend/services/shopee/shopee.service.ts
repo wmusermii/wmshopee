@@ -730,6 +730,20 @@ export class ShopeeService {
     const mergedPdfBytes = await mergedPdf.save();
     fs.writeFileSync(outputFile, mergedPdfBytes);
   }
+
+  async exportToCSV(data: any[]): Promise<any> {
+    const header = Object.keys(data[0]).join(','); // header csv
+    const rows = data.map(obj => Object.values(obj).join(','));
+    const csvContent = [header, ...rows].join('\n');
+    // const outputFile = path.join(__dirname, 'opname.csv');
+    const uploadFolder = resolve(__dirname, '../upload');
+    const timestamp = Date.now(); // milisecond sekarang
+    const fileName: string = `${timestamp}_opname.csv`;
+    const combinedFilePath = resolve(uploadFolder, fileName);
+    fs.writeFileSync(combinedFilePath, csvContent, 'utf8');
+    console.log(`CSV file created at: ${combinedFilePath}`);
+    return fileName;
+  }
   async toTimestampWIB(date: string, time: string): Promise<number> {
     const localDateTime = new Date(`${date}T${time}+07:00`); // Menggabungkan sebagai zona WIB
     return Math.floor(localDateTime.getTime() / 1000); // Ubah ke detik

@@ -7,6 +7,7 @@ export class OpnameRepository {
       'so.opname_date',
       'so.wh_id',
       'mw.warehouse_name',
+      'mw.is_store',
       'so.status',
       'so.opname_by'
     ]).from('stock_opname as so').innerJoin("m_warehouse as mw","so.wh_id", "mw.warehouse_id").orderBy("so.opname_date", "desc");

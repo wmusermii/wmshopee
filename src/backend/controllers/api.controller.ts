@@ -436,6 +436,29 @@ export async function getStockDetailopnameByIdOP(req: Request, res: Response, ne
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+export async function getStockDetailopnameByIdOPExcel(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### getStockDetailopnameByIdOP");
+    const { id_opname } = req.body;
+    const userInfo: any = req.userInfo;
+    const packageResult = await apiService.getAllStockOpnameByIdExcel(req.body, req);
+    if (packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
+
+
+
 export async function insertStockDetailopname(req: Request, res: Response, next: NextFunction) {
   const { id_opname,opname_date,wh_id,physical_qty,product_id,product_name,item_id,model_name,model_id } = req.body;
   try {

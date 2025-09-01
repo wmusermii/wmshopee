@@ -17,7 +17,7 @@
             <p-button icon="pi pi-chevron-left" label="Back" (onClick)="_backToList()" variant="outlined" rounded
               raised />
 
-            <p-button icon="pi pi-file-excel" label="Export" (onClick)="_backToList()" severity="success" rounded
+            <p-button icon="pi pi-file-excel" label="Export" (onClick)="_exportList()" severity="success" rounded
               raised />
 
             <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Opname" rounded raised />
@@ -41,7 +41,7 @@
         <td>{{rowData2.model_name}}</td>
         <td style="text-align: end;" class="font-bold">{{rowData2.system_qty}}</td>
         <td style="text-align: end;" class="font-bold">{{rowData2.physical_qty}}</td>
-        <td style="text-align: end;" class="font-bold">{{rowData2.physical_qty - rowData2.system_qty}}</td>
+        <td style="text-align: end;" class="font-bold">{{rowData2.adjustment_qty}}</td>
         <td style="text-align: center;">{{rowData2.opname_date}}</td>
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
