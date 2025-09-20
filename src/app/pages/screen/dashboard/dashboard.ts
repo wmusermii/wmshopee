@@ -121,12 +121,12 @@ export class Dashboard implements OnInit {
       }
     })
       .then(res => {
-        console.log("Response dari API  /warehouse/get_sku_count", res);
+        // console.log("Response dari API  /warehouse/get_sku_count", res);
         if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
         return res.json();
       })
       .then(data => {
-        console.log("Response dari API /warehouse/get_sku_count", data);
+        // console.log("Response dari API /warehouse/get_sku_count", data);
         if (data.code === 20000) {
           // this.listInvoices = [];
           this.totalSku = data.data.skuQty;

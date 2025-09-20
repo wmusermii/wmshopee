@@ -52,12 +52,12 @@ export class DatetimeComponent implements OnInit, OnDestroy {
           }
         })
           .then(res => {
-            console.log("Response dari API  /shopee/get_shop_performance", res);
+            // console.log("Response dari API  /shopee/get_shop_performance", res);
             if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
             return res.json();
           })
           .then(async data => {
-            console.log("Response dari API /shopee/get_shop_performance", data);
+            // console.log("Response dari API /shopee/get_shop_performance", data);
             if(data.code === 20000 && data.data){
               const perfomanumber = data.data.rating
               this.nilaiPerformance = await this.getPerformance(perfomanumber)
@@ -78,12 +78,12 @@ export class DatetimeComponent implements OnInit, OnDestroy {
           }
         })
           .then(res => {
-            console.log("Response dari API  /shopee/get_shop_info", res);
+            // console.log("Response dari API  /shopee/get_shop_info", res);
             if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
             return res.json();
           })
           .then(data => {
-            console.log("Response dari API /shopee/get_shop_info", data);
+            // console.log("Response dari API /shopee/get_shop_info", data);
             if(data.code === 20000 && data.data) {
               this.storeTitle = data.data.shop_name
             }

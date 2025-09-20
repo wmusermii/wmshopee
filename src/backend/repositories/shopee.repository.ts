@@ -46,12 +46,39 @@ export class ShopeeRepository {
       await db('q_shopee_invoices_detail').insert(chunk);
     }
   }
-  async getQShopeeItembest(payload: string) {
+  // async getQShopeeItembest(payload: string) {
+  //   const today = new Date().toISOString().substring(0, 10);
+  //   // console.log("######### TODAY : ", today);
+  //   // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
+  //   const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
+  //   const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
+  //   await new Promise(resolve => setTimeout(resolve, 100));
+  //   // console.log("HASIL AMBIL data ", orderList);
+  //   const query = await db('q_shopee_invoices_detail as qid')
+  //     .select(
+  //       'qid.id_q_shopee',
+  //       'qid.order_sn',
+  //       'qid.item_id',
+  //       'qid.item_name',
+  //       'qid.model_name',
+  //       'qid.model_quantity_purchased',
+  //       'qid.image_url',
+  //       'qid.status',
+  //       'qi.order_status',
+  //       'qi.total_amount',
+  //       'qi.shipping_carrier',
+  //       'qi.package_number',
+  //       'qi.ship_by_date'
+  //     ).innerJoin("q_shopee_invoices as qi", "qid.order_sn", "qi.order_sn")
+  //     .whereIn('qid.order_sn', orderList);
+  //   return await query;
+  //   // return [];
+  // }
+  async getQShopeeItembest(payload: string, model_id:string) {
     const today = new Date().toISOString().substring(0, 10);
     // console.log("######### TODAY : ", today);
     // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
-
-    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
+    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).andWhere('qid.model_id', model_id).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
     const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
     await new Promise(resolve => setTimeout(resolve, 100));
     // console.log("HASIL AMBIL data ", orderList);
@@ -128,13 +155,14 @@ export class ShopeeRepository {
       .select(
         'item_id',
         'item_name',
+        'model_id',
         'model_name',
         'image_url'
       )
       .sum({ qty: 'model_quantity_purchased' })
       .where('status', 0)
       .andWhereRaw(`date(create_time) = date('now','localtime')`)
-      .groupBy('item_id')
+      .groupBy('item_id', 'model_id')
       .orderBy('qty', 'desc');
     return await query;
 
@@ -160,7 +188,7 @@ export class ShopeeRepository {
 
   async selectSKUOnTransaction() {
     //memang q_shopee_invoices_detail untuk melihat product yang aktif
-    const query = await db('q_shopee_invoices_detail')
+    const query = await db('q_shopee_invoices_detail_bulk')
       .select(
         'item_id',
         'item_sku',
@@ -171,7 +199,7 @@ export class ShopeeRepository {
         db.raw(
           "CONCAT(REPLACE(item_id, '.0', ''), model_id) AS id_stock"
         )
-      ).groupBy('item_id',
+      ).where("wh_id", 2).groupBy('item_id',
         'item_sku',
         'item_name',
         'model_id',
@@ -451,7 +479,8 @@ const query = await db('stock_opname_detail as s')
       'qs.status',
       'qs.totalresi',
       'qs.created_at'
-    ]).from('q_shopee as qs').leftJoin("m_user as mu", "qs.created_by", "mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at", "desc").first();
+    ]).from('q_shopee as qs')
+    .leftJoin("m_user as mu", "qs.created_by", "mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at", "desc").first();
     // console.log("DB SELECT SHOPPY TODAY ", result);
     if (result) {
     // Hitung jumlah order_sn unik dari q_shopee_invoices_detail untuk hari ini

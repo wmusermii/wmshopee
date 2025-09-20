@@ -25,6 +25,7 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
   userInfo: any | undefined;
   opnameID:number | undefined;
   opnameObj:any | undefined;
+  isStoreWh:number |undefined;
   date: Date | undefined;
   value: string | undefined;
   loading: boolean = false;
@@ -59,6 +60,7 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
     this.userInfo = this.ssrStorage.getItem("C_INFO");
     this.opnameObj = this.ssrStorage.getItem("OPITM");
     this.opnameID = this.opnameObj.id_opname;
+    this.isStoreWh = this.opnameObj.is_store;
     console.log("Object to opname ", this.opnameObj);
      this.cols = [
       { field: 'opname_id', header: 'Id' },
@@ -74,6 +76,17 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
       { field: 'item_name', header: 'Product' },
       { field: 'model_name', header: 'Model' }
     ];
+//    this.opnameObj
+//     {
+//     "id_opname": 3,
+//     "opname_date": "2025-08-28 00:05:24",
+//     "wh_id": 2,
+//     "warehouse_name": "Pickup Store",
+//     "is_store": 1,
+//     "status": 0,
+//     "opname_by": null
+// }
+
     await this._refreshStockOnTransaction();
     await this._refreshStockOnOpname();
   }

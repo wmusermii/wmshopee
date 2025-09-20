@@ -40,7 +40,7 @@ export class Shopeeprintlist implements OnInit, OnDestroy {
     this.ssrStorage.removeItem("FORCEITEMID");
   }
   _refreshListPrint() {
-    const payload = {item_id:this.itemIDForce.item_id}
+    const payload = {item_id:this.itemIDForce.item_id, model_id:this.itemIDForce.model_id}
     fetch('/v2/shopee/get_data_print', {
       method: 'POST',
       headers: {

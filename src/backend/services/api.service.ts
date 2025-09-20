@@ -373,12 +373,22 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
-  async getBestShopeeItems(item_id: string) {
+  // async getBestShopeeItems(item_id: string) {
+  //   // 1. Persiapan data untuk table q_shopee_invoices
+  //   console.log("############# MASUK getBestShopeeItems");
+  //   // 3. Insert ke kedua tabel
+  //   const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id);
+  //   if (!invoicesResult) {
+  //     return ApiResponse.successNoData(null, "Unable to get data!");
+  //   } else {
+  //     return ApiResponse.success(invoicesResult, "Records found");
+  //   }
+  // }
+  async getBestShopeeItems(item_id: string, model_id:string) {
     // 1. Persiapan data untuk table q_shopee_invoices
     console.log("############# MASUK getBestShopeeItems");
-
     // 3. Insert ke kedua tabel
-    const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id);
+    const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id, model_id);
     if (!invoicesResult) {
       return ApiResponse.successNoData(null, "Unable to get data!");
     } else {
