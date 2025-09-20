@@ -7,10 +7,11 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuItem } from 'primeng/api';
 import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorage.service';
 import { ButtonModule } from 'primeng/button';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 @Component({
   standalone:true,
   selector: 'app-topheader',
-  imports: [CommonModule, RouterModule, MenubarModule, PanelMenuModule, ButtonModule],
+  imports: [CommonModule,FormsModule,RouterModule ,ReactiveFormsModule, RouterModule, MenubarModule, PanelMenuModule, ButtonModule],
   templateUrl: './topheader.html',
   styleUrl: './topheader.css'
 })
