@@ -43,6 +43,7 @@ router.post('/warehouse/insert_stockopname', asyncHandler(authBearerMiddleware),
 router.post('/warehouse/update_stockopname', asyncHandler(authBearerMiddleware),asyncHandler(insertStockopname));
 router.post('/warehouse/delete_stockopname', asyncHandler(authBearerMiddleware),asyncHandler(insertStockopname));
 router.get('/warehouse/get_stocks_so', asyncHandler(authBearerMiddleware),asyncHandler(getAllSKUOnTransaction)); // Untuk melihat barang yang ada selama transaksi
+router.post('/warehouse/get_stocks_so', asyncHandler(authBearerMiddleware),asyncHandler(getAllSKUOnTransaction)); // Untuk melihat barang yang ada selama transaksi
 router.post('/warehouse/get_stockopnamedetail', asyncHandler(authBearerMiddleware),asyncHandler(getStockDetailopnameByIdOP));
 router.post('/warehouse/get_stockopnamedetailExport', asyncHandler(authBearerMiddleware),asyncHandler(getStockDetailopnameByIdOPExcel));
 router.post('/warehouse/insert_stockopnamedetail', asyncHandler(authBearerMiddleware),asyncHandler(insertStockDetailopname));

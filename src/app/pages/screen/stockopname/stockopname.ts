@@ -27,6 +27,7 @@ export class Stockopname implements OnInit {
   token: string | null | undefined = undefined;
   opnames!: opname[];
   showGenerateDialog:boolean = false;
+  selectedMenu: any = {};
   totalOpname: number = 0;
   allOpnames!: opname[];
   cols!: Column[];
@@ -202,6 +203,24 @@ export class Stockopname implements OnInit {
     // console.log("Data tod detail ", payload);
     this.ssrStorage.setItem("OPITM", payload)
     this.router.navigate([`/management/stockopname/view`]);
+  }
+  onRowSelect(event: any) {
+    console.log('Selected Menu:', event.data);
+    const dataObj = event.data
+    // // Cari 1 object berdasarkan code
+    // let iconObject:any = {}
+    // this.idMenuOld = dataObj.idMenu;
+    // if(dataObj.iconMenu) {
+    //   iconObject = this.allicons.find(x => x.code === dataObj.iconMenu);
+    // }
+    // this.menuForm.patchValue({
+    //     "nameMenu": dataObj.nameMenu,
+    //     "pathMenu": dataObj.pathMenu,
+    //     "iconMenu": dataObj.iconMenu,
+    //     "iconMenuObj": iconObject
+    //   }
+    // )
+    // this.showDetailForm = {show:true, action:"edit"};
   }
 }
 interface Column {

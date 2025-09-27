@@ -34,6 +34,7 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
   stkopnames!:stockObj[];
   allStkopnames!:stockObj[];
   selectedStkOpname!:stockObj;
+  selectedEditStkOpnameMenu: any = {};
   showStockDetailDialog = false;
   physicalStock: number = 0;
   showGenerateDialog:boolean = false;
@@ -239,6 +240,11 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
         .some(field => field?.toLowerCase().includes(term))
     );
   }
+  }
+  onRowSelectEditOpname(event:any) {
+    console.log("Selected object edit ", this.selectedEditStkOpnameMenu);
+    // this.showStocksDialog = false;
+    // this.showStockDetailDialog = true;
   }
   onRowSelect(event:any) {
     console.log("Selected object ", this.selectedStkOpname);

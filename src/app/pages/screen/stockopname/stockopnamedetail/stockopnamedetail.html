@@ -4,8 +4,13 @@
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6 mt-2">
   <!-- <pre>{{opnames | json}}</pre> -->
-  <p-table #table [columns]="cols" [value]="opnames" class="w-full" stripedRows="true" showGridlines="true"
-    autoLayout="true" [paginator]="true" [rows]="rows" [tableStyle]="{ 'min-width': '60rem' }"
+  <p-table #table [columns]="cols" [value]="opnames" class="w-full"
+    stripedRows="true"
+    showGridlines="true"
+    selectionMode='single'
+    [(selection)]="selectedEditStkOpnameMenu"
+    (onRowSelect)="onRowSelectEditOpname($event)"
+    autoLayout="true" [paginator]="true" [rows]="rows" [tableStyle]="{ 'min-width': '120rem' }"
     [rowsPerPageOptions]="[10, 50, 100]">
     <ng-template #caption>
       <div class="flex flex-col gap-2">
@@ -35,17 +40,17 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData2>
-      <tr>
+      <tr [pSelectableRow]="rowData2">
         <td>{{rowData2.opname_id}}</td>
         <td>{{rowData2.product_name}}</td>
         <td>{{rowData2.model_name}}</td>
-        <td style="text-align: end;" class="font-bold">{{rowData2.system_qty}}</td>
-        <td style="text-align: end;" class="font-bold">{{rowData2.physical_qty}}</td>
-        <td style="text-align: end;" class="font-bold">{{rowData2.adjustment_qty}}</td>
-        <td style="text-align: center;">{{rowData2.opname_date}}</td>
+        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.system_qty}}</td>
+        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.physical_qty}}</td>
+        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.adjustment_qty}}</td>
+        <td style="text-align: center;" class="!w-64">{{rowData2.opname_date}}</td>
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
-          <p-button styleClass="custom-rb" icon="pi pi-pencil" aria-label="search" [rounded]="true" [text]="true"
+          <p-button styleClass="custom-rb" icon="pi pi-arrow-down-left-and-arrow-up-right-to-center" aria-label="search" [rounded]="true" [text]="true"
             severity="secondary" (onClick)="_editOpname(rowData2)" />
           <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
             severity="danger" />
@@ -58,7 +63,7 @@
   <div class="bg-white rounded-lg shadow-lg w-full max-w-screen-xl sm:max-w-2/3 overflow-auto">
     <p-table #table [columns]="cols2" [value]="stkopnames" class="w-full" stripedRows="true" showGridlines="true"
       autoLayout="true" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="[10,50,100]"
-      selectionMode="single" [(selection)]="selectedStkOpname" dataKey="id_stock"
+      selectionMode="single" [(selection)]="selectedEditStkOpnameMenu" dataKey="id_stock"
       (onRowSelect)="onRowSelect($event)"
       >
       <ng-template #caption>

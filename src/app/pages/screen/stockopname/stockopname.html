@@ -3,8 +3,12 @@
   <app-datetime></app-datetime>
 </header>
 <main class="pt-2 max-w-screen-xl mx-auto px-2 mb-6 mt-2">
-  <p-table #table [columns]="cols" [value]="opnames" class="w-full" stripedRows="true" showGridlines="true"
-    autoLayout="true" [paginator]="true" [rows]="rows" [tableStyle]="{ 'min-width': '60rem' }"
+  <p-table #table [columns]="cols" [value]="opnames" class="w-full"
+    stripedRows="true" showGridlines="true"
+    autoLayout="true" [paginator]="true"
+
+    [rows]="rows"
+    [tableStyle]="{ 'min-width': '50rem' }"
     [rowsPerPageOptions]="[10, 50, 100]">
     <ng-template #caption>
       <div class="flex flex-col gap-2">
@@ -28,10 +32,10 @@
 
     <ng-template pTemplate="body" let-rowData>
       <tr>
-        <td>
+        <td class="!w-32">
           {{rowData.id_opname}}
         </td>
-        <td style="text-align: center;">{{rowData.opname_date}}</td>
+        <td style="text-align: center;" class="!w-64">{{rowData.opname_date}}</td>
         <td>
           <!-- {{rowData.warehouse_name}} -->
           <p-chip *ngIf="rowData.is_store == 0" label="{{rowData.warehouse_name}}" icon="pi pi-warehouse" />
@@ -39,8 +43,8 @@
         </td>
 
         <!-- Kolom ACTION -->
-        <td style="text-align: center;">
-          <p-button styleClass="custom-rb" icon="pi pi-search" aria-label="search" label="View" [rounded]="true" [text]="true"
+        <td style="text-align: center;" class="!w-64">
+          <p-button styleClass="custom-rb" icon="pi pi-search" aria-label="dispotition" label="View" [rounded]="true" [text]="true"
             severity="secondary" (onClick)="_detailOpname(rowData)" />
           <p-button styleClass="custom-rb" icon="pi pi-trash" aria-label="delete" [rounded]="true" [text]="true"
             severity="danger" />
