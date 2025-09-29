@@ -6,7 +6,8 @@ import fs from 'fs';
 import path, { join, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
 import { PDFDocument } from 'pdf-lib';
-import { result } from 'lodash';
+// import { result } from 'lodash';
+import os from "os";
 // Dapatkan path file saat ini dari import.meta.url
 const __filename = fileURLToPath(import.meta.url);
 
@@ -571,6 +572,93 @@ export class ShopeeService {
       return ApiResponse.badRequest(error, "Error data");
     }
   }
+  async checkAndStraightLabelNew(orders: any[]): Promise<any> {
+    try {
+      let returnDownload: any = {};
+      console.log("Raw Orders to Print : ", orders.length);
+      // console.log("Raw Orders payload : ", orders);
+      // let orderOnlyList = await this.tostringArrayOnly(orders);
+      // 1. Check manakah yang sudah ada tracking ordernya
+      const trackingInfo: any = await this.getMasTrackingNumberMulti(orders);
+      console.log("HASIL MASS TRACKING ", trackingInfo.tracked_order.length);
+      if (trackingInfo.tracked_order.length > 0) {
+        // 2. Ambil yang sudah ada tracking ordernya saja
+        const orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+        //3. Create Document yang sudah ada track nya
+        const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
+        console.log("Result created doc : ", createDocuments.created_orders.length);
+        console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+        await this.delay(1000);
+        if (createDocuments.created_orders.length < 1) {
+          return { code: 'crd001', message: 'download label success', data: createDocuments }; return
+        }
+        const uploadFolder = resolve(__dirname, '../upload');
+        const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
+        // console.log("CREATED ORDERS ", ordersToPrint);
+        const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder);
+        console.log(" Download massDownloadRESULT results : ", massDownloadRESULT);
+        if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
+        return ApiResponse.successNoData(massDownloadRESULT,"No download success");
+
+      } else {
+        return ApiResponse.successNoData({},"No download success");
+      }
+      // 2. Ambil yang sudah ada tracking ordernya saja
+      // if (trackingInfo.tracked_order.length > 0) {
+      //   orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+      //   console.log("String Array Order to create Doc : ", orderOnlyList.length);
+      //   //3. Create Document yang sudah ada track nya
+      //   const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
+      //   console.log("Result created doc : ", createDocuments.created_orders.length);
+      //   console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+      //   await this.delay(500); // tunggu selama 10 detik (10000 ms)
+      //   if (createDocuments.created_orders.length < 1) {
+      //     return { code: 'crd001', message: 'download label success', data: createDocuments }; return
+      //   }
+      //   const uploadFolder = resolve(__dirname, '../upload');
+      //   const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
+      //   console.log("String Array Order to download doc 1 : ", ordersToPrint.length);
+      //   const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
+      //   // console.log(" Download results : ", massDownloadRESULT);
+      //   if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
+      //     return ApiResponse.successNoData(massDownloadRESULT,"No download success");
+      // } else {
+      //   console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
+      //   returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
+      //   console.log("=== Try create shipping order ===");
+      //   const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
+      //   // console.log("SHIP PARAM ############################## ", shippingParameter);
+      //   const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
+      //   console.log("Order ships result ######### : ", orderShip);
+      //   await this.delay(1000);
+      //   if (orderShip.shipped_orders.length > 0) orderOnlyList = await this.tostringArrayOnly(orderShip.shipped_orders);
+      //   const trackingInfo2: any = await this.getMasTrackingNumberMulti(orderOnlyList);
+      //   console.log("HASIL MASS TRACKING 2 ", trackingInfo2);
+      //   if (trackingInfo2.tracked_order.length > 0) {
+      //     //3. Create Document yang sudah ada track nya
+      //     const createDocuments2: any = await this.createMassShippingDocumentInfoMulti(trackingInfo2.tracked_order);
+      //     console.log("Result created doc 2 : ", createDocuments2.created_orders.length);
+      //     console.log("Result No created doc 2 : ", createDocuments2.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+      //     await this.delay(500); // tunggu selama 10 detik (10000 ms)
+      //     if (createDocuments2.created_orders.length < 1) {
+      //       return { code: 'crd001', message: 'download label success', data: createDocuments2 }; return
+      //     }
+      //     const uploadFolder2 = resolve(__dirname, '../upload');
+      //     const ordersToPrint2 = await this.tostringArrayOnly(createDocuments2.created_orders);
+      //     console.log("String Array Order to download doc 2 : ", ordersToPrint2.length);
+      //     await this.delay(1500);
+      //     const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
+      //     // console.log(" Download results : ", massDownloadRESULT);
+      //     if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2,"Download success");
+      //     return ApiResponse.successNoData(massDownloadRESULT2,"No download success");
+      //   }
+      // }
+      // return returnDownload;
+    } catch (error) {
+      console.log("NGAPA (497) : ", error);
+      return ApiResponse.badRequest(error, "Error data");
+    }
+  }
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
@@ -594,6 +682,7 @@ export class ShopeeService {
   async getMasTrackingNumberMulti(orders: any[]): Promise<any> {
     const resultTrack: any[] = [];
     const resultNoTrack: any[] = [];
+    console.log("object at getMasTrackingNumberMulti Service ", orders);
     for (const order of orders) {
       const objectTracking = await this.getTrackingNumber(order);
       if (objectTracking) {
@@ -719,6 +808,32 @@ export class ShopeeService {
     let result = { fileName: fileName, orders: orders }
     return result; // kembalikan path file gabungan
   }
+  async downloadMassShippingStraighInfo(orders: string[], uploadFolder: string): Promise<any> {
+  if (!fs.existsSync(uploadFolder)) {
+    fs.mkdirSync(uploadFolder, { recursive: true });
+  }
+  const apiPath = '/api/v2/logistics/download_shipping_document';
+  // Buat payload dengan semua order_sn
+  const orderList = orders.map(order_sn => ({ order_sn }));
+  // console.log("PAYLOAF ORDER LIST DOWNLOAD FILE ", orderList);
+  // Fetch satu kali ke Shopee
+  const stream = await this.fetchWithAuthMETHOD(apiPath, {}, 'POST', {
+    shipping_document_type: "THERMAL_AIR_WAYBILL",
+    order_list: orderList,
+  });
+  const timestamp = Date.now();
+  const fileName: string = `${timestamp}_labels.pdf`;
+  const filePath = resolve(uploadFolder, fileName);
+   // deteksi IP otomatis
+  const ip = await this.getLocalIP();
+  const port = 4000; // sesuaikan dengan port Express Anda
+  const fileUrl = `http://${ip}:${port}/upload/${fileName}`;
+  // Simpan hasil PDF
+  await this.streamToFile(stream, filePath);
+  let result = { fileName, fileUrl, orders };
+  return result;
+}
+
   async mergePdfFiles(sourceFiles: string[], outputFile: string): Promise<void> {
     const mergedPdf = await PDFDocument.create();
     for (const filePath of sourceFiles) {
@@ -804,5 +919,15 @@ export class ShopeeService {
     }
     return result;
   }
-
+  async getLocalIP(): Promise<string> {
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name] || []) {
+      if (net.family === "IPv4" && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return "127.0.0.1";
+}
 }

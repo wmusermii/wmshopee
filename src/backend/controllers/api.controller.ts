@@ -521,7 +521,6 @@ export async function sendingPrinting(req: Request, res: Response, next: NextFun
     const { orders } = req.body;
     const userInfo: any = req.userInfo;
     const packageResult = await apiService.sendPrinting(orders);
-
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;
     } else if (packageResult.code === 20400) {

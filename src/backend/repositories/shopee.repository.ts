@@ -150,24 +150,45 @@ export class ShopeeRepository {
 
     return { message: "Success update table" }
   }
-  async viewQShopeePosBySN(payload: any) {
-    const query = await db('q_shopee_invoices_detail as ')
+  // async viewQShopeePosBySN(payload: any) {
+  //   const query = await db('q_shopee_invoices_detail as ')
+  //     .select(
+  //       'item_id',
+  //       'item_name',
+  //       'model_id',
+  //       'model_name',
+  //       'image_url'
+  //     )
+  //     .sum({ qty: 'model_quantity_purchased' })
+  //     .where('status', 0)
+  //     .andWhereRaw(`date(create_time) = date('now','localtime')`)
+  //     .groupBy('item_id', 'model_id')
+  //     .orderBy('qty', 'desc');
+  //   return await query;
+  //   // .andWhere('id_q_shopee', payload.id)
+  // }
+   async viewQShopeePosBySN(payload: any) {
+    const query = await db('q_shopee_invoices_detail as qid')
       .select(
-        'item_id',
-        'item_name',
-        'model_id',
-        'model_name',
-        'image_url'
+        'qid.item_id',
+        'qid.item_name',
+        'qid.model_id',
+        'qid.model_name',
+        'qid.image_url',
+        'qi.shipping_carrier',
       )
-      .sum({ qty: 'model_quantity_purchased' })
-      .where('status', 0)
-      .andWhereRaw(`date(create_time) = date('now','localtime')`)
-      .groupBy('item_id', 'model_id')
+      .innerJoin('q_shopee_invoices as qi','qid.order_sn','qi.order_sn')
+      .count({ invoices: 'qid.order_sn' })
+      .sum({ qty: 'qid.model_quantity_purchased' })
+      .where('qid.status', 0)
+      .andWhereRaw(`date(qid.create_time) = date('now','localtime')`)
+      .groupBy('qid.item_id', 'qid.model_id', 'qi.shipping_carrier')
       .orderBy('qty', 'desc');
     return await query;
-
     // .andWhere('id_q_shopee', payload.id)
   }
+
+
 
   async selectSKUAvailable() {
     const query = await db('m_product')

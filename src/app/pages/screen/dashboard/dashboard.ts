@@ -13,28 +13,44 @@ import { LocalstorageService } from '../../../guard/ssr/localstorage/localstorag
 import { Router } from '@angular/router';
 import { cloneDeep } from 'lodash';
 import { TableModule } from 'primeng/table';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule,InputGroupModule,InputTextModule, InputGroupAddonModule,],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class Dashboard implements OnInit {
+  ordersPrint:any[]=[]
   loadingUser = true;
   showGenerateDialog: boolean = false;
   showProcessResiDialog: boolean = false;
   showProcedPostDialog: boolean = false;
   QueriesDataPos: QueryFields[] = [];
+  AllQueriesDataPos: QueryFields[] = [];
+//   interface QueryFields {
+//   item_id: string;
+//   item_name: string;
+//   model_id: string;
+//   model_name: string;
+//   image_url: string;
+//   shipping_carrier: string;
+//   invoices: number;
+//   qty: number;
+// }
   selectProduct:QueryFields={
-    id: 0,
-    fromtime: '',
-    totime: '',
-    created_by: '',
-    created_at: '',
-    datepick: '',
-    remarks: ''
+    item_id: '',
+    item_name: '',
+    model_id: '',
+    model_name: '',
+    image_url: '',
+    shipping_carrier: '',
+    invoices: 0,
+    qty:0
   };
+  globalFilter:string ='';
   token: string | null | undefined = undefined;
   userInfo: any | undefined;
   date: Date | undefined = new Date(); // contoh
@@ -51,10 +67,10 @@ export class Dashboard implements OnInit {
   itemList: any[] = [];
   dataResi: any[] = [];
   groupName: string | undefined = undefined
-  skutotal: string = "Sku : 176 items";
-  storeitemtotal: string = "In Store : 1500 pcs.";
-  whitemtotal: string = "In Warehouse : 500 pcs.";
-  invoicetotal: number = 5;
+  skutotal: string = "Sku : 0 items";
+  // storeitemtotal: string = "In Store : 1500 pcs.";
+  // whitemtotal: string = "In Warehouse : 500 pcs.";
+  invoicetotal: number = 0;
   invoicetotalStr: string = "Invoices : 0 pcs.";
   constructor(private router: Router, private ssrStorage: LocalstorageService) { }
   ngOnInit(): void {
@@ -246,6 +262,14 @@ export class Dashboard implements OnInit {
   _goToPackaging() {
     this.router.navigate(['/printing']);
   }
+
+  async _langsungPrint() {
+    // this.router.navigate(['/printing']);
+    this.loading = true;
+   await this._refreshListPrint();
+  }
+
+
   async _getViewPosProcess(payload:any) {
     this.loading=true;
     fetch('/v2/shopee/get_positem', {
@@ -269,9 +293,11 @@ export class Dashboard implements OnInit {
           const dataRecordsTemp = cloneDeep(data.data);
           console.log("Data View ", dataRecordsTemp.data);
           this.QueriesDataPos = dataRecordsTemp.data;
+          this.AllQueriesDataPos= dataRecordsTemp.data;
           this.loading=false;
         } else {
           this.QueriesDataPos = [];
+          this.AllQueriesDataPos = [];
           this.loading=false;
         }
       })
@@ -283,19 +309,127 @@ export class Dashboard implements OnInit {
     console.log("Selected 1 : ",payload);
     console.log("Selected 2 : ",this.selectProduct);
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
-    this._goToPackaging();
+    this._langsungPrint();
+  }
+   onGlobalSearch() {
+    console.log("Global filter : ", this.globalFilter);
+    const term = this.globalFilter.trim().toLowerCase();
+    if (term === '') {
+      this.QueriesDataPos = [...this.AllQueriesDataPos];
+    } else {
+      this.QueriesDataPos = this.AllQueriesDataPos.filter(item =>
+        [item.item_name, item.model_name, item.shipping_carrier]
+          .some(field => field?.toLowerCase().includes(term))
+      );
+    }
+    }
+    async _manualSearch(){
+
+    }
+    async _refreshListPrint():Promise<void> {
+    const payload = {item_id:this.selectProduct.item_id, model_id:this.selectProduct.model_id}
+    fetch('/v2/shopee/get_data_print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/get_data_print 0", res);
+        if (!res.ok) throw new Error('q_shopee Gagal');
+        return res.json();
+      })
+      .then(async data => {
+        console.log("Response dari API /shopee/get_data_print 1", data);
+
+        if (data.code === 20000) {
+          const dataRecordsTemp:any[] = cloneDeep(data.data);
+          // const kodeOrder = [...new Set(dataRecordsTemp.map(item => item.order_sn))];
+          this.ordersPrint =[...new Set(dataRecordsTemp.map(item => item.order_sn))];
+          console.log(this.ordersPrint);
+          await this._goPrinting();
+          // this.orders = this.transformOrders(dataRecordsTemp);
+          // this.invoicetotal = this.orders.length
+          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+        } else {
+          this.ordersPrint =[]
+          this.loading=false;
+          // this.orders=[];
+          // this.invoicetotal = this.orders.length
+          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+        }
+      })
+      .catch(err => {
+        this.loading=false;
+        // this.orders=[];
+          // this.invoicetotal = this.orders.length
+          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+        console.log("Response Error Catch /shopee/get_data_print", err);
+      });
+    }
+    async _goPrinting(){
+    console.log("Payload 1 ", this.ordersPrint);
+    const payload = {orders:this.ordersPrint}
+    console.log("Payload 2 ", payload);
+    fetch('/v2/shopee/send_print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/send_print 0", res);
+        if (!res.ok) throw new Error('q_shopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/send_print 1", data);
+        // this.loading=false;
+        if(data.code === 20000) {
+          const fileNameURL = data.data.data.fileUrl;
+          // const fileName = response.data.data.fileName;
+          // const url = `${window.location.origin}/upload/${fileNameOri}`;
+          // window.open(url, '_blank');
+          //  const url = `${window.location.origin}/upload/${fileNameOri}?t=${Date.now()}`; // anti-cache
+          //   setTimeout(() => {
+          //     window.open(url, '_blank');
+          //   }, 1000); // kasih jeda biar file ready
+        }
+        this.loading=true;
+        // this.router.navigate(['/dashboard']);
+        this._lastFetchShopee();
+      })
+      .catch(err => {
+        this.loading=false;
+        console.log("Response Error Catch /shopee/send_print", err);
+      });
   }
 }
 
+
 interface QueryFields {
-  id: number;
-  fromtime: string;
-  totime: string;
-  created_by: string;
-  created_at: string;
-  datepick: string;
-  remarks: string;
+  item_id: string;
+  item_name: string;
+  model_id: string;
+  model_name: string;
+  image_url: string;
+  shipping_carrier: string;
+  invoices: number;
+  qty: number;
 }
+// interface QueryFields {
+//   id: number;
+//   fromtime: string;
+//   totime: string;
+//   created_by: string;
+//   created_at: string;
+//   datepick: string;
+//   remarks: string;
+// }
 interface Column {
   field: string;
   header: string;

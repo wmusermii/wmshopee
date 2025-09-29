@@ -266,10 +266,12 @@ export class ApiService {
 
 
   async viewShopeePosByID(payload: any, userinfo: any) {
+    // const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     return ApiResponse.success(shopeeResult, "Success get data!");
   }
+
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);
   }
@@ -446,7 +448,7 @@ export class ApiService {
     // const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
     // console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
     //#################### PINDAHKAN DATA DARI HASIL PRINT
-    const hasilprint = await this.apiShopeeService.checkAndDownloadLabelNew(orders);
+    const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders);
     console.log("Hasil Download ", hasilprint);
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");

@@ -12,10 +12,13 @@ router.get('/shopee/get_qshopeetoday', asyncHandler(authBearerMiddleware),asyncH
 router.post('/shopee/gen_qshopee', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopee)); // untuk menggenerate table q_shopee
 router.post('/shopee/gen_qshopeeCurrent', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopeeCurrent)); // INI YANG POENTING
 router.post('/shopee/gen_qshopee_job', asyncHandler(authBearerMiddleware),asyncHandler(generateQShopeeJobs)); // untuk menggenerate table q_shopee_invoice
+
 router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem)); // untuk menggenerate table q_shopee generateQShopeeJobs
+
 router.get('/shopee/get_shop_performance', asyncHandler(authBearerMiddleware),asyncHandler(getShopPerformance)); // untuk mendapatka performa toko terhadap shopee
 router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHandler(getShopInfo)); //mendapatkan Info toko dari Shopee
 router.post('/shopee/get_data_print', asyncHandler(authBearerMiddleware),asyncHandler(getBestDataToPrint));// Untuk print label invoice
+
 router.post('/shopee/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingPrinting));// Untuk print label invoice
 
 router.get('/shopee/get_attributes', asyncHandler(authBearerMiddleware),asyncHandler(getQShopeeAttribute));
