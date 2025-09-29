@@ -15,6 +15,7 @@ import { cloneDeep } from 'lodash';
 import { TableModule } from 'primeng/table';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
+import { QzService } from '../../../services/qz.service';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
@@ -72,8 +73,8 @@ export class Dashboard implements OnInit {
   // whitemtotal: string = "In Warehouse : 500 pcs.";
   invoicetotal: number = 0;
   invoicetotalStr: string = "Invoices : 0 pcs.";
-  constructor(private router: Router, private ssrStorage: LocalstorageService) { }
-  ngOnInit(): void {
+  constructor(private router: Router, private ssrStorage: LocalstorageService, private qz: QzService) { }
+  async ngOnInit(): Promise<void> {
     this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
     const sessionDate:any = this.ssrStorage.getItem("FETCHTIME")
@@ -92,6 +93,7 @@ export class Dashboard implements OnInit {
       this.currentDate = this.currentDate?.replace(/\//g, '-');
       if(this.currentDate === arrayDate[2]) this.currentDate = arrayDate[2];
     }
+    // await this.qz.connect();
     this._lastFetchShopee();
   }
   async _refreshCountInvoices() {
@@ -180,9 +182,6 @@ export class Dashboard implements OnInit {
           this.loading=false;
           this.starttime = data.data.totime;
           this.endtime = data.data.totime;
-          // let dateTmp= new Date();
-          // Jam:Menit:Detik
-          // this.endtime = dateTmp.toLocaleTimeString('en-GB'); // format HH:MM:SS
           this.ssrStorage.setItem("FETCHTIME",`${this.starttime},${this.endtime},${this.currentDate}`);
           this.disableBtn = false;
           this.totalResi = data.data.totalresi;
@@ -386,11 +385,34 @@ export class Dashboard implements OnInit {
         if (!res.ok) throw new Error('q_shopee Gagal');
         return res.json();
       })
-      .then(data => {
+      .then(async data => {
         console.log("Response dari API /shopee/send_print 1", data);
         // this.loading=false;
         if(data.code === 20000) {
+          //  console.log("Start connection QZ ")
+          // await this.qz.connect();
+          // console.log("Connecting QZ ");
+          try {
+            console.log("Start connection QZ");
+            await this.qz.connect();
+            console.log("Connected to QZ Tray");
+          } catch (error) {
+            console.error("Failed to connect QZ Tray:", error);
+          }
           const fileNameURL = data.data.data.fileUrl;
+          // console.log("File yang di download ", fileNameURL);
+           // cari printer Microsoft Print to PDF
+          // const printers = await this.qz.getPrinters();
+          // const printer = printers.find(p => p.includes('Microsoft Print to PDF'));
+          //  if (printer) {
+          //     await this.qz.printPDF(printer, fileNameURL);
+          //     console.log('Print job sent');
+          //   } else {
+          //     console.error('Microsoft Print to PDF not found');
+          //   }
+          // const printer = await this.qz.getDefaultPrinter();
+          // await this.qz.printPDF(printer, 'fileNameURL');
+          // console.log("Print job sent!");
           // const fileName = response.data.data.fileName;
           // const url = `${window.location.origin}/upload/${fileNameOri}`;
           // window.open(url, '_blank');
@@ -399,9 +421,9 @@ export class Dashboard implements OnInit {
           //     window.open(url, '_blank');
           //   }, 1000); // kasih jeda biar file ready
         }
-        this.loading=true;
+        // this.loading=true;
         // this.router.navigate(['/dashboard']);
-        this._lastFetchShopee();
+        // this._lastFetchShopee();
       })
       .catch(err => {
         this.loading=false;
