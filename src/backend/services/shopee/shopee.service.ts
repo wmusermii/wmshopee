@@ -701,9 +701,9 @@ export class ShopeeService {
           );
           return found ? { ...item, ...found } : item;
         });
-        console.log("Membuat Ordership nya ");
-
-
+        console.log("Membuat Ordership nya cari shipping parameternya ");
+        const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
+        console.log("SHIP PARAM ############################## ", shippingParameter);
 
 
       } else {
@@ -813,7 +813,7 @@ export class ShopeeService {
   async createMassShippingDocumentInfoMulti(orders: any[]): Promise<any> {
     let resultCreated: any[] = [];
     let resultError: any[] = [];
-    console.log("createMassShippingDocumentInfoMulti ", orders);
+    // console.log("createMassShippingDocumentInfoMulti ", orders);
     const resultCreateArray = await this.createShippingDocumentInfoBULK(orders);
     // Ambil hanya data yang tidak punya fail_error
     resultCreated = await resultCreateArray.result_list.filter((item: { fail_error: any; }) => !item.fail_error);
@@ -828,9 +828,9 @@ export class ShopeeService {
 
 
   async createShippingDocumentInfoBULK(orders: any[]) {
-    console.log("createShippingDocumentInfoBULK ", orders);
+    // console.log("createShippingDocumentInfoBULK ", orders);
     let arrayData = { order_list: await this.addShippingType(orders) };
-    console.log("ARRAY DATA BULK ", arrayData);
+    // console.log("ARRAY DATA BULK ", arrayData);
     const path = '/api/v2/logistics/create_shipping_document';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', arrayData);
     console.log("TRACKING ", res);

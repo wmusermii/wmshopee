@@ -297,7 +297,7 @@ export class Dashboard implements OnInit {
         if (data.code === 20000) {
           this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          console.log("Data View ", dataRecordsTemp.data);
+          // console.log("Data View ", dataRecordsTemp.data);
           this.QueriesDataPos = dataRecordsTemp.data;
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
@@ -357,8 +357,24 @@ export class Dashboard implements OnInit {
     this._langsungPrint();
   }
   async _onRowSelectPrinted(payload: any) {
-    console.log("Selected print 1 : ", payload);
-    console.log("Selected print 2 : ", this.selectProductPrinted);
+    // console.log("Selected print 1 : ", payload);
+    // console.log("Selected print 2 : ", this.selectProductPrinted);
+    const fileUrl = this.selectProductPrinted.labelshopee+`?t=${Date.now()}`
+    // const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
+          setTimeout(() => {
+            const printWindow = window.open(fileUrl, '_blank');
+            if (printWindow) {
+              printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+                setTimeout(() => {
+                  printWindow.close(); // coba tutup tab setelah delay
+                }, 5000);
+              };
+            } else {
+              alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
+            }
+          }, 100);
 
   }
 
@@ -462,20 +478,24 @@ export class Dashboard implements OnInit {
           console.log("File yang di download ", fileNameURL);
           // window.open(fileNameURL, '_blank');
           const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
+          console.log("Menggunakan Origin : ", url);
+          const urlLangsung = fileNameURL+`?t=${Date.now()}`;
+          console.log("Menggunakan Langsung : ", urlLangsung);
           setTimeout(() => {
             const printWindow = window.open(url, '_blank');
             if (printWindow) {
               printWindow.onload = () => {
+                console.log("Coba print");
                 printWindow.focus();
                 printWindow.print();
-                setTimeout(() => {
-                  printWindow.close(); // coba tutup tab setelah delay
-                }, 5000);
+                // setTimeout(() => {
+                //   printWindow.close(); // coba tutup tab setelah delay
+                // }, 5000);
               };
             } else {
               alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
             }
-          }, 100); // kasih jeda biar file ready
+          }, 50); // kasih jeda biar file ready
         }
         // this.loading=true;
         // this.router.navigate(['/dashboard']);

@@ -282,7 +282,7 @@ export class Inquery implements OnInit {
         if (data.code === 20000) {
           this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          console.log("Data View ", dataRecordsTemp.data);
+          // console.log("Data View ", dataRecordsTemp.data);
           this.QueriesDataPos = dataRecordsTemp.data;
         } else {
           this.QueriesDataPos = [];

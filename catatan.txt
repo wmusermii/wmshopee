@@ -40,3 +40,8 @@ SELECT DISTINCT
     ELSE item_id
   END || model_id) AS item_id
 FROM q_shopee_invoices_detail qsid;
+
+############### Buka POPUP Block ################
+Buka Chrome > Setelan > Privasi dan keamanan > Setelan situs > Pop-up dan pengalihan
+
+Aktifkan "Izinkan semua situs membuka pop-up dan pengalihan" atau tambahkan situs Anda ke daftar pengecualian.
