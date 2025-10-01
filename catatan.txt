@@ -1,0 +1,42 @@
+==== PRODUCT QUERY ===
+SELECT DISTINCT
+  item_id as item_code,
+  item_name,
+  model_id,
+  model_name,
+  image_url AS filename,
+  0 AS current_stock,
+  'NEW' AS item_condition,
+  'NORMAL' AS item_status,
+  (CASE
+    WHEN item_id LIKE '%.0' THEN SUBSTR(item_id, 1, LENGTH(item_id) - 2)
+    ELSE item_id
+  END || model_id) AS item_id
+FROM q_shopee_invoices_detail qsid;
+
+==== PRODUCT QUERY INSERT ===
+INSERT INTO m_productTemp (
+  item_code,
+  item_name,
+  model_id,
+  model_name,
+  filename,
+  current_stock,
+  item_condition,
+  item_status,
+  item_id
+)
+SELECT DISTINCT
+  item_id AS item_code,
+  item_name,
+  model_id,
+  model_name,
+  image_url AS filename,
+  0 AS current_stock,
+  'NEW' AS item_condition,
+  'NORMAL' AS item_status,
+  (CASE
+    WHEN item_id LIKE '%.0' THEN SUBSTR(item_id, 1, LENGTH(item_id) - 2)
+    ELSE item_id
+  END || model_id) AS item_id
+FROM q_shopee_invoices_detail qsid;
