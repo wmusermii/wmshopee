@@ -15,33 +15,25 @@ import { cloneDeep } from 'lodash';
 import { TableModule } from 'primeng/table';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
-import { QzService } from '../../../services/qz.service';
+import { TabsModule } from 'primeng/tabs';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule,InputGroupModule,InputTextModule, InputGroupAddonModule,],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule, InputGroupModule, InputTextModule, InputGroupAddonModule, TabsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class Dashboard implements OnInit {
-  ordersPrint:any[]=[]
+  ordersPrint: any[] = []
   loadingUser = true;
   showGenerateDialog: boolean = false;
   showProcessResiDialog: boolean = false;
   showProcedPostDialog: boolean = false;
   QueriesDataPos: QueryFields[] = [];
   AllQueriesDataPos: QueryFields[] = [];
-//   interface QueryFields {
-//   item_id: string;
-//   item_name: string;
-//   model_id: string;
-//   model_name: string;
-//   image_url: string;
-//   shipping_carrier: string;
-//   invoices: number;
-//   qty: number;
-// }
-  selectProduct:QueryFields={
+  QueriesDataPrinted: QueryFieldsPrinted[] = [];
+  AllQueriesDataPrinted: QueryFieldsPrinted[] = [];
+  selectProduct: QueryFields = {
     item_id: '',
     item_name: '',
     model_id: '',
@@ -49,16 +41,30 @@ export class Dashboard implements OnInit {
     image_url: '',
     shipping_carrier: '',
     invoices: 0,
-    qty:0
+    qty: 0
   };
-  globalFilter:string ='';
+  selectProductPrinted: QueryFieldsPrinted = {
+    item_id: '',
+    item_name: '',
+    model_id: '',
+    model_name: '',
+    image_url: '',
+    shipping_carrier: '',
+    invoices: 0,
+    qty: 0,
+    labelshopee:''
+  };
+
+
+  globalFilter: string = '';
+  globalFilterPrinted: string = '';
   token: string | null | undefined = undefined;
   userInfo: any | undefined;
   date: Date | undefined = new Date(); // contoh
-  disableBtn:boolean = true;
+  disableBtn: boolean = true;
   currentDate: string | undefined;
-  starttime:string ="00:00:01"
-  endtime:string ="00:00:01"
+  starttime: string = "00:00:01"
+  endtime: string = "00:00:01"
   value: string | undefined;
   loading: boolean = true;
   totalSku: string = "0";
@@ -73,11 +79,11 @@ export class Dashboard implements OnInit {
   // whitemtotal: string = "In Warehouse : 500 pcs.";
   invoicetotal: number = 0;
   invoicetotalStr: string = "Invoices : 0 pcs.";
-  constructor(private router: Router, private ssrStorage: LocalstorageService, private qz: QzService) { }
+  constructor(private router: Router, private ssrStorage: LocalstorageService) { }
   async ngOnInit(): Promise<void> {
     this.token = this.ssrStorage.getItem('token');
     this.userInfo = this.ssrStorage.getItem("C_INFO");
-    const sessionDate:any = this.ssrStorage.getItem("FETCHTIME")
+    const sessionDate: any = this.ssrStorage.getItem("FETCHTIME")
     console.log("USER INFO ", this.userInfo);
     // this._refreshCountInvoices();
     this._refreshCountSKU();
@@ -87,11 +93,11 @@ export class Dashboard implements OnInit {
       this.currentDate = this.currentDate.replace(/\//g, '-');
       // Jam:Menit:Detik
       this.endtime = this.date.toLocaleTimeString('en-GB'); // format HH:MM:SS
-    }else {
-      const arrayDate:string = sessionDate.split(",");
+    } else {
+      const arrayDate: string = sessionDate.split(",");
       this.currentDate = this.date?.toLocaleDateString('en-GB'); // format dd/mm/yyyy
       this.currentDate = this.currentDate?.replace(/\//g, '-');
-      if(this.currentDate === arrayDate[2]) this.currentDate = arrayDate[2];
+      if (this.currentDate === arrayDate[2]) this.currentDate = arrayDate[2];
     }
     // await this.qz.connect();
     this._lastFetchShopee();
@@ -179,19 +185,19 @@ export class Dashboard implements OnInit {
       .then(async data => {
         console.log("Response dari API /v2/shopee/get_qshopeetoday", data);
         if (data.code === 20000) {
-          this.loading=false;
+          this.loading = false;
           this.starttime = data.data.totime;
           this.endtime = data.data.totime;
-          this.ssrStorage.setItem("FETCHTIME",`${this.starttime},${this.endtime},${this.currentDate}`);
+          this.ssrStorage.setItem("FETCHTIME", `${this.starttime},${this.endtime},${this.currentDate}`);
           this.disableBtn = false;
           this.totalResi = data.data.totalresi;
           this.invoicetotalStr = `Invoices : ${this.totalResi} pcs.`
-          await this._getViewPosProcess({id:data.data.id})
-
+          await this._getViewPosProcess({ id: data.data.id });
+          await this._getViewPrintedProcess({ id: data.data.id });
         } else {
-          this.loading=false;
+          this.loading = false;
           this.disableBtn = false;
-          this.QueriesDataPos=[];
+          this.QueriesDataPos = [];
         }
       })
       .catch(err => {
@@ -199,32 +205,33 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /warehouse/get_sku_count", err);
       });
   }
-  async _popupShopee(){
-    this.showGenerateDialog= true;
-    let startArray:any = await this.ssrStorage.getItem("FETCHTIME");
-    if(startArray){
+
+  async _popupShopee() {
+    this.showGenerateDialog = true;
+    let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
+    if (startArray) {
       //################### SETTING JAM BERIKUT ########################
-      let startT:string[] = startArray.split(",");
+      let startT: string[] = startArray.split(",");
       this.starttime = startT[0];
-       let dateTmp= new Date();
-       this.endtime = dateTmp.toLocaleTimeString('en-GB');
+      let dateTmp = new Date();
+      this.endtime = dateTmp.toLocaleTimeString('en-GB');
     }
   }
-  async _processFetchingShopee(){
-    this.loading= true;
-    this.showGenerateDialog=false;
-//################## AMBIL DATA DULU DARI LOCAL SESSION #######################
-    let startArray:any = await this.ssrStorage.getItem("FETCHTIME");
-    if(startArray){
+  async _processFetchingShopee() {
+    this.loading = true;
+    this.showGenerateDialog = false;
+    //################## AMBIL DATA DULU DARI LOCAL SESSION #######################
+    let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
+    if (startArray) {
       //################### SETTING JAM BERIKUT ########################
-      let startT:string[] = startArray.split(",");
+      let startT: string[] = startArray.split(",");
       this.starttime = startT[0];
-       let dateTmp= new Date();
-          // Jam:Menit:Detik
-       this.endtime = dateTmp.toLocaleTimeString('en-GB');
+      let dateTmp = new Date();
+      // Jam:Menit:Detik
+      this.endtime = dateTmp.toLocaleTimeString('en-GB');
     }
-//#############################################################################
-    let payload = {date:this.currentDate, fromtime:this.starttime, totime:this.endtime}
+    //#############################################################################
+    let payload = { date: this.currentDate, fromtime: this.starttime, totime: this.endtime }
     fetch('/v2/shopee/gen_qshopeeCurrent', {
       method: 'POST',
       headers: {
@@ -255,8 +262,8 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/gen_qshopeeCurrent", err);
       });
   }
-  async _cancelFetchingShopee(){
-    this.showGenerateDialog=false;
+  async _cancelFetchingShopee() {
+    this.showGenerateDialog = false;
   }
   _goToPackaging() {
     this.router.navigate(['/printing']);
@@ -265,12 +272,12 @@ export class Dashboard implements OnInit {
   async _langsungPrint() {
     // this.router.navigate(['/printing']);
     this.loading = true;
-   await this._refreshListPrint();
+    await this._refreshListPrint();
   }
 
 
-  async _getViewPosProcess(payload:any) {
-    this.loading=true;
+  async _getViewPosProcess(payload: any) {
+    this.loading = true;
     fetch('/v2/shopee/get_positem', {
       method: 'POST',
       headers: {
@@ -286,31 +293,78 @@ export class Dashboard implements OnInit {
       })
       .then(data => {
         console.log("Response dari API /shopee/get_positem ", data);
-        this.loading=false;
+        this.loading = false;
         if (data.code === 20000) {
           this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
           console.log("Data View ", dataRecordsTemp.data);
           this.QueriesDataPos = dataRecordsTemp.data;
-          this.AllQueriesDataPos= dataRecordsTemp.data;
-          this.loading=false;
+          this.AllQueriesDataPos = dataRecordsTemp.data;
+          this.loading = false;
         } else {
           this.QueriesDataPos = [];
           this.AllQueriesDataPos = [];
-          this.loading=false;
+          this.loading = false;
         }
       })
       .catch(err => {
-        console.log("Response Error Catch /shopee/get_qshopee", err);
+        console.log("Response Error Catch /shopee/get_positem", err);
       });
   }
-  async _onRowSelect(payload:any){
-    console.log("Selected 1 : ",payload);
-    console.log("Selected 2 : ",this.selectProduct);
+  async _getViewPrintedProcess(payload: any) {
+    this.loading = true;
+    fetch('/v2/shopee/get_positemprinted', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_positemprinted", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/get_positemprinted ", data);
+        this.loading = false;
+        if (data.code === 20000) {
+          // this.showProcedPostDialog = true;
+          const dataRecordsTemp = cloneDeep(data.data);
+          console.log("Data View printed : ", dataRecordsTemp.data);
+          this.QueriesDataPrinted = dataRecordsTemp.data;
+          this.AllQueriesDataPrinted = dataRecordsTemp.data;
+          // this.loading=false;
+        } else {
+          this.QueriesDataPrinted = [];
+          this.AllQueriesDataPrinted = [];
+          this.loading = false;
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_positemprinted", err);
+      });
+  }
+
+
+
+
+  async _onRowSelect(payload: any) {
+    console.log("Selected 1 : ", payload);
+    console.log("Selected 2 : ", this.selectProduct);
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
     this._langsungPrint();
   }
-   onGlobalSearch() {
+  async _onRowSelectPrinted(payload: any) {
+    console.log("Selected print 1 : ", payload);
+    console.log("Selected print 2 : ", this.selectProductPrinted);
+
+  }
+
+
+
+  onGlobalSearch() {
     console.log("Global filter : ", this.globalFilter);
     const term = this.globalFilter.trim().toLowerCase();
     if (term === '') {
@@ -321,12 +375,24 @@ export class Dashboard implements OnInit {
           .some(field => field?.toLowerCase().includes(term))
       );
     }
+  }
+  onGlobalSearchPrinted() {
+    console.log("Global filter Printed : ", this.globalFilterPrinted);
+    const term = this.globalFilterPrinted.trim().toLowerCase();
+    if (term === '') {
+      this.QueriesDataPrinted = [...this.AllQueriesDataPrinted];
+    } else {
+      this.QueriesDataPrinted = this.AllQueriesDataPrinted.filter(item =>
+        [item.item_name, item.model_name, item.shipping_carrier]
+          .some(field => field?.toLowerCase().includes(term))
+      );
     }
-    async _manualSearch(){
+  }
+  async _manualSearch() {
 
-    }
-    async _refreshListPrint():Promise<void> {
-    const payload = {item_id:this.selectProduct.item_id, model_id:this.selectProduct.model_id}
+  }
+  async _refreshListPrint(): Promise<void> {
+    const payload = { item_id: this.selectProduct.item_id, model_id: this.selectProduct.model_id, shipping_carrier: this.selectProduct.shipping_carrier }
     fetch('/v2/shopee/get_data_print', {
       method: 'POST',
       headers: {
@@ -342,35 +408,38 @@ export class Dashboard implements OnInit {
       })
       .then(async data => {
         console.log("Response dari API /shopee/get_data_print 1", data);
-
         if (data.code === 20000) {
-          const dataRecordsTemp:any[] = cloneDeep(data.data);
-          // const kodeOrder = [...new Set(dataRecordsTemp.map(item => item.order_sn))];
-          this.ordersPrint =[...new Set(dataRecordsTemp.map(item => item.order_sn))];
-          console.log(this.ordersPrint);
+          const dataRecordsTemp: any[] = cloneDeep(data.data);
+          this.ordersPrint = Object.values(dataRecordsTemp.reduce((acc, item) => {
+            if (!acc[item.order_sn]) {
+              acc[item.order_sn] = {
+                order_sn: item.order_sn,
+                package_number: item.package_number
+              };
+            }
+            return acc;
+          }, {} as Record<string, { order_sn: string, package_number: string }>)
+          );
+          // console.log(this.ordersPrint);
+          // this.ordersPrint = dataRecordsTemp;
           await this._goPrinting();
-          // this.orders = this.transformOrders(dataRecordsTemp);
-          // this.invoicetotal = this.orders.length
-          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+
         } else {
-          this.ordersPrint =[]
-          this.loading=false;
-          // this.orders=[];
-          // this.invoicetotal = this.orders.length
-          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+          this.ordersPrint = []
+          this.loading = false;
         }
       })
       .catch(err => {
-        this.loading=false;
+        this.loading = false;
         // this.orders=[];
-          // this.invoicetotal = this.orders.length
-          // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
+        // this.invoicetotal = this.orders.length
+        // this.invoicetotalStr =`Invoices : ${this.invoicetotal} pcs.`
         console.log("Response Error Catch /shopee/get_data_print", err);
       });
-    }
-    async _goPrinting(){
-    console.log("Payload 1 ", this.ordersPrint);
-    const payload = {orders:this.ordersPrint}
+  }
+  async _goPrinting() {
+    // console.log("Payload 1 ", this.ordersPrint);
+    const payload = { orders: this.ordersPrint }
     console.log("Payload 2 ", payload);
     fetch('/v2/shopee/send_print', {
       method: 'POST',
@@ -388,45 +457,32 @@ export class Dashboard implements OnInit {
       .then(async data => {
         console.log("Response dari API /shopee/send_print 1", data);
         // this.loading=false;
-        if(data.code === 20000) {
-          //  console.log("Start connection QZ ")
-          // await this.qz.connect();
-          // console.log("Connecting QZ ");
-          try {
-            console.log("Start connection QZ");
-            await this.qz.connect();
-            console.log("Connected to QZ Tray");
-          } catch (error) {
-            console.error("Failed to connect QZ Tray:", error);
-          }
+        if (data.code === 20000) {
           const fileNameURL = data.data.data.fileUrl;
-          // console.log("File yang di download ", fileNameURL);
-           // cari printer Microsoft Print to PDF
-          // const printers = await this.qz.getPrinters();
-          // const printer = printers.find(p => p.includes('Microsoft Print to PDF'));
-          //  if (printer) {
-          //     await this.qz.printPDF(printer, fileNameURL);
-          //     console.log('Print job sent');
-          //   } else {
-          //     console.error('Microsoft Print to PDF not found');
-          //   }
-          // const printer = await this.qz.getDefaultPrinter();
-          // await this.qz.printPDF(printer, 'fileNameURL');
-          // console.log("Print job sent!");
-          // const fileName = response.data.data.fileName;
-          // const url = `${window.location.origin}/upload/${fileNameOri}`;
-          // window.open(url, '_blank');
-          //  const url = `${window.location.origin}/upload/${fileNameOri}?t=${Date.now()}`; // anti-cache
-          //   setTimeout(() => {
-          //     window.open(url, '_blank');
-          //   }, 1000); // kasih jeda biar file ready
+          console.log("File yang di download ", fileNameURL);
+          // window.open(fileNameURL, '_blank');
+          const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
+          setTimeout(() => {
+            const printWindow = window.open(url, '_blank');
+            if (printWindow) {
+              printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+                setTimeout(() => {
+                  printWindow.close(); // coba tutup tab setelah delay
+                }, 5000);
+              };
+            } else {
+              alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
+            }
+          }, 100); // kasih jeda biar file ready
         }
         // this.loading=true;
         // this.router.navigate(['/dashboard']);
-        // this._lastFetchShopee();
+        this._lastFetchShopee();
       })
       .catch(err => {
-        this.loading=false;
+        this.loading = false;
         console.log("Response Error Catch /shopee/send_print", err);
       });
   }
@@ -434,24 +490,26 @@ export class Dashboard implements OnInit {
 
 
 interface QueryFields {
-  item_id: string;
-  item_name: string;
-  model_id: string;
-  model_name: string;
-  image_url: string;
-  shipping_carrier: string;
-  invoices: number;
-  qty: number;
+  item_id?: string;
+  item_name?: string;
+  model_id?: string;
+  model_name?: string;
+  image_url?: string;
+  shipping_carrier?: string;
+  invoices?: number;
+  qty?: number;
 }
-// interface QueryFields {
-//   id: number;
-//   fromtime: string;
-//   totime: string;
-//   created_by: string;
-//   created_at: string;
-//   datepick: string;
-//   remarks: string;
-// }
+interface QueryFieldsPrinted {
+  item_id?: string;
+  item_name?: string;
+  model_id?: string;
+  model_name?: string;
+  image_url?: string;
+  shipping_carrier?: string;
+  invoices?: number;
+  qty?: number;
+  labelshopee?: string
+}
 interface Column {
   field: string;
   header: string;

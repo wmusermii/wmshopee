@@ -271,7 +271,12 @@ export class ApiService {
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     return ApiResponse.success(shopeeResult, "Success get data!");
   }
-
+ async viewShopeePosByIDPrinted(payload: any, userinfo: any) {
+    // const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
+    const shopeeResult = await this.shopeeRepo.viewQShopeePosBySNPrinted(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    return ApiResponse.success(shopeeResult, "Success get data!");
+  }
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);
   }
@@ -386,11 +391,11 @@ export class ApiService {
   //     return ApiResponse.success(invoicesResult, "Records found");
   //   }
   // }
-  async getBestShopeeItems(item_id: string, model_id:string) {
+  async getBestShopeeItems(item_id: string, model_id:string, shipping_carrier:string) {
     // 1. Persiapan data untuk table q_shopee_invoices
     console.log("############# MASUK getBestShopeeItems");
     // 3. Insert ke kedua tabel
-    const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id, model_id);
+    const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id, model_id, shipping_carrier);
     if (!invoicesResult) {
       return ApiResponse.successNoData(null, "Unable to get data!");
     } else {
@@ -444,18 +449,16 @@ export class ApiService {
     }
   }
   async sendPrinting(orders: any) {
-    //#################### PINDAHKAN DATA INVOICE KEDALAM BULK
-    // const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(orders);
-    // console.log("COPY TABLE RESULT ", selectInvoiceUpdate);
-    //#################### PINDAHKAN DATA DARI HASIL PRINT
+    // console.log("Sending Printing Orders ",orders);
     const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders);
     console.log("Hasil Download ", hasilprint);
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
     const ordersToDelete = hasilprint.data.orders;
-    console.log("Order yang di delete : ", ordersToDelete);
-    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete);
+    const labelPrinted = hasilprint.data.fileUrl;
+    // console.log("Order yang di delete : ", ordersToDelete);
+    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
     return ApiResponse.success(hasilprint, "Printing sent successfully");
   }
 

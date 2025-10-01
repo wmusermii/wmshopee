@@ -74,11 +74,11 @@ export class ShopeeRepository {
   //   return await query;
   //   // return [];
   // }
-  async getQShopeeItembest(payload: string, model_id:string) {
+  async getQShopeeItembest(payload: string, model_id:string, shipping_carrier:string) {
     const today = new Date().toISOString().substring(0, 10);
     // console.log("######### TODAY : ", today);
     // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
-    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("order_sn").where('qid.status', 0).andWhere('qid.item_id', payload).andWhere('qid.model_id', model_id).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
+    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("qi.order_sn").innerJoin('q_shopee_invoices as qi','qid.order_sn','qi.order_sn').where('qid.status', 0).andWhere('qid.item_id', payload).andWhere('qid.model_id', model_id).andWhere('qi.shipping_carrier', shipping_carrier).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
     const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
     await new Promise(resolve => setTimeout(resolve, 100));
     // console.log("HASIL AMBIL data ", orderList);
@@ -102,54 +102,40 @@ export class ShopeeRepository {
     return await query;
     // return [];
   }
-  async copyInvoiceToBulkData(orders: any[]) {
-    // ambil semua order_sn
-    // const orderSNList = orders.map(item => item.order_sn);
-    const invoices: any[] = await db('q_shopee_invoices')
-      .select('*')
-      .whereIn('order_sn', orders);
-    // logInfo("### BANYAK INVOICES ##### ",orderSNList );
-    if (invoices.length === 0) {
-      console.log('Tidak ada data yang cocok.');
-      return;
-    }
 
-    // insert ke q_shopee_invoices_bulk
-    const insertInvoiceBulk_Result = await db('q_shopee_invoices_bulk').insert(invoices).returning('order_sn');
+  // async copyInvoiceToBulkData(orders: any[]) {
+  //   // ambil semua order_sn
+  //   const invoices: any[] = await db('q_shopee_invoices')
+  //     .select('*')
+  //     .whereIn('order_sn', orders);
+  //   if (invoices.length === 0) {
+  //     console.log('Tidak ada data yang cocok.');
+  //     return;
+  //   }
+  //   // insert ke q_shopee_invoices_bulk
+  //   const insertInvoiceBulk_Result = await db('q_shopee_invoices_bulk').insert(invoices).returning('order_sn');
+  //   const invoicesDetail = await db('q_shopee_invoices_detail')
+  //     .select('*')
+  //     .whereIn('order_sn', orders);
+  //   if (invoicesDetail.length === 0) {
+  //     console.log('Tidak ada data yang cocok.');
+  //     return;
+  //   }
+  //   // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
+  //   await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
+  //   // ####################### Masukan ke t_inventory ########################
+  //   await db('q_shopee_invoices_bulk').update({
+  //     status: 1,
+  //     updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
+  //   }).whereIn('order_sn', orders);
 
-    // console.log("Hasil di pindah Invoice Bulk ", insertInvoiceBulk_Result);
+  //   await db('q_shopee_invoices').delete().whereIn('order_sn', orders);
 
-    // orderSNList
-    const invoicesDetail = await db('q_shopee_invoices_detail')
-      .select('*')
-      .whereIn('order_sn', orders);
-    if (invoicesDetail.length === 0) {
-      console.log('Tidak ada data yang cocok.');
-      return;
-    }
-    // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
-    await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
-    // ####################### Masukan ke t_inventory ########################
-    // const insertInventory= await this.transformInventoryItems(invoicesDetail);
-    // logInfo("### BANYAK INVENTORY ",insertInventory.length)
-    // await db('t_inventory').insert(insertInventory);
-    //############## UPDATE DELETE TABLE INVOICE UTAMA
-    // orderSNList
-    // flowstock:'OUT',
-    //       wh_id:2,
-    await db('q_shopee_invoices_bulk').update({
-      status: 1,
-      updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
-    }).whereIn('order_sn', orders);
+  //   return { message: "Success update table" }
+  // }
 
-    await db('q_shopee_invoices').delete().whereIn('order_sn', orders);
-    // await db('q_shopee_invoices_detail_bulk').update({
-    //       status: 1,
-    //       updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
-    //     }).whereIn('order_sn', orderSNList);
 
-    return { message: "Success update table" }
-  }
+
   // async viewQShopeePosBySN(payload: any) {
   //   const query = await db('q_shopee_invoices_detail as ')
   //     .select(
@@ -167,6 +153,57 @@ export class ShopeeRepository {
   //   return await query;
   //   // .andWhere('id_q_shopee', payload.id)
   // }
+
+  async copyInvoiceToBulkData(orders: any[], labelshopee:string) {
+    // ambil semua order_sn
+    const invoices: any[] = await db('q_shopee_invoices')
+      .select('*')
+      .whereIn('order_sn', orders);
+    if (invoices.length === 0) {
+      console.log('Tidak ada data yang cocok.');
+      return;
+    }
+    // console.log("#### q_shopee_invoices yang di delete ", invoices);
+
+    const invoicesWithLabels = await Promise.all(
+      invoices.map(async (invoice) => {
+        // simulasi proses async (misal API call dll)
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return {
+          ...invoice,
+          labelshopee: labelshopee
+        };
+      })
+    );
+
+
+
+
+    // insert ke q_shopee_invoices_bulk
+    const insertInvoiceBulk_Result = await db('q_shopee_invoices_bulk').insert(invoicesWithLabels).returning('order_sn');
+    const invoicesDetail = await db('q_shopee_invoices_detail')
+      .select('*')
+      .whereIn('order_sn', orders);
+    if (invoicesDetail.length === 0) {
+      console.log('Tidak ada data yang cocok.');
+      return;
+    }
+    // logInfo("### BANYAK DETAIL ##### ",invoicesDetail.length );
+    await db('q_shopee_invoices_detail_bulk').insert(invoicesDetail);
+    // ####################### Masukan ke t_inventory ########################
+    await db('q_shopee_invoices_bulk').update({
+      status: 1,
+      updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
+    }).whereIn('order_sn', orders);
+
+    await db('q_shopee_invoices').delete().whereIn('order_sn', orders);
+
+    return { message: "Success update table" }
+  }
+
+
+
+
    async viewQShopeePosBySN(payload: any) {
     const query = await db('q_shopee_invoices_detail as qid')
       .select(
@@ -187,7 +224,27 @@ export class ShopeeRepository {
     return await query;
     // .andWhere('id_q_shopee', payload.id)
   }
-
+  async viewQShopeePosBySNPrinted(payload: any) {
+    const query = await db('q_shopee_invoices_detail_bulk as qid')
+      .select(
+        'qid.item_id',
+        'qid.item_name',
+        'qid.model_id',
+        'qid.model_name',
+        'qid.image_url',
+        'qi.shipping_carrier',
+        'qi.labelshopee',
+      )
+      .innerJoin('q_shopee_invoices_bulk as qi','qid.order_sn','qi.order_sn')
+      .count({ invoices: 'qid.order_sn' })
+      .sum({ qty: 'qid.model_quantity_purchased' })
+      .where('qid.status', 0)
+      .andWhereRaw(`date(qid.create_time) = date('now','localtime')`)
+      .groupBy('qid.item_id', 'qid.model_id', 'qi.shipping_carrier')
+      .orderBy('qty', 'desc');
+    return await query;
+    // .andWhere('id_q_shopee', payload.id)
+  }
 
 
   async selectSKUAvailable() {
@@ -618,4 +675,5 @@ const query = await db('stock_opname_detail as s')
       };
     });
   }
+
 }

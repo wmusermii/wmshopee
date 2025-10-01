@@ -1,0 +1,75 @@
+[2025-10-01 10:33:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6489913e-725f-4e87-926e-e03177eaf5c4\data\admdb.sqlite
+[2025-10-01 10:33:54] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\83829e10-93c3-4d31-82a6-73d2b4f68588\data\admdb.sqlite
+[2025-10-01 10:33:54] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\67530e1a-a9cb-4a9d-9eec-5108f2999a28\data\admdb.sqlite
+[2025-10-01 10:33:54] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\03c7de45-b3d0-470a-88b6-4b2331c33809\data\admdb.sqlite
+[2025-10-01 10:33:54] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\bc4e5341-1a30-4b1a-a3c6-a51d4f194d68\data\admdb.sqlite
+[2025-10-01 10:38:19] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 10:38:26] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:27] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:31] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:31] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:37] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:37] ERROR: Error api.controller :  {}
+[2025-10-01 10:38:54] INFO: ✅ Shopee refresh on fetchWithAuth Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f340109baa1ae19c80d05ef400"}
+[2025-10-01 10:38:54] INFO: Update data token : 
+[2025-10-01 10:38:54] INFO: ✅ Shopee refresh on fetchWithAuth Error: {"error":"invalid_acceess_token","message":"Invalid access_token, please have a check.","request_id":"e3e3e7f340109badef3b45c8ea0f5400"}
+[2025-10-01 10:38:54] INFO: Update data token : 
+[2025-10-01 10:39:09] INFO: ✅ Sudah di List  134
+[2025-10-01 10:39:12] INFO: ✅ package Sudah di List  {"order_sn":"250929S0GD7UNR","package_number":"OFG212859544287972"}
+[2025-10-01 10:49:10] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ad906fdf-fe47-46c9-b71a-84e778888d65\data\admdb.sqlite
+[2025-10-01 10:49:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\918aba92-8ac4-4bc7-a489-6f02156c37ad\data\admdb.sqlite
+[2025-10-01 10:49:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b7e8eb58-5690-42cb-8ddf-46fda1739f01\data\admdb.sqlite
+[2025-10-01 10:49:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1d022028-4625-45af-9c0d-003a34842389\data\admdb.sqlite
+[2025-10-01 10:49:14] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\f440e7f4-e95c-48a7-a357-8631a72e22c2\data\admdb.sqlite
+[2025-10-01 10:50:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\fcf8dd92-aab6-4a97-89e8-fb8fe45a2633\data\admdb.sqlite
+[2025-10-01 10:50:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\03a0a64f-1a3b-40db-a434-16edce83ec21\data\admdb.sqlite
+[2025-10-01 10:50:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\27ea0484-b696-45e4-b944-eb5c6b75ded0\data\admdb.sqlite
+[2025-10-01 10:50:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d3ca854d-5b0c-4b1e-8d12-fa222ed9c4b2\data\admdb.sqlite
+[2025-10-01 10:50:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\5c783e26-6d5f-4150-bf38-d211618e020b\data\admdb.sqlite
+[2025-10-01 10:50:16] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 10:51:13] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\58d0bd41-0188-4a4e-a9b8-5645122d74c6\data\admdb.sqlite
+[2025-10-01 10:51:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\4e4c1d4a-c80c-4ed2-8f2c-3cd87634ef71\data\admdb.sqlite
+[2025-10-01 10:51:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\7fffa75f-95f5-46f3-876f-6e075eb6236c\data\admdb.sqlite
+[2025-10-01 10:51:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\35f0a150-9b4b-4aa7-aa74-0c0b8620e57e\data\admdb.sqlite
+[2025-10-01 10:51:15] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\465b8443-b129-4728-8077-9a20d7fa64e4\data\admdb.sqlite
+[2025-10-01 10:51:25] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 10:54:55] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\6f272c0b-450a-457c-9078-48b7c2666498\data\admdb.sqlite
+[2025-10-01 10:54:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\3230cb9e-19bc-4af2-ab90-b212065ac2fe\data\admdb.sqlite
+[2025-10-01 10:54:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\97a014c4-57a7-4014-9816-55c75387a5ed\data\admdb.sqlite
+[2025-10-01 10:54:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d52272c6-4381-41d9-9276-a62dbc6c2b90\data\admdb.sqlite
+[2025-10-01 10:54:57] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\85409692-68c8-47d1-bc34-8b31a084d5a2\data\admdb.sqlite
+[2025-10-01 11:18:32] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\c918cb9d-e2d7-44c3-ac4b-e2815e0dd33f\data\admdb.sqlite
+[2025-10-01 11:18:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\381bb81d-6c54-4e2d-ad00-81c04874e441\data\admdb.sqlite
+[2025-10-01 11:18:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\701e728b-a400-4ba3-846c-cc17881ecfb1\data\admdb.sqlite
+[2025-10-01 11:18:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\329cdc8f-5b31-43b5-aa4b-a0b0085bf541\data\admdb.sqlite
+[2025-10-01 11:18:34] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d79d43f6-794e-4647-8bba-7d1e21d38ae1\data\admdb.sqlite
+[2025-10-01 11:18:52] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 11:20:05] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\05507739-0044-4f39-95af-ecc3e2a541a4\data\admdb.sqlite
+[2025-10-01 11:20:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\9431f1d5-f0b5-49d8-908b-3d67a5d88171\data\admdb.sqlite
+[2025-10-01 11:20:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d823b421-332f-4eff-9427-9c53b73be073\data\admdb.sqlite
+[2025-10-01 11:20:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d57dfcf5-7628-471c-abac-99d27eafec61\data\admdb.sqlite
+[2025-10-01 11:20:07] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\c55407c1-15ad-4ad0-a743-482f802b9c5e\data\admdb.sqlite
+[2025-10-01 11:27:09] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b4166b6c-8966-4b69-8154-8de672eeb8f7\data\admdb.sqlite
+[2025-10-01 11:27:12] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e2458385-93d6-4d3c-a70b-bb5e001b2482\data\admdb.sqlite
+[2025-10-01 11:27:12] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\0791b778-777e-4107-9120-101cfebe9aa1\data\admdb.sqlite
+[2025-10-01 11:27:12] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\65faa6b9-8b47-4e76-8c9a-2f6e27d46dce\data\admdb.sqlite
+[2025-10-01 11:27:12] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\05c345a6-a54a-4572-9ff5-e1c0a69a815a\data\admdb.sqlite
+[2025-10-01 11:27:22] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 11:45:36] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1386e96f-9721-43f8-b729-138e512e555f\data\admdb.sqlite
+[2025-10-01 11:45:38] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\be2c9127-408f-420a-a0fc-42d22e474882\data\admdb.sqlite
+[2025-10-01 11:45:38] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\d7bdf261-a7b4-4bc6-8a75-0fdf065271a6\data\admdb.sqlite
+[2025-10-01 11:45:38] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\5c83a4db-4a08-40e5-985c-45036687357a\data\admdb.sqlite
+[2025-10-01 11:45:38] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\9e1b4101-798b-488b-b8fa-aad319dbb097\data\admdb.sqlite
+[2025-10-01 11:45:48] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 11:55:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\e90e3a2d-e7f6-4c8b-9a7b-c8d78dedbcf0\data\admdb.sqlite
+[2025-10-01 11:55:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\056d857f-d808-4bf6-abbf-8b7cab99992e\data\admdb.sqlite
+[2025-10-01 11:55:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\29173ae2-3192-43e7-bdf6-7a0445588aa9\data\admdb.sqlite
+[2025-10-01 11:55:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\55f7003a-ec4c-461b-ac86-fc99a4c8cc3c\data\admdb.sqlite
+[2025-10-01 11:55:47] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\44078331-5280-4852-a85d-1c221901108b\data\admdb.sqlite
+[2025-10-01 11:58:04] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite
+[2025-10-01 12:57:44] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\2b05e127-878b-41d9-98cc-f1d88d60aaee\data\admdb.sqlite
+[2025-10-01 12:57:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\5d55a7c2-f664-4524-8e33-a021565d19b9\data\admdb.sqlite
+[2025-10-01 12:57:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\ef783cab-c869-45d5-90d4-2e04d3d2feaa\data\admdb.sqlite
+[2025-10-01 12:57:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\1ead5d95-0995-4e6e-8f22-b7d478e7afb7\data\admdb.sqlite
+[2025-10-01 12:57:45] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\.angular\prerender-root\b363a7bb-d512-4960-90c1-b8a11094c94f\data\admdb.sqlite
+[2025-10-01 12:58:00] INFO: INI ALAMAT TABLENYA :  D:\Work\ARYA-WMS-SHOPPIE\ANG19\wmshopee\dist\wmshopee\server\data\admdb.sqlite

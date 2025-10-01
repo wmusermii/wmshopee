@@ -262,6 +262,27 @@ export async function viewQShopeePosItem(req: Request, res: Response, next: Next
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+export async function viewQShopeePosItemPrinted(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### viewQShopeePosItemPrinted");
+    const { id } = req.body;
+    const userInfo: any = req.userInfo;
+    const viewResult = await apiService.viewShopeePosByIDPrinted({ id: id }, userInfo);
+    if (viewResult.code === 20000 && viewResult.data.length > 0) {
+      await ResponseHelper.send(res, ApiResponse.success(viewResult, "Success")); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "No available data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
+
 
 export async function getCountInvoicesAvailable(req: Request, res: Response, next: NextFunction) {
   try {
@@ -502,8 +523,8 @@ export async function getBestDataToPrint(req: Request, res: Response, next: Next
   try {
     console.log("####################################### getBestDataToPrint");
     const userInfo: any = req.userInfo;
-    const { item_id, model_id } = req.body;
-    const packageResult = await apiService.getBestShopeeItems(item_id, model_id);
+    const { item_id, model_id,shipping_carrier } = req.body;
+    const packageResult = await apiService.getBestShopeeItems(item_id, model_id, shipping_carrier);
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;
     } else {
