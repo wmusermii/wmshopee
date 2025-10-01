@@ -675,7 +675,7 @@ export class ShopeeService {
       // console.log("HASIL PACKAGE NUMBER ONLY ", packageOnlyList);
       // 1. Check manakah yang sudah ada tracking ordernya
       const trackingInfo: any = await this.getMasTrackingNumberMulti(packageOnlyList);
-      // console.log("HASIL MASS TRACKING ", trackingInfo.tracked_orders);
+      console.log("HASIL MASS TRACKING ", trackingInfo);
       if (trackingInfo.tracked_orders.length > 0) {
         console.log("Membuat documentnya ");
         const realOrdersTracked = realOrders.map(item => {
@@ -693,6 +693,19 @@ export class ShopeeService {
         const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder)
         console.log(" Download massDownloadRESULT results : ", massDownloadRESULT);
         if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
+      } else if(trackingInfo.notracked_orders.length > 0){
+        console.log("Membuat ship order");
+        const realOrdersNoTracked = realOrders.map(item => {
+          const found = trackingInfo.notracked_orders.find(
+            (d: { package_number: any }) => d.package_number === item.package_number
+          );
+          return found ? { ...item, ...found } : item;
+        });
+        console.log("Membuat Ordership nya ");
+
+
+
+
       } else {
         return ApiResponse.successNoData({}, "No download success");
       }

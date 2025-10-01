@@ -451,7 +451,7 @@ export class ApiService {
   async sendPrinting(orders: any) {
     // console.log("Sending Printing Orders ",orders);
     const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders);
-    console.log("Hasil Download ", hasilprint);
+    // console.log("Hasil Download ", hasilprint);
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
