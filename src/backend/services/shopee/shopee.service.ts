@@ -291,25 +291,64 @@ export class ShopeeService {
     return { status: "error", message: "Error Shipping parameter" }
   }
 
+  public async getShippingParameterMass(order: any[]): Promise<any> {
+    const packages_numbers = await this.ArraytoPackagesNumberOnly(order);
+
+    const path = '/api/v2/logistics/get_mass_shipping_parameter';
+    const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
+      package_list: packages_numbers
+    });
+    // console.log("RETURN DARI PARAMETER MASS getShippingParameterMass : ",res);
+    if (res && res.response) {
+      return res.response
+    }
+    return { status: "error", message: "Error Shipping parameter" }
+  }
   public async getMassShippingParameter(orders: any[]): Promise<any> {
     const resultShipParam: any[] = [];
     const resultNoShipParam: any[] = [];
-    for (const order of orders) {
-      const shipingParam = await this.getShippingParameter(order);
-      if (shipingParam) {
-        const address_id = shipingParam.pickup.address_list[0].address_id;
-        const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
-        const shipParam = { order, address_id: address_id, pickup_time: pickup_times };
-        resultShipParam.push(shipParam);
-      } else {
-        const shipParam = { order, address_id: null, pickup_time: null };
-        resultNoShipParam.push(shipParam);
-      }
+    const shipingParam = await this.getShippingParameterMass(orders);
+    console.log("hasil getMassShippingParameter : ", shipingParam);
+    if (shipingParam && shipingParam.success_list.length > 0) {
+      const address_id = shipingParam.pickup.address_list[0].address_id;
+      const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
+      const shipParam = { orders, address_id: address_id, pickup_time: pickup_times };
+      resultShipParam.push(shipParam);
+    } else {
+      const shipParam = { orders,fail_list:shipingParam.fail_list,address_id: null, pickup_time: null };
+      resultNoShipParam.push(shipParam);
     }
     //###################################################
     const result = { shipping_Param: resultShipParam, noshipping_Param: resultNoShipParam }
     return result;
   }
+
+
+
+  // public async getMassShippingParameter(orders: any[]): Promise<any> {
+  //   const resultShipParam: any[] = [];
+  //   const resultNoShipParam: any[] = [];
+  //   for (const order of orders) {
+  //     const shipingParam = await this.getShippingParameter(order);
+      // if (shipingParam) {
+      //   const address_id = shipingParam.pickup.address_list[0].address_id;
+      //   const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
+      //   const shipParam = { order, address_id: address_id, pickup_time: pickup_times };
+      //   resultShipParam.push(shipParam);
+      // } else {
+      //   const shipParam = { order, address_id: null, pickup_time: null };
+      //   resultNoShipParam.push(shipParam);
+      // }
+  //   }
+  //   //###################################################
+  //   const result = { shipping_Param: resultShipParam, noshipping_Param: resultNoShipParam }
+  //   return result;
+  // }
+
+
+
+
+
   public async getShipOrder(order: any, addressObj: any): Promise<any> {
     const path = '/api/v2/logistics/ship_order';
     const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
@@ -326,10 +365,44 @@ export class ShopeeService {
     const shipParameter = null;
     return shipParameter;
   }
-  public async getMassShipOrder(addressObj: any[]): Promise<any> {
+  public async getShipOrderMASS(packagenumbers: any, addressObj: any): Promise<any> {
+
+    const path = '/api/v2/logistics/mass_ship_order';
+    const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
+      package_list: packagenumbers,
+      pickup: {
+        address_id: addressObj.address_id,
+        pickup_time_id: addressObj.pickup_time.pickup_time_id
+      }
+    });
+    console.log("RETURN DARI SHOP ORDER : ", res);
+    if (res) {
+      return res
+    }
+    const shipParameter = null;
+    return shipParameter;
+  }
+
+
+
+  public async getMassShipOrder(shipingparam: any): Promise<any> {
     const resultShipOrder: any[] = [];
     const resultNoShipOrder: any[] = [];
-    console.log("GET MASSSHIPORDER ", addressObj);
+    console.log("GET MASSSHIPORDER ", shipingparam);
+
+    if(shipingparam.shipping_Param.length < 1) return { shipped_orders: [], noshipped_orders: shipingparam.noshipping_Param };
+
+    const shipingOrders = await this.getShipOrderMASS(shipingparam.shipping_Param[0].orders,{address_id:shipingparam.shipping_Param[0].address_id,pickup_time: shipingparam.shipping_Param[0].pickup_time});
+    console.log("RETURN getMassShipOrder : ", shipingOrders);
+    if(shipingOrders) {
+      const result = { shipped_orders: shipingOrders.response.success_list, noshipped_orders: shipingOrders.response.fail_list }
+      return result;
+    } else {
+      const result = { shipped_orders: resultShipOrder, noshipped_orders: resultNoShipOrder }
+      return result;
+    }
+
+
     // for (const order of addressObj) {
     //   const shipingParam = await this.getShipOrder(order.order, order);
     //   // logInfo("Ketika ship order 1 ", shipingParam);
@@ -351,8 +424,8 @@ export class ShopeeService {
     // }
     //###################################################
     // const result = { shipped_orders: resultShipOrder, noshipped_orders: resultNoShipOrder }
-    const result = { shipped_orders: resultShipOrder, noshipped_orders: resultNoShipOrder }
-    return result;
+    // const result = { shipped_orders: resultShipOrder, noshipped_orders: resultNoShipOrder }
+    // return result;
   }
 
   //######################## STEP PRINT LABEL ########################
@@ -510,212 +583,252 @@ export class ShopeeService {
       return ApiResponse.badRequest(error, "Error data");
     }
   }
-  async checkAndDownloadLabelNew(orders: any[]): Promise<any> {
-    try {
-      let returnDownload: any = {};
-      console.log("Raw Orders to Print : ", orders.length);
-      let orderOnlyList = await this.tostringArrayOnly(orders);
-      // 1. Check manakah yang sudah ada tracking ordernya
-      const trackingInfo: any = await this.getMasTrackingNumberMulti(orderOnlyList);
-      console.log("HASIL MASS TRACKING ", trackingInfo);
-      // 2. Ambil yang sudah ada tracking ordernya saja
-      if (trackingInfo.tracked_order.length > 0) {
-        orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
-        console.log("String Array Order to create Doc : ", orderOnlyList.length);
-        //3. Create Document yang sudah ada track nya
-        const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
-        console.log("Result created doc : ", createDocuments.created_orders.length);
-        console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-        await this.delay(500); // tunggu selama 10 detik (10000 ms)
-        if (createDocuments.created_orders.length < 1) {
-          return { code: 'crd001', message: 'download label success', data: createDocuments }; return
-        }
-        const uploadFolder = resolve(__dirname, '../upload');
-        const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
-        console.log("String Array Order to download doc 1 : ", ordersToPrint.length);
-        const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-        // console.log(" Download results : ", massDownloadRESULT);
-        if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT, "Download success");
-        return ApiResponse.successNoData(massDownloadRESULT, "No download success");
-      } else {
-        console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
-        returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
-        console.log("=== Try create shipping order ===");
-        const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
-        // console.log("SHIP PARAM ############################## ", shippingParameter);
-        const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
-        console.log("Order ships result ######### : ", orderShip);
-        await this.delay(1000);
-        if (orderShip.shipped_orders.length > 0) orderOnlyList = await this.tostringArrayOnly(orderShip.shipped_orders);
-        const trackingInfo2: any = await this.getMasTrackingNumberMulti(orderOnlyList);
-        console.log("HASIL MASS TRACKING 2 ", trackingInfo2);
-        if (trackingInfo2.tracked_order.length > 0) {
-          //3. Create Document yang sudah ada track nya
-          const createDocuments2: any = await this.createMassShippingDocumentInfoMulti(trackingInfo2.tracked_order);
-          console.log("Result created doc 2 : ", createDocuments2.created_orders.length);
-          console.log("Result No created doc 2 : ", createDocuments2.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-          await this.delay(500); // tunggu selama 10 detik (10000 ms)
-          if (createDocuments2.created_orders.length < 1) {
-            return { code: 'crd001', message: 'download label success', data: createDocuments2 }; return
-          }
-          const uploadFolder2 = resolve(__dirname, '../upload');
-          const ordersToPrint2 = await this.tostringArrayOnly(createDocuments2.created_orders);
-          console.log("String Array Order to download doc 2 : ", ordersToPrint2.length);
-          await this.delay(1500);
-          const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
-          // console.log(" Download results : ", massDownloadRESULT);
-          if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2, "Download success");
-          return ApiResponse.successNoData(massDownloadRESULT2, "No download success");
-        }
-      }
-      return returnDownload;
-    } catch (error) {
-      console.log("NGAPA (497) : ", error);
-      return ApiResponse.badRequest(error, "Error data");
-    }
-  }
-  // async checkAndStraightLabelNew(orders: any[]): Promise<any> {
+  // async checkAndDownloadLabelNew(orders: any[]): Promise<any> {
   //   try {
   //     let returnDownload: any = {};
   //     console.log("Raw Orders to Print : ", orders.length);
-  //     // console.log("Raw Orders payload : ", orders);
-  //     // let orderOnlyList = await this.tostringArrayOnly(orders);
+  //     let orderOnlyList = await this.tostringArrayOnly(orders);
   //     // 1. Check manakah yang sudah ada tracking ordernya
-  //     const trackingInfo: any = await this.getMasTrackingNumberMulti(orders);
-  //     console.log("HASIL MASS TRACKING ", trackingInfo.tracked_order.length);
+  //     const trackingInfo: any = await this.getMasTrackingNumberMulti(orderOnlyList);
+  //     console.log("Hasil Tracking ==> ", trackingInfo);
+  //     // 2. Ambil yang sudah ada tracking ordernya saja
   //     if (trackingInfo.tracked_order.length > 0) {
-  //       // 2. Ambil yang sudah ada tracking ordernya saja
-  //       const orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+  //       orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
+  //       console.log("String Array Order to create Doc : ", orderOnlyList.length);
   //       //3. Create Document yang sudah ada track nya
   //       const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
   //       console.log("Result created doc : ", createDocuments.created_orders.length);
   //       console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-  //       await this.delay(1000);
+  //       await this.delay(500); // tunggu selama 10 detik (10000 ms)
   //       if (createDocuments.created_orders.length < 1) {
   //         return { code: 'crd001', message: 'download label success', data: createDocuments }; return
   //       }
   //       const uploadFolder = resolve(__dirname, '../upload');
   //       const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
-  //       // console.log("CREATED ORDERS ", ordersToPrint);
-  //       const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder);
+  //       console.log("String Array Order to download doc 1 : ", ordersToPrint.length);
+  //       const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
+  //       // console.log(" Download results : ", massDownloadRESULT);
+  //       if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT, "Download success");
+  //       return ApiResponse.successNoData(massDownloadRESULT, "No download success");
+  //     } else {
+  //       console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
+  //       returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
+  //       console.log("=== Try create shipping order ===");
+  //       const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
+  //       // console.log("SHIP PARAM ############################## ", shippingParameter);
+  //       const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
+  //       console.log("Order ships result ######### : ", orderShip);
+  //       await this.delay(1000);
+  //       if (orderShip.shipped_orders.length > 0) orderOnlyList = await this.tostringArrayOnly(orderShip.shipped_orders);
+  //       const trackingInfo2: any = await this.getMasTrackingNumberMulti(orderOnlyList);
+  //       console.log("HASIL MASS TRACKING 2 ", trackingInfo2);
+  //       if (trackingInfo2.tracked_order.length > 0) {
+  //         //3. Create Document yang sudah ada track nya
+  //         const createDocuments2: any = await this.createMassShippingDocumentInfoMulti(trackingInfo2.tracked_order);
+  //         console.log("Result created doc 2 : ", createDocuments2.created_orders.length);
+  //         console.log("Result No created doc 2 : ", createDocuments2.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
+  //         await this.delay(500); // tunggu selama 10 detik (10000 ms)
+  //         if (createDocuments2.created_orders.length < 1) {
+  //           return { code: 'crd001', message: 'download label success', data: createDocuments2 }; return
+  //         }
+  //         const uploadFolder2 = resolve(__dirname, '../upload');
+  //         const ordersToPrint2 = await this.tostringArrayOnly(createDocuments2.created_orders);
+  //         console.log("String Array Order to download doc 2 : ", ordersToPrint2.length);
+  //         await this.delay(1500);
+  //         const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
+  //         // console.log(" Download results : ", massDownloadRESULT);
+  //         if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2, "Download success");
+  //         return ApiResponse.successNoData(massDownloadRESULT2, "No download success");
+  //       }
+  //     }
+  //     return returnDownload;
+  //   } catch (error) {
+  //     console.log("NGAPA (603) : ", error);
+  //     return ApiResponse.badRequest(error, "Error data");
+  //   }
+  // }
+
+  // async checkAndStraightLabelNew(orders: any[]): Promise<any> {
+  //   try {
+  //     let returnDownload: any = {};
+  //     const realOrders = orders
+  //     console.log("Raw Orders to Print : ", realOrders);
+  //     let packageOnlyList = await this.tostringArrayPackagesOnly(orders);
+  //     // console.log("HASIL PACKAGE NUMBER ONLY ", packageOnlyList);
+  //     // 1. Check manakah yang sudah ada tracking ordernya
+  //     const trackingInfo: any = await this.getMasTrackingNumberMulti(packageOnlyList);
+  //     console.log("HASIL MASS TRACKING ", trackingInfo);
+  //     if (trackingInfo.tracked_orders.length > 0) {
+  //       console.log("Membuat documentnya ");
+  //       const realOrdersTracked = realOrders.map(item => {
+  //         const found = trackingInfo.tracked_orders.find(
+  //           (d: { package_number: any }) => d.package_number === item.package_number
+  //         );
+  //         return found ? { ...item, ...found } : item;
+  //       });
+  //       // 2. Create Document yang sudah ada track nya
+  //       const createDocuments = await this.createMassShippingDocumentInfoMulti(realOrdersTracked);
+  //       // ##################### JIKA BELUM ORDER SHIP
+  //       // if(createDocuments.error_orders.length === realOrdersTracked.length) return ApiResponse.successNoData({}, "The package can not print now.  Detail: The document is not yet ready for printing. Please try again later.");
+  //       if(createDocuments.error_orders.length > 0) {
+  //         const realOrdersNoOrderShip = realOrders.map(item => {
+  //         const found = createDocuments.error_orders.find(
+  //             (d: { package_number: any }) => d.package_number === item.package_number
+  //           );
+  //           return found ? { ...item, ...found } : item;
+  //         });
+  //         console.log("PAYLOAD CREATE ORDER (738)", "realOrdersNoOrderShip");
+  //         const shippingParameter = await this.getMassShippingParameter(realOrdersNoOrderShip);
+  //         console.log("HASIL SHIPPING PARAMETER", shippingParameter);
+  //          console.log("MEMBUAT SHIP ORDER (741)");
+  //         const orderShips = await this.getMassShipOrder(shippingParameter)
+  //         console.log("HASIL SHIP ORDER (774) : ",orderShips);
+  //         // {
+  //         //   shipped_orders: [
+  //         //     { package_number: 'OFG213055604225984' },
+  //         //     { package_number: 'OFG213059340265650' },
+  //         //     { package_number: 'OFG213063348263795' },
+  //         //     { package_number: 'OFG213064173264151' }
+  //         //   ],
+  //         //   noshipped_orders: []
+  //         // }
+  //         return ApiResponse.successNoData({}, "The package can not print now.  Detail: The document is not yet ready for printing. Please try again later.");
+  //       }
+  //       const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
+  //       const uploadFolder = resolve(__dirname, '../upload');
+  //       await this.delay(1500);
+  //       const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder)
   //       console.log(" Download massDownloadRESULT results : ", massDownloadRESULT);
   //       if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
-  //       return ApiResponse.successNoData(massDownloadRESULT,"No download success");
+  //     } else if(trackingInfo.notracked_orders.length > 0){
+  //       console.log("Membuat ship order");
+  //       const realOrdersNoTracked = realOrders.map(item => {
+  //         const found = trackingInfo.notracked_orders.find(
+  //           (d: { package_number: any }) => d.package_number === item.package_number
+  //         );
+  //         return found ? { ...item, ...found } : item;
+  //       });
+  //       console.log("Membuat Ordership nya cari shipping parameternya ");
+  //       const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
+  //       console.log("SHIP PARAM ############################## ", shippingParameter);
+
 
   //     } else {
-  //         console.log("HARUS BUAT ORDER SHIP : ",trackingInfo.notracked_order);
-  //         const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
-  //         console.log("SHIP PARAM ############################## ", shippingParameter);
-  //         const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param);
-  //         console.log("RESPONS SHIP ORDER ############################## ", orderShip);
-  //       return ApiResponse.successNoData({},"No download success");
+  //       return ApiResponse.successNoData({}, "No download success");
   //     }
-  //     // 2. Ambil yang sudah ada tracking ordernya saja
-  //     // if (trackingInfo.tracked_order.length > 0) {
-  //     //   orderOnlyList = await this.tostringArrayOnly(trackingInfo.tracked_order);
-  //     //   console.log("String Array Order to create Doc : ", orderOnlyList.length);
-  //     //   //3. Create Document yang sudah ada track nya
-  //     //   const createDocuments: any = await this.createMassShippingDocumentInfoMulti(trackingInfo.tracked_order);
-  //     //   console.log("Result created doc : ", createDocuments.created_orders.length);
-  //     //   console.log("Result No created doc : ", createDocuments.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-  //     //   await this.delay(500); // tunggu selama 10 detik (10000 ms)
-  //     //   if (createDocuments.created_orders.length < 1) {
-  //     //     return { code: 'crd001', message: 'download label success', data: createDocuments }; return
-  //     //   }
-  //     //   const uploadFolder = resolve(__dirname, '../upload');
-  //     //   const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
-  //     //   console.log("String Array Order to download doc 1 : ", ordersToPrint.length);
-  //     //   const massDownloadRESULT = await this.downloadMassShippingDocumentInfo(ordersToPrint, uploadFolder)
-  //     //   // console.log(" Download results : ", massDownloadRESULT);
-  //     //   if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
-  //     //     return ApiResponse.successNoData(massDownloadRESULT,"No download success");
-  //     // } else {
-  //     //   console.log("No tracking orders  : ", trackingInfo.notracked_order.length);
-  //     //   returnDownload = { code: "001", message: "Tracking orders found!", data: trackingInfo }
-  //     //   console.log("=== Try create shipping order ===");
-  //     //   const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
-  //     //   // console.log("SHIP PARAM ############################## ", shippingParameter);
-  //     //   const orderShip = await this.getMassShipOrder(shippingParameter.shipping_Param)
-  //     //   console.log("Order ships result ######### : ", orderShip);
-  //     //   await this.delay(1000);
-  //     //   if (orderShip.shipped_orders.length > 0) orderOnlyList = await this.tostringArrayOnly(orderShip.shipped_orders);
-  //     //   const trackingInfo2: any = await this.getMasTrackingNumberMulti(orderOnlyList);
-  //     //   console.log("HASIL MASS TRACKING 2 ", trackingInfo2);
-  //     //   if (trackingInfo2.tracked_order.length > 0) {
-  //     //     //3. Create Document yang sudah ada track nya
-  //     //     const createDocuments2: any = await this.createMassShippingDocumentInfoMulti(trackingInfo2.tracked_order);
-  //     //     console.log("Result created doc 2 : ", createDocuments2.created_orders.length);
-  //     //     console.log("Result No created doc 2 : ", createDocuments2.error_orders.length); //INI BIASANYA KARENA SUDAH SHIPPED
-  //     //     await this.delay(500); // tunggu selama 10 detik (10000 ms)
-  //     //     if (createDocuments2.created_orders.length < 1) {
-  //     //       return { code: 'crd001', message: 'download label success', data: createDocuments2 }; return
-  //     //     }
-  //     //     const uploadFolder2 = resolve(__dirname, '../upload');
-  //     //     const ordersToPrint2 = await this.tostringArrayOnly(createDocuments2.created_orders);
-  //     //     console.log("String Array Order to download doc 2 : ", ordersToPrint2.length);
-  //     //     await this.delay(1500);
-  //     //     const massDownloadRESULT2 = await this.downloadMassShippingDocumentInfo(ordersToPrint2, uploadFolder2)
-  //     //     // console.log(" Download results : ", massDownloadRESULT);
-  //     //     if (massDownloadRESULT2) return ApiResponse.success(massDownloadRESULT2,"Download success");
-  //     //     return ApiResponse.successNoData(massDownloadRESULT2,"No download success");
-  //     //   }
-  //     // }
-  //     // return returnDownload;
+
+
   //   } catch (error) {
   //     console.log("NGAPA (497) : ", error);
   //     return ApiResponse.badRequest(error, "Error data");
   //   }
   // }
+
   async checkAndStraightLabelNew(orders: any[]): Promise<any> {
-    try {
-      let returnDownload: any = {};
-      const realOrders = orders
+  try {
+    let returnDownload: any = {};
+    const realOrders = orders;
+
+    while (true) {
       console.log("Raw Orders to Print : ", realOrders);
+
       let packageOnlyList = await this.tostringArrayPackagesOnly(orders);
-      // console.log("HASIL PACKAGE NUMBER ONLY ", packageOnlyList);
-      // 1. Check manakah yang sudah ada tracking ordernya
       const trackingInfo: any = await this.getMasTrackingNumberMulti(packageOnlyList);
       console.log("HASIL MASS TRACKING ", trackingInfo);
+
       if (trackingInfo.tracked_orders.length > 0) {
-        console.log("Membuat documentnya ");
         const realOrdersTracked = realOrders.map(item => {
           const found = trackingInfo.tracked_orders.find(
             (d: { package_number: any }) => d.package_number === item.package_number
           );
           return found ? { ...item, ...found } : item;
         });
-        // 2. Create Document yang sudah ada track nya
+
         const createDocuments = await this.createMassShippingDocumentInfoMulti(realOrdersTracked);
-        // console.log("HASIL DOCUMENT ", createDocuments);
+        console.log("CREATE MULTI DOCUMENT :",createDocuments);
+        if (createDocuments.error_orders.length > 0) {
+          console.log("### realOrdersNoOrderShip ### ",realOrders);
+          console.log("### Error Orders ### ",createDocuments.error_orders);
+          const realOrdersNoOrderShip = realOrders
+            .filter(item =>
+              createDocuments.error_orders.some((d: { package_number: any; }) => d.package_number === item.package_number)
+            )
+            .map(item => {
+              const found = createDocuments.error_orders.find((d: { package_number: any; }) => d.package_number === item.package_number);
+              return { ...item, ...found };
+            });
+          console.log("CARI SHIPPING YANG ERROR PAYLOAD : ",realOrdersNoOrderShip);
+
+          let shippingParameter = await this.getMassShippingParameter(realOrdersNoOrderShip);
+          console.log("HASIL SHIPPING PARAM SERVICE 1 : ",shippingParameter);
+          if(shippingParameter.noshipping_Param.length > 0) {
+            const realOrdersOrderShip = realOrders
+            .filter(item =>
+              createDocuments.created_orders.some((d: { package_number: any; }) => d.package_number === item.package_number)
+            )
+            .map(item => {
+              const found = createDocuments.created_orders.find((d: { package_number: any; }) => d.package_number === item.package_number);
+              return { ...item, ...found };
+            });
+            // console.log("PAYLOAD 2 : ",realOrdersOrderShip);
+            console.log("CARI SHIPPING YANG VALID PAYLOAD : ",realOrdersOrderShip);
+            if(realOrdersOrderShip.length > 0) {
+               shippingParameter = await this.getMassShippingParameter(realOrdersOrderShip);
+            console.log("HASIL SHIPPING PARAM SERVICE 2 : ",shippingParameter);
+            }
+
+
+            // return ApiResponse.successNoData(shippingParameter.noshipping_Param, shippingParameter.noshipping_Param[0].fail_list);
+          }
+
+          const orderShips = await this.getMassShipOrder(shippingParameter);
+          console.log("HASIL SHIP ORDER (767) : ", orderShips);
+          console.log("HASIL SHIP ORDER (777) : ", orderShips.noshipped_orders.length > 0? orderShips.noshipped_orders[0].fail_list : "No Failed");
+          // kalau ada shipped_orders, ulangi dari awal loop
+          if (orderShips.shipped_orders?.length > 0) {
+            console.log("Ulangi proses karena ada shipped_orders...");
+            continue; // <-- balik ke "Raw Orders to Print"
+          }
+
+          return ApiResponse.successNoData({}, "The package can not print now...");
+        }
+
         const ordersToPrint = await this.tostringArrayOnly(createDocuments.created_orders);
         const uploadFolder = resolve(__dirname, '../upload');
         await this.delay(1500);
-        const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder)
-        console.log(" Download massDownloadRESULT results : ", massDownloadRESULT);
-        if (massDownloadRESULT) return ApiResponse.success(massDownloadRESULT,"Download success");
-      } else if(trackingInfo.notracked_orders.length > 0){
-        console.log("Membuat ship order");
+        const massDownloadRESULT = await this.downloadMassShippingStraighInfo(ordersToPrint, uploadFolder);
+
+        if (massDownloadRESULT) {
+          return ApiResponse.success(massDownloadRESULT, "Download success");
+        }
+
+      } else if (trackingInfo.notracked_orders.length > 0) {
         const realOrdersNoTracked = realOrders.map(item => {
           const found = trackingInfo.notracked_orders.find(
             (d: { package_number: any }) => d.package_number === item.package_number
           );
           return found ? { ...item, ...found } : item;
         });
-        console.log("Membuat Ordership nya cari shipping parameternya ");
+
         const shippingParameter = await this.getMassShippingParameter(trackingInfo.notracked_order);
         console.log("SHIP PARAM ############################## ", shippingParameter);
-
 
       } else {
         return ApiResponse.successNoData({}, "No download success");
       }
 
-
-    } catch (error) {
-      console.log("NGAPA (497) : ", error);
-      return ApiResponse.badRequest(error, "Error data");
+      break; // kalau tidak ada alasan untuk ulang, keluar loop
     }
+
+  } catch (error) {
+    console.log("NGAPA (497) : ", error);
+    return ApiResponse.badRequest(error, "Error data");
   }
+}
+
+
+
+
   async getTrackingNumber(order_sn: string) {
     const path = '/api/v2/logistics/get_tracking_number';
     const res = await this.fetchWithAuth(path, { order_sn: order_sn });
@@ -723,7 +836,7 @@ export class ShopeeService {
     return res.response;
   }
   async getTrackingNumberMass(packageList: any) {
-    console.log("Package List");
+    console.log("Package List ");
     const path = '/api/v2/logistics/get_mass_tracking_number';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', { package_list: packageList });
     // const res = await this.fetchWithAuthMETHOD(path, { order_sn: order_sn });
@@ -833,7 +946,6 @@ export class ShopeeService {
     // console.log("ARRAY DATA BULK ", arrayData);
     const path = '/api/v2/logistics/create_shipping_document';
     const res = await this.fetchWithAuthMETHOD(path, {}, 'POST', arrayData);
-    console.log("TRACKING ", res);
     return res.response;
   }
   async createShippingDocumentInfo(order_sn: string, tracking_number: string) {
@@ -1031,7 +1143,12 @@ export class ShopeeService {
     return result;
   }
 
-
+  async ArraytoPackagesNumberOnly(payload:any[]):Promise<any[]> {
+  const arr = payload
+  // map synchronous, tapi kita return langsung
+  const packages = arr.map(item => ({ package_number: item.package_number }));
+  return packages;
+}
 
 
   async getLocalIP(): Promise<string> {
