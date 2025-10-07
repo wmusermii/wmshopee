@@ -41,15 +41,18 @@ export class ApiService {
     const pad = (n: number) => n.toString().padStart(2, '0');
     // Format manual tanpa UTC shift
     const formattedDate = `${year}-${pad(month)}-${pad(day)}`;
-    const orderList = await this.apiShopeeService.getOrderList(formattedDate, payload.fromtime, payload.totime);
-    const totalResi = orderList.length;
-    logInfo("✅ Sudah di List ", totalResi);
-    // logInfo("✅ order Sudah di List ", orderList[0]);
-    const packageList = await this.apiShopeeService.getShipmentList(formattedDate, payload.fromtime, payload.totime);
-    const packageLength = packageList.length;
-    logInfo("✅ package Sudah di List ", packageList[0]);
 
-    let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
+    // const orderList = await this.apiShopeeService.getOrderList(formattedDate, payload.fromtime, payload.totime);
+    // const totalResi = orderList.length;
+    // logInfo("✅ Sudah di List ", totalResi);
+
+    const packageList = await this.apiShopeeService.getShipmentList(formattedDate, payload.fromtime, payload.totime);
+    // const packageLength = packageList.length;
+    const totalResi = packageList.length;
+    logInfo("✅ package Sudah di List ", totalResi);
+
+    // let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
+    let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(packageList) : [{}];
     payload.totalresi = totalResi;
     // logInfo("✅ Sudah di List Extract ", payload.totalresi);
     // payload.listresi = JSON.stringify(arrayOrder); SUDAH TIDAK PERLU LAGI
@@ -451,7 +454,7 @@ export class ApiService {
   async sendPrinting(orders: any) {
     // console.log("Sending Printing Orders ",orders);
     const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders);
-    // console.log("Hasil Download ", hasilprint);
+    console.log("Hasil Download ", hasilprint);
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }

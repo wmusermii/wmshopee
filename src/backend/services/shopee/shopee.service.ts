@@ -202,6 +202,7 @@ export class ShopeeService {
       }
       const result = await this.fetchWithAuth(path, params);
       const orders = result?.response?.order_list || [];
+
       if (orders.length > 0) {
         allOrders.push(...orders);
       }
@@ -209,7 +210,11 @@ export class ShopeeService {
       cursor = result?.response?.next_cursor || '';
     }
     console.log('✅ Total Orders Fetched:', allOrders.length);
-    return allOrders;
+    // ⛔ Hanya ambil yang bukan advance fulfilment (tidak punya booking_sn)
+    const filteredOrders = allOrders.filter(order => !order.booking_sn);
+
+    console.log('✅ Total Orders After Filter (no booking_sn):', filteredOrders.length);
+    return filteredOrders;
   }
   public async getShipmentList(datepick: string, timeFrom: string, timeTo: string): Promise<any[]> {
     const path = '/api/v2/order/get_shipment_list';
@@ -308,7 +313,7 @@ export class ShopeeService {
     const resultShipParam: any[] = [];
     const resultNoShipParam: any[] = [];
     const shipingParam = await this.getShippingParameterMass(orders);
-    console.log("hasil getMassShippingParameter : ", shipingParam);
+    // console.log("hasil getMassShippingParameter : ", shipingParam);
     if (shipingParam && shipingParam.success_list.length > 0) {
       const address_id = shipingParam.pickup.address_list[0].address_id;
       const pickup_times = shipingParam.pickup.address_list[0].time_slot_list[0];
@@ -745,10 +750,10 @@ export class ShopeeService {
         });
 
         const createDocuments = await this.createMassShippingDocumentInfoMulti(realOrdersTracked);
-        console.log("CREATE MULTI DOCUMENT :",createDocuments);
+        // console.log("CREATE MULTI DOCUMENT :",createDocuments);
         if (createDocuments.error_orders.length > 0) {
           console.log("### realOrdersNoOrderShip ### ",realOrders);
-          console.log("### Error Orders ### ",createDocuments.error_orders);
+          // console.log("### Error Orders ### ",createDocuments.error_orders);
           const realOrdersNoOrderShip = realOrders
             .filter(item =>
               createDocuments.error_orders.some((d: { package_number: any; }) => d.package_number === item.package_number)
@@ -757,11 +762,13 @@ export class ShopeeService {
               const found = createDocuments.error_orders.find((d: { package_number: any; }) => d.package_number === item.package_number);
               return { ...item, ...found };
             });
+
           console.log("CARI SHIPPING YANG ERROR PAYLOAD : ",realOrdersNoOrderShip);
 
           let shippingParameter = await this.getMassShippingParameter(realOrdersNoOrderShip);
           console.log("HASIL SHIPPING PARAM SERVICE 1 : ",shippingParameter);
           if(shippingParameter.noshipping_Param.length > 0) {
+            const realOrderNotOrderShip = shippingParameter.noshipping_Param[0].fail_list;
             const realOrdersOrderShip = realOrders
             .filter(item =>
               createDocuments.created_orders.some((d: { package_number: any; }) => d.package_number === item.package_number)
@@ -774,10 +781,14 @@ export class ShopeeService {
             console.log("CARI SHIPPING YANG VALID PAYLOAD : ",realOrdersOrderShip);
             if(realOrdersOrderShip.length > 0) {
                shippingParameter = await this.getMassShippingParameter(realOrdersOrderShip);
-            console.log("HASIL SHIPPING PARAM SERVICE 2 : ",shippingParameter);
+              console.log("HASIL SHIPPING PARAM SERVICE 2 : ",shippingParameter);
             }
-
-
+            //############### CARI SHIPPING Yang Belum ORDER
+            console.log("ARRAY YANG BELUM ORDER ", realOrderNotOrderShip);
+            if(realOrderNotOrderShip.length > 0) {
+              const noOrderShippingParameter = await this.getMassShippingParameter(realOrderNotOrderShip);
+              console.log("HASIL SHIPPING PARAM SERVICE 3 NO ORDER : ",noOrderShippingParameter.noshipped_orders[0].fail_list);
+            }
             // return ApiResponse.successNoData(shippingParameter.noshipping_Param, shippingParameter.noshipping_Param[0].fail_list);
           }
 

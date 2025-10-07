@@ -25,7 +25,7 @@
             <p-button icon="pi pi-file-excel" label="Export" (onClick)="_exportList()" severity="success" rounded
               raised />
 
-            <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Opname" rounded raised />
+            <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Stock" rounded raised />
           </div>
         </div>
       </div>
@@ -41,7 +41,12 @@
     </ng-template>
     <ng-template pTemplate="body" let-rowData2>
       <tr [pSelectableRow]="rowData2">
-        <td>{{rowData2.opname_id}}</td>
+
+        <td><div class="flex items-start space-x-4">
+              <img [src]="rowData2.image_url"
+                [alt]="rowData2.model_name" class="w-10 h-10 object-cover rounded" />
+            </div>
+        </td>
         <td>{{rowData2.product_name}}</td>
         <td>{{rowData2.model_name}}</td>
         <td style="text-align: end;" class="font-bold !w-28">{{rowData2.system_qty}}</td>
@@ -63,7 +68,7 @@
   <div class="bg-white rounded-lg shadow-lg w-full max-w-screen-xl sm:max-w-2/3 overflow-auto">
     <p-table #table [columns]="cols2" [value]="stkopnames" class="w-full" stripedRows="true" showGridlines="true"
       autoLayout="true" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="[10,50,100]"
-      selectionMode="single" [(selection)]="selectedEditStkOpnameMenu" dataKey="id_stock"
+      selectionMode="single" [(selection)]="selectedStkOpname" dataKey="id_stock"
       (onRowSelect)="onRowSelect($event)"
       >
       <ng-template #caption>

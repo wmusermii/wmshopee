@@ -64,7 +64,7 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
     this.isStoreWh = this.opnameObj.is_store;
     console.log("Object to opname ", this.opnameObj);
      this.cols = [
-      { field: 'opname_id', header: 'Id' },
+      { field: 'image_url', header: 'stock' },
       { field: 'product_name', header: 'Item' },
       { field: 'model_name', header: 'Model' },
       { field: 'system_qty', header: 'Sys Qty' },
@@ -242,7 +242,52 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
   }
   }
   onRowSelectEditOpname(event:any) {
+
+
+    // selected edit
+//     {
+//     "opname_id": 11,
+//     "product_id": "24691571591216266359998.0",
+//     "system_qty": 31,
+//     "physical_qty": 150,
+//     "adjustment_qty": 119,
+//     "opname_date": "2025-08-28 00:05:24",
+//     "created_by": null,
+//     "id_opname": 3,
+//     "item_id": "24691571591.0",
+//     "product_name": "Kain Mitela PMR Pramuka Jumbo Kain Segitiga",
+//     "model_id": "216266359998.0",
+//     "model_name": "Katun,KAIN MITELA",
+//     "image_url": "https://cf.shopee.co.id/file/id-11134207-81ztp-meqtrkc6hnnk90_tn"
+// }
     console.log("Selected object edit ", this.selectedEditStkOpnameMenu);
+      this.selectedStkOpname = {
+        "opname_id":this.selectedEditStkOpnameMenu.opname_id,
+        "item_id": this.selectedEditStkOpnameMenu.item_id,
+        "item_sku": "",
+        "item_name": this.selectedEditStkOpnameMenu.product_name,
+        "model_id": this.selectedEditStkOpnameMenu.model_id,
+        "model_name": this.selectedEditStkOpnameMenu.model_name,
+        "image_url": this.selectedEditStkOpnameMenu.image_url,
+        "id_stock": this.selectedEditStkOpnameMenu.product_id
+      };
+      this.physicalStock= this.selectedEditStkOpnameMenu.physical_qty
+      // selected object
+    // {
+    //     "item_id": "19770451858.0",
+    //     "item_sku": "",
+    //     "item_name": "Bendera Semaphore Semapur Tongkat stik HW Semapore Simapur Pramuka",
+    //     "model_id": "218455903893.0",
+    //     "model_name": "2 Bendera+2Tongkat",
+    //     "image_url": "https://cf.shopee.co.id/file/id-11134207-7rbk5-m8vo7l25x34dba_tn",
+    //     "id_stock": "19770451858218455903893.0"
+    // }
+    // physicalStock
+
+     this.showStocksDialog = false;
+     this.showStockDetailDialog = true;
+
+
     // this.showStocksDialog = false;
     // this.showStockDetailDialog = true;
   }
@@ -260,8 +305,14 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
     this.showStockDetailDialog = false;
     this.loading=true;
     const payload = {id_opname:this.opnameObj.id_opname, opname_date:this.opnameObj.opname_date,wh_id:this.opnameObj.wh_id, physical_qty:this.physicalStock,product_id:this.selectedStkOpname.id_stock,product_name:this.selectedStkOpname.item_name,item_id:this.selectedStkOpname.item_id, model_name:this.selectedStkOpname.model_name,model_id:this.selectedStkOpname.model_id }
-    // console.log("PAYLOAD TO SUBMIT ", payload);
-    fetch('/v2/warehouse/insert_stockopnamedetail', {
+
+
+
+
+
+    console.log("PAYLOAD TO SUBMIT ", this.selectedStkOpname);
+    if(!this.selectedStkOpname.opname_id) {
+      fetch('/v2/warehouse/insert_stockopnamedetail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -288,6 +339,36 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
       .catch(err => {
         console.log("Response Error ", err);
       });
+    } else {
+      fetch('/v2/warehouse/update_stockopnamedetail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API ", res);
+        // logInfo
+        if (!res.ok) throw new Error('Login gagal');
+        return res.json();
+      })
+      .then(async data => {
+        console.log("Response dari API DATA ", data);
+        if(data.code === 20000) {
+          this.loading=false;
+          await this._refreshStockOnOpname();
+        } else {
+          this.loading=false;
+          await this._refreshStockOnOpname();
+        }
+      })
+      .catch(err => {
+        console.log("Response Error ", err);
+      });
+    }
+
   }
  async mapOpnameData(data: any[]): Promise<any[]> {
   return data.map(item => ({
@@ -309,6 +390,7 @@ interface opname {
   status: number;
 }
 interface stockObj {
+  opname_id?:string|null,
   item_id: string,
   item_sku: string | null,
   item_name: string,
