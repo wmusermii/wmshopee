@@ -65,12 +65,12 @@ export class Stockopnamedetail implements OnInit, OnDestroy {
     console.log("Object to opname ", this.opnameObj);
      this.cols = [
       { field: 'image_url', header: 'stock' },
-      { field: 'product_name', header: 'Item' },
-      { field: 'model_name', header: 'Model' },
-      { field: 'system_qty', header: 'Sys Qty' },
+      { field: 'opname_date', header: 'Periode' },
+       { field: 'system_qty', header: 'Sys Qty' },
       { field: 'physical_qty', header: 'Phy Qty' },
       { field: 'adjustment_qty', header: 'Adj Qty' },
-      { field: 'opname_date', header: 'Periode' }
+      { field: 'product_name', header: 'Item' },
+      { field: 'model_name', header: 'Model' }
     ];
     this.cols2 = [
       { field: 'image_url', header: 'Image' },

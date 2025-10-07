@@ -25,7 +25,7 @@
             <p-button icon="pi pi-file-excel" label="Export" (onClick)="_exportList()" severity="success" rounded
               raised />
 
-            <p-button icon="pi pi-add" (onClick)="_addStock()" label="New Stock" rounded raised />
+            <p-button icon="pi pi-add" (onClick)="_addStock()" label="Add Physical Count" rounded raised />
           </div>
         </div>
       </div>
@@ -47,12 +47,12 @@
                 [alt]="rowData2.model_name" class="w-10 h-10 object-cover rounded" />
             </div>
         </td>
+        <td style="text-align: center;" class="!w-48 text-sm">{{rowData2.opname_date}}</td>
+        <td style="text-align: end;" class="font-bold !w-24">{{rowData2.system_qty}}</td>
+        <td style="text-align: end;" class="font-bold !w-24">{{rowData2.physical_qty}}</td>
+        <td style="text-align: end;" class="font-bold !w-24">{{rowData2.adjustment_qty}}</td>
         <td>{{rowData2.product_name}}</td>
         <td>{{rowData2.model_name}}</td>
-        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.system_qty}}</td>
-        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.physical_qty}}</td>
-        <td style="text-align: end;" class="font-bold !w-28">{{rowData2.adjustment_qty}}</td>
-        <td style="text-align: center;" class="!w-64">{{rowData2.opname_date}}</td>
         <!-- Kolom ACTION -->
         <td style="text-align: center;">
           <p-button styleClass="custom-rb" icon="pi pi-arrow-down-left-and-arrow-up-right-to-center" aria-label="search" [rounded]="true" [text]="true"
