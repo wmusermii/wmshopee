@@ -10,32 +10,16 @@
     <p-chip [label]="invoicetotalStr" icon="pi pi-receipt" class="border border-solid border-gray-300"
       styleClass="custom-chip" />
   </div>
-  <!-- <div class="w-full flex bg-white py-3 px-5 items-center rounded shadow mb-3">
-    <h3 class="text-xl text-gray-400 font-medium p-0 m-0">Next Fetch {{currentDate}} : {{starttime}} - {{endtime}}
-      &nbsp; &nbsp;</h3>
-    <div class="md:items-center space-y-1 md:space-y-0 md:space-x-2">
-      <button pButton type="submit" (click)="_popupShopee()" class="w-full" [disabled]="disableBtn"
-        label="Pull Shopee Invoice"></button>
-    </div>
-  </div> -->
   <div class="w-full flex justify-between items-center bg-white py-3 px-5 rounded shadow mb-3">
-    <!-- <h3 class="text-xl text-gray-400 font-medium p-0 m-0">Next Fetch {{currentDate}} : {{starttime}} - {{endtime}}
-      &nbsp; &nbsp;
-    </h3> -->
     <!-- Kiri -->
     <div class="flex items-center space-x-2">
       <h3>Mulai</h3>
-      <p-datepicker [(ngModel)]="startDateFetch" inputStyleClass="!text-center" class="!text-center" dateFormat="dd-M-yy"
-  [showTime]="true"
-  [showSeconds]="true"
-  hourFormat="24"  />
+      <p-datepicker [(ngModel)]="startDateFetch" inputStyleClass="!text-center" class="!text-center"
+        dateFormat="dd-M-yy" [showTime]="true" [showSeconds]="true" hourFormat="24" />
       <h3>Sampai</h3>
       <p-datepicker [(ngModel)]="endDateFetch" inputStyleClass="!text-center" class="!text-center" dateFormat="dd-M-yy"
-  [showTime]="true"
-  [showSeconds]="true"
-  hourFormat="24"  />
+        [showTime]="true" [showSeconds]="true" hourFormat="24" />
     </div>
-
     <!-- Kanan -->
     <div>
       <button pButton type="submit" (click)="_popupShopee()" class="w-full" [disabled]="disableBtn"
@@ -51,75 +35,97 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0">
-          <p-table [value]="QueriesDataPos"
-            [paginator]="true"
-            dataKey="uniqueKey"
-            selectionMode="single"
-            [(selection)]="selectProduct"
-            [rows]="100"
-            [rowsPerPageOptions]="[10, 50, 100]" class="w-full" stripedRows="true" showGridlines="true"
-            [tableStyle]="{ 'min-width': '35rem' }">
-            <ng-template #caption>
-              <div class="flex flex-col gap-2">
-                <!-- Baris atas: Title dan Add Button -->
-                <div class="flex items-center justify-between">
-                  <span class="text-xl font-bold">Stock Details</span>
-                  <p-button icon="pi pi-print" label="Print Invoices" [disabled]="selectProduct.length > 0?false:true" (onClick)="_onRowSelect()" raised />
-                </div>
-                <!-- Input Search -->
-                <p-inputgroup class="w-full">
-                  <input pInputText #search placeholder="Keyword" class="w-full" [(ngModel)]="globalFilter"
-                    (input)="onGlobalSearch()" />
-                  <p-inputgroup-addon>
-                    <p-button icon="pi pi-search" severity="secondary" variant="text" (click)="_manualSearch()" />
-                  </p-inputgroup-addon>
-                </p-inputgroup>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="header">
-              <tr>
-                <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
-                <th pSortableColumn="item_name">
-                  Item <p-sortIcon field="item_name"></p-sortIcon>
-                </th>
-                <th pSortableColumn="invoices">
-                  Invoices <p-sortIcon field="invoices"></p-sortIcon>
-                </th>
-                <th pSortableColumn="shipping_carrier">
-                  Type <p-sortIcon field="shipping_carrier"></p-sortIcon>
-                </th>
-                <th pSortableColumn="qty">
-                  Qty <p-sortIcon field="qty"></p-sortIcon>
-                </th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-product>
-              <tr>
-                 <td>
-                    <p-tableCheckbox [value]="product" />
-                </td>
-                <td>
-                  <div class="flex items-start space-x-4">
-                    <img [src]="product.image_url" [alt]="product.name" class="w-10 h-10 object-cover rounded" />
-                    <div>
-                      <div class="font-bold text-lg text-gray-800">{{ product.item_name }}</div>
-                      <div class="text-sm text-gray-500">{{ product.model_name }}</div>
+          <div class="flex gap-4">
+            <!-- LEFT: Table -->
+            <div class="flex-1">
+              <p-table [value]="QueriesDataPos" [paginator]="true" dataKey="uniqueKey" selectionMode="single"
+                [(selection)]="selectProduct" [rows]="100" [rowsPerPageOptions]="[10, 50, 100]" class="w-full"
+                stripedRows="true" showGridlines="true" [tableStyle]="{ 'min-width': '35rem' }">
+                <ng-template #caption>
+                  <div class="flex flex-col gap-2">
+                    <!-- Baris atas -->
+                    <div class="flex items-center justify-between">
+                      <span class="text-xl font-bold">Stock Details</span>
+                      <p-button icon="pi pi-print" label="Print Invoices"
+                        [disabled]="!selectProduct || selectProduct.length === 0" (onClick)="_onRowSelect()"
+                        styleClass="w-full md:w-auto" severity="primary" raised></p-button>
                     </div>
+
+                    <!-- Baris kedua: search -->
+                    <p-inputgroup class="w-full">
+                      <input pInputText #search placeholder="Keyword" class="w-full" [(ngModel)]="globalFilter"
+                        (input)="onGlobalSearch()" />
+                      <p-inputgroup-addon>
+                        <p-button icon="pi pi-search" severity="secondary" variant="text" (click)="_manualSearch()" />
+                      </p-inputgroup-addon>
+                    </p-inputgroup>
                   </div>
-                </td>
-                <td class="!text-end">
+                </ng-template>
 
-                  {{ product.invoices }}
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                    <th pSortableColumn="item_name">
+                      Item <p-sortIcon field="item_name"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="invoices">
+                      Invoices <p-sortIcon field="invoices"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="shipping_carrier">
+                      Type <p-sortIcon field="shipping_carrier"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="qty">
+                      Qty <p-sortIcon field="qty"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
 
-                </td>
-                <td>{{product.shipping_carrier}}</td>
-                <td class="!text-end">
-                  <span class="text-4xl font-semibold text-blue-700">{{ product.qty }}</span>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+                <ng-template pTemplate="body" let-product>
+                  <tr>
+                    <td>
+                      <p-tableCheckbox [value]="product" />
+                    </td>
+                    <td>
+                      <div class="flex items-start space-x-4">
+                        <img [src]="product.image_url" [alt]="product.name" class="w-10 h-10 object-cover rounded" />
+                        <div>
+                          <div class="font-bold text-lg text-gray-800">
+                            {{ product.item_name }}
+                          </div>
+                          <div class="text-sm text-gray-500">
+                            {{ product.model_name }}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="!text-end">{{ product.invoices }}</td>
+                    <td>{{ product.shipping_carrier }}</td>
+                    <td class="!text-end">
+                      <span class="text-4xl font-semibold text-blue-700">
+                        {{ product.qty }}
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- RIGHT: Action Panel -->
+            <div class="w-64 flex flex-col gap-2 p-0">
+              <h3 class="font-semibold m-0 p-0">Drop off</h3>
+              <p class="m-0 p-0 py-1">Cabang terdekat</p>
+              <p class="m-0 p-0 break-words whitespace-normal">
+                Jl Jatiwaringin 2 RT 004 RW 05, Kelurahan Cipinang Melayu. Kecamatan Makasar. Kota Jakarta Timur Provinsi DKI Jakarta
+              </p>
+              <div class="py-2"></div>
+              <p-button label="Antar ke Counter Massal" severity="secondary" class="w-full" styleClass="w-full"
+                (onClick)="_onMassPrint()"></p-button>
+            </div>
+
+          </div>
         </p-tabpanel>
+
+
         <p-tabpanel value="1">
           <p-table [value]="QueriesDataPrinted" [paginator]="true" paginatorPosition="both" selectionMode="single"
             dataKey="item_id" [(selection)]="selectProductPrinted" (onRowSelect)="_onRowSelectPrinted($event)"

@@ -398,6 +398,9 @@ export class Dashboard implements OnInit {
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
     this._langsungPrint();
   }
+  async _onMassPrint() {
+
+  }
   async _onRowSelectPrinted(payload: any) {
     // console.log("Selected print 1 : ", payload);
     // console.log("Selected print 2 : ", this.selectProductPrinted);
