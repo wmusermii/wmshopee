@@ -33,17 +33,16 @@ export class Dashboard implements OnInit {
   AllQueriesDataPos: QueryFields[] = [];
   QueriesDataPrinted: QueryFieldsPrinted[] = [];
   AllQueriesDataPrinted: QueryFieldsPrinted[] = [];
-  // selectProduct: QueryFields = {
-  //   item_id: '',
-  //   item_name: '',
-  //   model_id: '',
-  //   model_name: '',
-  //   image_url: '',
-  //   shipping_carrier: '',
-  //   invoices: 0,
-  //   qty: 0
-  // };
-   selectProduct: QueryFields[] = [];
+  selectProduct: QueryFields = {
+    item_id: '',
+    item_name: '',
+    model_id: '',
+    model_name: '',
+    image_url: '',
+    shipping_carrier: '',
+    invoices: 0,
+    qty: 0
+  };
   selectProductPrinted: QueryFieldsPrinted = {
     item_id: '',
     item_name: '',
@@ -64,12 +63,8 @@ export class Dashboard implements OnInit {
   date: Date | undefined = new Date(); // contoh
   disableBtn: boolean = true;
   currentDate: string | undefined;
-  starttime: string | undefined = ""
-  endtime: string | undefined = ""
-
-  startDateFetch:Date| undefined = new Date
-  endDateFetch:Date| undefined = new Date
-
+  starttime: string = "00:00:01"
+  endtime: string = "00:00:01"
   value: string | undefined;
   loading: boolean = true;
   totalSku: string = "0";
@@ -213,53 +208,30 @@ export class Dashboard implements OnInit {
 
   async _popupShopee() {
     this.showGenerateDialog = true;
-    // let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
-    // if (startArray) {
-    //   //################### SETTING JAM BERIKUT ########################
-    //   let startT: string[] = startArray.split(",");
-    //   this.starttime = startT[0];
-    //   let dateTmp = new Date();
-    //   this.endtime = dateTmp.toLocaleTimeString('en-GB');
-    // }
-   this.starttime = this.startDateFetch?.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Jakarta'
-  });
-   this.endtime = this.endDateFetch?.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Jakarta'
-  });
-
+    let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
+    if (startArray) {
+      //################### SETTING JAM BERIKUT ########################
+      let startT: string[] = startArray.split(",");
+      this.starttime = startT[0];
+      let dateTmp = new Date();
+      this.endtime = dateTmp.toLocaleTimeString('en-GB');
+    }
   }
   async _processFetchingShopee() {
     this.loading = true;
     this.showGenerateDialog = false;
     //################## AMBIL DATA DULU DARI LOCAL SESSION #######################
-    // let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
-    // if (startArray) {
-    //   //################### SETTING JAM BERIKUT ########################
-    //   let startT: string[] = startArray.split(",");
-    //   this.starttime = startT[0];
-    //   let dateTmp = new Date();
-    //   // Jam:Menit:Detik
-    //   this.endtime = dateTmp.toLocaleTimeString('en-GB');
-    // }
+    let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
+    if (startArray) {
+      //################### SETTING JAM BERIKUT ########################
+      let startT: string[] = startArray.split(",");
+      this.starttime = startT[0];
+      let dateTmp = new Date();
+      // Jam:Menit:Detik
+      this.endtime = dateTmp.toLocaleTimeString('en-GB');
+    }
     //#############################################################################
     let payload = { date: this.currentDate, fromtime: this.starttime, totime: this.endtime }
-
-    console.log("Payload yang dikirim ", payload);
     fetch('/v2/shopee/gen_qshopeeCurrent', {
       method: 'POST',
       headers: {
@@ -300,7 +272,7 @@ export class Dashboard implements OnInit {
   async _langsungPrint() {
     // this.router.navigate(['/printing']);
     this.loading = true;
-    await this._refreshListPrint(this.selectProduct);
+    await this._refreshListPrint();
   }
 
 
@@ -325,10 +297,6 @@ export class Dashboard implements OnInit {
         if (data.code === 20000) {
           this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          dataRecordsTemp.data = dataRecordsTemp.data.map((row: any) => ({
-            ...row,
-            uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}`,
-          }));
           // console.log("Data View ", dataRecordsTemp.data);
           this.QueriesDataPos = dataRecordsTemp.data;
           this.AllQueriesDataPos = dataRecordsTemp.data;
@@ -382,19 +350,9 @@ export class Dashboard implements OnInit {
 
 
 
-  async _onRowSelect() {
-    // console.log("Selected 1 : ", payload);
+  async _onRowSelect(payload: any) {
+    console.log("Selected 1 : ", payload);
     console.log("Selected 2 : ", this.selectProduct);
-    // {
-    //     "item_id": "23562550180.0",
-    //     "item_name": "SERTIFIKAT TKU PENGGALANG Ramu Rakit Terap",
-    //     "model_id": "157139562077.0",
-    //     "model_name": "Ramu SERTIFIKAT",
-    //     "image_url": "https://cf.shopee.co.id/file/id-11134207-7rbk1-m8ltzb32r85n72_tn",
-    //     "shipping_carrier": "SPX Hemat",
-    //     "invoices": 2,
-    //     "qty": 51
-    // }
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
     this._langsungPrint();
   }
@@ -449,16 +407,15 @@ export class Dashboard implements OnInit {
   async _manualSearch() {
 
   }
-  async _refreshListPrint(payload:any[]): Promise<void> {
-    // const payload = { item_id: this.selectProduct.item_id, model_id: this.selectProduct.model_id, shipping_carrier: this.selectProduct.shipping_carrier }
-    const payloadSend = {itemArray:payload}
+  async _refreshListPrint(): Promise<void> {
+    const payload = { item_id: this.selectProduct.item_id, model_id: this.selectProduct.model_id, shipping_carrier: this.selectProduct.shipping_carrier }
     fetch('/v2/shopee/get_data_print', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
       },
-      body: JSON.stringify(payloadSend)
+      body: JSON.stringify(payload)
     })
       .then(res => {
         console.log("Response dari API /shopee/get_data_print 0", res);
@@ -469,7 +426,6 @@ export class Dashboard implements OnInit {
         console.log("Response dari API /shopee/get_data_print 1", data);
         if (data.code === 20000) {
           const dataRecordsTemp: any[] = cloneDeep(data.data);
-          // console.log("INVOICE YANG DI PRINT : ", dataRecordsTemp);
           this.ordersPrint = Object.values(dataRecordsTemp.reduce((acc, item) => {
             if (!acc[item.order_sn]) {
               acc[item.order_sn] = {
@@ -480,7 +436,8 @@ export class Dashboard implements OnInit {
             return acc;
           }, {} as Record<string, { order_sn: string, package_number: string }>)
           );
-
+          // console.log(this.ordersPrint);
+          // this.ordersPrint = dataRecordsTemp;
           await this._goPrinting();
 
         } else {
@@ -499,7 +456,7 @@ export class Dashboard implements OnInit {
   async _goPrinting() {
     // console.log("Payload 1 ", this.ordersPrint);
     const payload = { orders: this.ordersPrint }
-    // console.log("Payload 2 ", payload);
+    console.log("Payload 2 ", payload);
     fetch('/v2/shopee/send_print', {
       method: 'POST',
       headers: {
@@ -549,12 +506,10 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/send_print", err);
       });
   }
-
 }
 
 
 interface QueryFields {
-  id_q_shopee?:string,
   item_id?: string;
   item_name?: string;
   model_id?: string;

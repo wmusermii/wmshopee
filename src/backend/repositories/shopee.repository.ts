@@ -74,11 +74,11 @@ export class ShopeeRepository {
   //   return await query;
   //   // return [];
   // }
-  async getQShopeeItembest(payload: string, model_id:string, shipping_carrier:string) {
+  async getQShopeeItembest(payload: string, model_id: string, shipping_carrier: string) {
     const today = new Date().toISOString().substring(0, 10);
     // console.log("######### TODAY : ", today);
     // select order_sn from q_shopee_invoices_detail WHERE item_id ='23216184410.0' and status = 0 GROUP BY order_sn
-    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("qi.order_sn").innerJoin('q_shopee_invoices as qi','qid.order_sn','qi.order_sn').where('qid.status', 0).andWhere('qid.item_id', payload).andWhere('qid.model_id', model_id).andWhere('qi.shipping_carrier', shipping_carrier).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
+    const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select("qi.order_sn").innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).andWhere('qid.item_id', payload).andWhere('qid.model_id', model_id).andWhere('qi.shipping_carrier', shipping_carrier).whereRaw('DATE(qid.create_time) = ?', [today]).groupBy('qid.order_sn');
     const orderList = invoicesOfItem.map((d: { order_sn: any; }) => d.order_sn);
     await new Promise(resolve => setTimeout(resolve, 100));
     // console.log("HASIL AMBIL data ", orderList);
@@ -102,7 +102,29 @@ export class ShopeeRepository {
     return await query;
     // return [];
   }
+  async getQShopeeItembestMulti(payload:any) {
+    // const today = new Date().toISOString().substring(0, 10);
+    // console.log("######### getQShopeeItembestMulti : ", payload);
+    const items = payload.itemArray;
+    const filters = items.map((item: {
+      id_q_shopee: any; item_id: any; model_id: any; shipping_carrier: any;
+}) => [
+        item.id_q_shopee,
+        item.item_id,
+        item.model_id,
+        item.shipping_carrier
+      ]);
+      const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
+  .groupBy('qid.id_q_shopee','qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number');
+      const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string }) => ({
+        order_sn: d.order_sn,
+        package_number: d.package_number
+      }));
+      // console.log("ORDER LIST YANG DI PRINT : ", orderList);
 
+      return orderList;
+
+  }
   // async copyInvoiceToBulkData(orders: any[]) {
   //   // ambil semua order_sn
   //   const invoices: any[] = await db('q_shopee_invoices')
@@ -154,7 +176,7 @@ export class ShopeeRepository {
   //   // .andWhere('id_q_shopee', payload.id)
   // }
 
-  async copyInvoiceToBulkData(orders: any[], labelshopee:string):Promise<any> {
+  async copyInvoiceToBulkData(orders: any[], labelshopee: string): Promise<any> {
     // ambil semua order_sn
     const invoices: any[] = await db('q_shopee_invoices')
       .select('*')
@@ -204,23 +226,34 @@ export class ShopeeRepository {
 
 
 
-   async viewQShopeePosBySN(payload: any) {
+  async viewQShopeePosBySN(payload: any) {
     const query = await db('q_shopee_invoices_detail as qid')
       .select(
+        'qid.id_q_shopee',
         'qid.item_id',
         'qid.item_name',
         'qid.model_id',
         'qid.model_name',
         'qid.image_url',
-        'qi.shipping_carrier',
+        'qi.shipping_carrier'
       )
-      .innerJoin('q_shopee_invoices as qi','qid.order_sn','qi.order_sn')
+      .innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn')
       .count({ invoices: 'qid.order_sn' })
       .sum({ qty: 'qid.model_quantity_purchased' })
       .where('qid.status', 0)
-      .andWhereRaw(`date(qid.create_time) = date('now','localtime')`)
-      .groupBy('qid.item_id', 'qid.model_id', 'qi.shipping_carrier')
-      .orderBy('qty', 'desc');
+      .andWhere('qid.id_q_shopee', payload.id)
+      .groupBy(
+        'qid.id_q_shopee',
+        'qid.item_id',
+        'qid.model_id',
+        'qi.shipping_carrier'
+      )
+      .orderBy([
+        { column: 'qid.order_sn', order: 'asc' },
+        { column: 'qty', order: 'desc' }
+      ]);
+
+      // .andWhereRaw(`date(qid.create_time) = date('now','localtime')`)
     return await query;
     // .andWhere('id_q_shopee', payload.id)
   }
@@ -235,7 +268,7 @@ export class ShopeeRepository {
         'qi.shipping_carrier',
         'qi.labelshopee',
       )
-      .innerJoin('q_shopee_invoices_bulk as qi','qid.order_sn','qi.order_sn')
+      .innerJoin('q_shopee_invoices_bulk as qi', 'qid.order_sn', 'qi.order_sn')
       .count({ invoices: 'qid.order_sn' })
       .sum({ qty: 'qid.model_quantity_purchased' })
       .where('qid.status', 0)
@@ -308,101 +341,101 @@ export class ShopeeRepository {
     return await query;
   }
 
-//   async selectStockWithSummary(payload: any) {
-//     const sub = db('q_shopee_invoices_detail_bulk')
-//   .select('item_id', 'model_id')
-//   .sum('model_quantity_purchased as sum_qty')
-//   .where('create_time', '>', payload.opname_date)
-//   .groupBy('item_id', 'model_id')
-//   .as('b');
-// const query = await db('stock_opname_detail as s')
-//   .where('s.id_opname', payload.id_opname)
-//   .leftJoin(sub, (join: Knex.JoinClause) => {
-//     join.on('s.item_id', '=', 'b.item_id').andOn('s.model_id', '=', 'b.model_id');
-//   })
-//   .select(
-//     's.opname_id',
-//     's.product_id',
-//     db.raw('COALESCE(b.sum_qty,0) AS system_qty'),
-//     's.physical_qty',
-//     's.adjustment_qty',
-//     's.opname_date',
-//     's.created_by',
-//     's.id_opname',
-//     's.item_id',
-//     's.product_name',
-//     's.model_id',
-//     's.model_name'
-//   )
-//   .orderBy('s.opname_date', 'asc');
+  //   async selectStockWithSummary(payload: any) {
+  //     const sub = db('q_shopee_invoices_detail_bulk')
+  //   .select('item_id', 'model_id')
+  //   .sum('model_quantity_purchased as sum_qty')
+  //   .where('create_time', '>', payload.opname_date)
+  //   .groupBy('item_id', 'model_id')
+  //   .as('b');
+  // const query = await db('stock_opname_detail as s')
+  //   .where('s.id_opname', payload.id_opname)
+  //   .leftJoin(sub, (join: Knex.JoinClause) => {
+  //     join.on('s.item_id', '=', 'b.item_id').andOn('s.model_id', '=', 'b.model_id');
+  //   })
+  //   .select(
+  //     's.opname_id',
+  //     's.product_id',
+  //     db.raw('COALESCE(b.sum_qty,0) AS system_qty'),
+  //     's.physical_qty',
+  //     's.adjustment_qty',
+  //     's.opname_date',
+  //     's.created_by',
+  //     's.id_opname',
+  //     's.item_id',
+  //     's.product_name',
+  //     's.model_id',
+  //     's.model_name'
+  //   )
+  //   .orderBy('s.opname_date', 'asc');
 
-//     return query;
-//   }
-async selectStockWithSummary(payload: any) {
-  // 🔹 Subquery: rekap per model_id, ambil image_url mewakili model tersebut
-  const sub = db('q_shopee_invoices_detail_bulk')
-    .select(
-      'model_id',
-      db.raw('MAX(item_id) as item_id'),     // ambil satu item_id agar bisa join
-      db.raw('MAX(image_url) as image_url')  // ambil satu image_url per model_id
-    )
-    .sum({ sum_qty: 'model_quantity_purchased' })
-    .where('create_time', '>', payload.opname_date)
-    .groupBy('model_id') // ✅ cukup per model_id saja
-    .as('b');
-
-  // 🔹 Query utama
-  const query = await db('stock_opname_detail as s')
-    .where('s.id_opname', payload.id_opname)
-    .leftJoin(sub, (join: Knex.JoinClause) => {
-      join.on('s.model_id', '=', 'b.model_id'); // ✅ join hanya per model_id
-    })
-    .select(
-      's.opname_id',
-      's.product_id',
-      db.raw('COALESCE(b.sum_qty, 0) AS system_qty'),
-      's.physical_qty',
-      's.adjustment_qty',
-      's.opname_date',
-      's.created_by',
-      's.id_opname',
-      's.item_id',
-      's.product_name',
-      's.model_id',
-      's.model_name',
-      'b.image_url' // ✅ image_url sesuai model_id
-    )
-    .orderBy('s.opname_date', 'asc');
-
-  return query;
-}
-async selectStockWithSummaryAdj(payload: any) {
+  //     return query;
+  //   }
+  async selectStockWithSummary(payload: any) {
+    // 🔹 Subquery: rekap per model_id, ambil image_url mewakili model tersebut
     const sub = db('q_shopee_invoices_detail_bulk')
-  .select('item_id', 'model_id')
-  .sum('model_quantity_purchased as sum_qty')
-  .where('create_time', '>', payload.opname_date)
-  .groupBy('item_id', 'model_id')
-  .as('b');
-const query = await db('stock_opname_detail as s')
-  .where('s.id_opname', payload.id_opname)
-  .leftJoin(sub, (join: Knex.JoinClause) => {
-    join.on('s.item_id', '=', 'b.item_id').andOn('s.model_id', '=', 'b.model_id');
-  })
-  .select(
-    's.opname_id',
-    's.product_id',
-    db.raw('COALESCE(b.sum_qty,0) AS system_qty'),
-    's.physical_qty',
-    db.raw('(s.physical_qty - COALESCE(b.sum_qty, 0)) AS adjustment_qty'),
-    's.opname_date',
-    's.created_by',
-    's.id_opname',
-    's.item_id',
-    's.product_name',
-    's.model_id',
-    's.model_name'
-  )
-  .orderBy('s.opname_date', 'asc');
+      .select(
+        'model_id',
+        db.raw('MAX(item_id) as item_id'),     // ambil satu item_id agar bisa join
+        db.raw('MAX(image_url) as image_url')  // ambil satu image_url per model_id
+      )
+      .sum({ sum_qty: 'model_quantity_purchased' })
+      .where('create_time', '>', payload.opname_date)
+      .groupBy('model_id') // ✅ cukup per model_id saja
+      .as('b');
+
+    // 🔹 Query utama
+    const query = await db('stock_opname_detail as s')
+      .where('s.id_opname', payload.id_opname)
+      .leftJoin(sub, (join: Knex.JoinClause) => {
+        join.on('s.model_id', '=', 'b.model_id'); // ✅ join hanya per model_id
+      })
+      .select(
+        's.opname_id',
+        's.product_id',
+        db.raw('COALESCE(b.sum_qty, 0) AS system_qty'),
+        's.physical_qty',
+        's.adjustment_qty',
+        's.opname_date',
+        's.created_by',
+        's.id_opname',
+        's.item_id',
+        's.product_name',
+        's.model_id',
+        's.model_name',
+        'b.image_url' // ✅ image_url sesuai model_id
+      )
+      .orderBy('s.opname_date', 'asc');
+
+    return query;
+  }
+  async selectStockWithSummaryAdj(payload: any) {
+    const sub = db('q_shopee_invoices_detail_bulk')
+      .select('item_id', 'model_id')
+      .sum('model_quantity_purchased as sum_qty')
+      .where('create_time', '>', payload.opname_date)
+      .groupBy('item_id', 'model_id')
+      .as('b');
+    const query = await db('stock_opname_detail as s')
+      .where('s.id_opname', payload.id_opname)
+      .leftJoin(sub, (join: Knex.JoinClause) => {
+        join.on('s.item_id', '=', 'b.item_id').andOn('s.model_id', '=', 'b.model_id');
+      })
+      .select(
+        's.opname_id',
+        's.product_id',
+        db.raw('COALESCE(b.sum_qty,0) AS system_qty'),
+        's.physical_qty',
+        db.raw('(s.physical_qty - COALESCE(b.sum_qty, 0)) AS adjustment_qty'),
+        's.opname_date',
+        's.created_by',
+        's.id_opname',
+        's.item_id',
+        's.product_name',
+        's.model_id',
+        's.model_name'
+      )
+      .orderBy('s.opname_date', 'asc');
 
     return query;
   }
@@ -549,6 +582,7 @@ const query = await db('stock_opname_detail as s')
   }
   async getCountInvoicesAvailable() {
     const packageAvailable = await this.selectPackagesAvailable();
+    console.log("JUMLAH RECORD RESI : ", packageAvailable.length);
     const result = { invoiceQty: packageAvailable.length };
     return result;
   }
@@ -596,17 +630,21 @@ const query = await db('stock_opname_detail as s')
       'qs.totalresi',
       'qs.created_at'
     ]).from('q_shopee as qs')
-    .leftJoin("m_user as mu", "qs.created_by", "mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at", "desc").first();
+      .leftJoin("m_user as mu", "qs.created_by", "mu.iduser").whereRaw('DATE(qs.created_at) = ?', [today]).orderBy("qs.created_at", "desc").first();
     // console.log("DB SELECT SHOPPY TODAY ", result);
     if (result) {
-    // Hitung jumlah order_sn unik dari q_shopee_invoices_detail untuk hari ini
-    const totalResi = await db('q_shopee_invoices_detail as qsid')
-      .countDistinct('qsid.order_sn as totalresi')
-      .whereRaw('DATE(qsid.create_time) = ?', [today])
-      .first();
+      // Hitung jumlah order_sn unik dari q_shopee_invoices_detail untuk hari ini
+      // const totalResi = await db('q_shopee_invoices_detail as qsid')
+      //   .countDistinct('qsid.order_sn as totalresi')
+      //   .whereRaw('DATE(qsid.create_time) = ?', [today])
+      //   .first();
+      const totalResi = await db('q_shopee_invoices as qsi')
+        .count('qsi.order_sn as totalresi')
+        .where('qsi.id_q_shopee', result.id)
+        .first();
 
-    result.totalresi = totalResi?.totalresi ?? 0;
-  }
+      result.totalresi = totalResi?.totalresi ?? 0;
+    }
     return result;
   }
   async selectQShopeeAttributes() {

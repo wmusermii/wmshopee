@@ -40,7 +40,7 @@ export async function generateQShopeeCurrent(req: Request, res: Response, next: 
   try {
     let bodyPayload = { fromdate: date, fromtime: fromtime, totime: totime }
     const userInfo: any = req.userInfo;
-    const inserResult = await apiService.qShopeeInsertCurrent(bodyPayload, userInfo);
+    const inserResult = await apiService.qShopeeInsertCurrentNew(bodyPayload, userInfo);
     // console.log("################################## generateQShopeeCurrent : ",inserResult);
     if (inserResult.code === 20000) {
       await ResponseHelper.send(res, inserResult); return;
@@ -523,14 +523,17 @@ export async function getBestDataToPrint(req: Request, res: Response, next: Next
   try {
     console.log("####################################### getBestDataToPrint");
     const userInfo: any = req.userInfo;
-    const { item_id, model_id,shipping_carrier } = req.body;
-    const packageResult = await apiService.getBestShopeeItems(item_id, model_id, shipping_carrier);
+    // console.log("PAYLOAD DI BEST DATA TO PRINT : ",req.body);
+    // const { item_id, model_id,shipping_carrier } = req.body;
+    // const packageResult = await apiService.getBestShopeeItems(item_id, model_id, shipping_carrier);
+    const packageResult = await apiService.getBestShopeeItems(req.body);
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;
     } else {
       await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
       return;
     }
+    // return await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
   } catch (error) {
     logError("Error api.controller : ", error)
     // next(error);

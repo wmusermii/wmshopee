@@ -41,16 +41,13 @@ export class ApiService {
     const pad = (n: number) => n.toString().padStart(2, '0');
     // Format manual tanpa UTC shift
     const formattedDate = `${year}-${pad(month)}-${pad(day)}`;
-
     // const orderList = await this.apiShopeeService.getOrderList(formattedDate, payload.fromtime, payload.totime);
     // const totalResi = orderList.length;
     // logInfo("✅ Sudah di List ", totalResi);
-
     const packageList = await this.apiShopeeService.getShipmentList(formattedDate, payload.fromtime, payload.totime);
     // const packageLength = packageList.length;
     const totalResi = packageList.length;
     logInfo("✅ package Sudah di List ", totalResi);
-
     // let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
     let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(packageList) : [{}];
     payload.totalresi = totalResi;
@@ -77,12 +74,50 @@ export class ApiService {
       return ApiResponse.successNoData([], "DESTROY API RESULT!");
     }
     //######################################################################################
-    // const rowQueryShopee = await this.shopeeRepo.selectQShopeeToday();
-    // if (!rowQueryShopee) {
-    //   return ApiResponse.successNoData(rowQueryShopee, "Unable to get data!");
-    // } else {
-    //   return ApiResponse.success(rowQueryShopee, "Records found");
-    // }
+  }
+   async qShopeeInsertCurrentNew(payload: any, userinfo: any) {
+    // const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); ///INI KACAU
+    // Pecah string tanggal
+    // const [day, month, year] = payload.fromdate.split('-').map(Number);
+    // const pad = (n: number) => n.toString().padStart(2, '0');
+    // // Format manual tanpa UTC shift
+    // const formattedDate = `${year}-${pad(month)}-${pad(day)}`;
+    // console.log("PAYLOAD ", payload);
+    const orderList = await this.apiShopeeService.getOrderList(payload.fromdate, payload.fromtime, payload.totime);
+    // const totalResi = orderList.length;
+    logInfo("✅ Penarikan Order by tanggal ", orderList.length);
+    const packageList = await this.apiShopeeService.getShipmentList(payload.fromdate, payload.fromtime, payload.totime);
+    // console.log("HASIL FETCH DATA ORDERS : ",packageList);
+
+    const totalResi = packageList.length;
+    logInfo("✅ package Sudah di List ", totalResi);
+    // // let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
+    let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(packageList) : [{}];
+    payload.totalresi = totalResi;
+    // // logInfo("✅ Sudah di List Extract ", payload.totalresi);
+    // // payload.listresi = JSON.stringify(arrayOrder); SUDAH TIDAK PERLU LAGI
+    // payload.listresi=JSON.stringify([]);
+    const shopeeResult = await this.shopeeRepo.saveQShopee(payload, userinfo);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to insert shopee data!");
+    // //###################################AMBIL ###################
+    // console.log("1. #### HASIL INSERT Q_Shopee ",shopeeResult);
+    // console.log("2. #### INPUT HASIL ARRAY ORDER ",arrayOrder);
+    console.log("3. #### INPUT KE DALAM INVOICE ");
+    const invoiceInsertResult = await this.apiShopeeService.getOrderDetail(arrayOrder)
+    if(invoiceInsertResult.length > 0) {
+      // console.log("#### SALAH SATU DATA ############################ ",invoiceInsertResult[0]);
+      const listResponse = await this.saveShopeeInvoicesCurrent(shopeeResult[0].id, invoiceInsertResult,packageList); //Input Invoices;
+      if (!listResponse) {
+        return ApiResponse.successNoData(listResponse, "Unable to insert invoices data!");
+      } else {
+        return ApiResponse.success(listResponse, "Records found");
+      }
+    } else {
+    //   console.log("############################################## ANCUR ############################");
+      return ApiResponse.successNoData([], "DESTROY API RESULT!");
+    }
+    //######################################################################################
+    return ApiResponse.successNoData([], "DESTROY API RESULT!");
   }
   async qShopeeJobs(payload: any, userinfo: any) {
 
@@ -349,10 +384,8 @@ export class ApiService {
       shipping_carrier: order.shipping_carrier,
       package_number: packageMap[order.order_sn] ?? null // aman kalau tidak ada
     }));
-
     // 2. Persiapan data untuk table q_shopee_invoices_detail
     const invoiceDetails: any[] = [];
-
     orderDetails.forEach(order => {
       const orderSn = order.order_sn;
       const items = order.item_list || []; // Jika tidak ada item_list, gunakan array kosong
@@ -383,28 +416,31 @@ export class ApiService {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
   }
-  // async getBestShopeeItems(item_id: string) {
+  // async getBestShopeeItems(item_id: string, model_id:string, shipping_carrier:string) {
   //   // 1. Persiapan data untuk table q_shopee_invoices
   //   console.log("############# MASUK getBestShopeeItems");
   //   // 3. Insert ke kedua tabel
-  //   const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id);
+  //   const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id, model_id, shipping_carrier);
   //   if (!invoicesResult) {
   //     return ApiResponse.successNoData(null, "Unable to get data!");
   //   } else {
   //     return ApiResponse.success(invoicesResult, "Records found");
   //   }
   // }
-  async getBestShopeeItems(item_id: string, model_id:string, shipping_carrier:string) {
+  async getBestShopeeItems(payload:any[]):Promise<any> {
     // 1. Persiapan data untuk table q_shopee_invoices
     console.log("############# MASUK getBestShopeeItems");
     // 3. Insert ke kedua tabel
-    const invoicesResult = await this.shopeeRepo.getQShopeeItembest(item_id, model_id, shipping_carrier);
+    const invoicesResult:any = await this.shopeeRepo.getQShopeeItembestMulti(payload);
+
     if (!invoicesResult) {
       return ApiResponse.successNoData(null, "Unable to get data!");
     } else {
       return ApiResponse.success(invoicesResult, "Records found");
     }
   }
+
+
   async sendEmailNotification(to: string, subject: string, message: string) {
     // console.log('sendEmailNotification called with:', { to, subject, message });
     const smtpVariable = await this.shopeeRepo.getSMTPVariables();

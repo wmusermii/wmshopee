@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts"
-, "src/app/pages/screen/dashboard/temp/dashboard.spec.ts.bak", "src/backend/services/shopee/shopee.bisaprint_01.bak"  ],
+, "src/app/pages/screen/dashboard/temp/dashboard.spec.ts.bak", "src/backend/services/shopee/shopee.bisaprint_01.bak", "src/app/pages/screen/dashboard/temp2/dashboard.ts.bak"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
