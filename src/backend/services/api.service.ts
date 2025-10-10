@@ -494,7 +494,7 @@ export class ApiService {
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
-    const ordersToDelete = hasilprint.data.orders;
+    const ordersToDelete = await this.tostringArrayOnly(hasilprint.data.orders);
     const labelPrinted = hasilprint.data.fileUrl;
     // console.log("Order yang di delete : ", ordersToDelete);
     const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
@@ -508,6 +508,14 @@ export class ApiService {
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
-
+  async tostringArrayOnly(data: any[]): Promise<string[]> {
+    const result: string[] = [];
+    for (const item of data) {
+      await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
+      result.push(item.order_sn);
+    }
+    return result;
+  }
 }
+
 

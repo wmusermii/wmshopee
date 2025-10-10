@@ -176,7 +176,7 @@ export class ShopeeRepository {
   //   // .andWhere('id_q_shopee', payload.id)
   // }
 
-  async copyInvoiceToBulkData(orders: any[], labelshopee: string): Promise<any> {
+  async copyInvoiceToBulkData(orders: string[], labelshopee: string): Promise<any> {
     // ambil semua order_sn
     const invoices: any[] = await db('q_shopee_invoices')
       .select('*')
