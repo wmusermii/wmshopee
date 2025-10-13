@@ -235,7 +235,8 @@ export class ShopeeRepository {
         'qid.model_id',
         'qid.model_name',
         'qid.image_url',
-        'qi.shipping_carrier'
+        'qi.shipping_carrier',
+        'qi.package_number'
       )
       .innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn')
       .count({ invoices: 'qid.order_sn' })
@@ -246,7 +247,8 @@ export class ShopeeRepository {
         'qid.id_q_shopee',
         'qid.item_id',
         'qid.model_id',
-        'qi.shipping_carrier'
+        'qi.shipping_carrier',
+        'qi.package_number'
       )
       .orderBy([
         { column: 'qid.order_sn', order: 'asc' },

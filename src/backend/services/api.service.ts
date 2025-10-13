@@ -75,6 +75,7 @@ export class ApiService {
     }
     //######################################################################################
   }
+
    async qShopeeInsertCurrentNew(payload: any, userinfo: any) {
     // const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); ///INI KACAU
     // Pecah string tanggal
@@ -83,9 +84,9 @@ export class ApiService {
     // // Format manual tanpa UTC shift
     // const formattedDate = `${year}-${pad(month)}-${pad(day)}`;
     // console.log("PAYLOAD ", payload);
-    const orderList = await this.apiShopeeService.getOrderList(payload.fromdate, payload.fromtime, payload.totime);
+    // const orderList = await this.apiShopeeService.getOrderList(payload.fromdate, payload.fromtime, payload.totime);
     // const totalResi = orderList.length;
-    logInfo("✅ Penarikan Order by tanggal ", orderList.length);
+    // logInfo("✅ Penarikan Order by tanggal ", orderList.length);
     const packageList = await this.apiShopeeService.getShipmentList(payload.fromdate, payload.fromtime, payload.totime);
     // console.log("HASIL FETCH DATA ORDERS : ",packageList);
 
@@ -141,6 +142,13 @@ export class ApiService {
     } else {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
+  }
+  async qShopeeShippingParameter(orders: any[], userinfo: any) {
+    const shippingParamList = await this.apiShopeeService.getMassShippingParameter(orders);
+    if (!shippingParamList) return ApiResponse.successNoData(shippingParamList, "Unable to generate shipping data!");
+    // const listResponse = await this.saveShopeeInvoices(payload.id, invoicesList); //Input Invoices;
+      return ApiResponse.success(shippingParamList, "Records found");
+
   }
   async qShopeeGet(userinfo: any) {
     const shopeeResult = await this.shopeeRepo.selectQShopeeAll();

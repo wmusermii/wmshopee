@@ -17,6 +17,7 @@ html, body {
     --p-primary-700: #c2410c!important;
     --p-primary-800: #9a3412!important;
     --p-primary-900: #7c2d12!important;
+    --p-inputgroup-addon-padding:0.1rem!important;
     --p-form-field-border-radius: var(--p-border-radius-sm)!important;
     --p-menubar-border-color:transparent!important;
     font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter,

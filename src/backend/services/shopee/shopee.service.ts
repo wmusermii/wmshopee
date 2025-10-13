@@ -147,10 +147,7 @@ export class ShopeeService {
     }
     const res = await fetch(url, options);
     const contentType = res.headers.get("content-type") || "";
-
     // console.log("RESPONS DOWNLOAD ",res);
-
-
     console.log("fetchWithAuthMETHOD Content-Type:", contentType);
     let resultYMP;
     if (contentType.includes("application/json")) {
@@ -324,19 +321,65 @@ export class ShopeeService {
     return { status: "error", message: "Error Shipping parameter" }
   }
 
-  public async getShippingParameterMass(order: any[]): Promise<any> {
-    const packages_numbers = await this.ArraytoPackagesNumberOnly(order);
+  // public async getShippingParameterMass(order: any[]): Promise<any> {
+  //   const packages_numbers = await this.ArraytoPackagesNumberOnly(order);
+
+  //   const path = '/api/v2/logistics/get_mass_shipping_parameter';
+  //   const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
+  //     package_list: packages_numbers
+  //   });
+  //   console.log("RETURN DARI PARAMETER MASS getShippingParameterMass : ", res.response.pickup.address_list);
+  //   if (res && res.response) {
+  //     return res.response
+  //   }
+  //   return { res }
+  // }
+  public async getShippingParameterMass(orders: any[]): Promise<any> {
+  const batchSize = 50;
+  const allSuccess: any[] = [];
+  const allFail: any[] = [];
+  let pickupAddressList: any[] = [];
+
+  // Bagi orders menjadi batch 50
+  for (let i = 0; i < orders.length; i += batchSize) {
+    const batch = orders.slice(i, i + batchSize);
+    const package_list = batch.map(o => ({ package_number: o.package_number }));
 
     const path = '/api/v2/logistics/get_mass_shipping_parameter';
-    const res = await this.fetchWithAuthMETHOD(path, {}, "POST", {
-      package_list: packages_numbers
-    });
-    console.log("RETURN DARI PARAMETER MASS getShippingParameterMass : ", res);
-    if (res && res.response) {
-      return res.response
+    try {
+      const res = await this.fetchWithAuthMETHOD(path, {}, "POST", { package_list });
+
+      if (res && res.response) {
+        const response = res.response;
+
+        // Simpan pickup address (kalau belum disimpan)
+        if (!pickupAddressList.length && response.pickup?.address_list) {
+          pickupAddressList = response.pickup.address_list;
+        }
+
+        if (response.success_list?.length) {
+          allSuccess.push(...response.success_list);
+        }
+        if (response.fail_list?.length) {
+          allFail.push(...response.fail_list);
+        }
+      } else {
+        console.error("Invalid response:", res);
+      }
+    } catch (error) {
+      console.error("Error on batch:", error);
     }
-    return { status: "error", message: "Error Shipping parameter" }
   }
+
+  return {
+    pickupAddressList,
+    success_list: allSuccess,
+    fail_list: allFail
+  };
+}
+
+
+
   public async getDocumentReadyParameterMass(order: any[]): Promise<any> {
     const cleanData = order.map(({ tracking_number, ...rest }) => rest);
     let arrayData = await this.addShippingType(cleanData);
@@ -360,7 +403,7 @@ export class ShopeeService {
     // const resultNoShipParam: any[] = [];
     const shipingParam = await this.getShippingParameterMass(orders);
     console.log("hasil getMassShippingParameter : ", shipingParam);
-    const objResult = { orders, shipping_Param: shipingParam.success_list, noshipping_Param: shipingParam.fail_list }
+    const objResult = { pickup_address:shipingParam.pickupAddressList, shipping_Param: shipingParam.success_list, noshipping_Param: shipingParam.fail_list }
     return objResult;
   }
   public async getMassDocumentReadyParameter(orders: any[]): Promise<any> {

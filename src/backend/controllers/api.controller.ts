@@ -100,6 +100,20 @@ export async function generateQShopeeJobs(req: Request, res: Response, next: Nex
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+
+export async function generateShopeeShippingParameter(req: Request, res: Response, next: NextFunction) {
+  try {
+
+    const userInfo: any = req.userInfo;
+    const jobsResult = await apiService.qShopeeShippingParameter(req.body, userInfo);
+    await ResponseHelper.send(res, jobsResult); return;
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
 export async function getQShopee(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getQSHopee");

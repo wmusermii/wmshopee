@@ -16,10 +16,11 @@ import { TableModule } from 'primeng/table';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { TabsModule } from 'primeng/tabs';
+import { SelectModule } from 'primeng/select';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule, InputGroupModule, InputTextModule, InputGroupAddonModule, TabsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ChipModule, DatetimeComponent, TableModule, InputGroupModule, InputTextModule, InputGroupAddonModule, TabsModule,SelectModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -29,6 +30,11 @@ export class Dashboard implements OnInit {
   showGenerateDialog: boolean = false;
   showProcessResiDialog: boolean = false;
   showProcedPostDialog: boolean = false;
+  arraySPXType:any[]=[{code:"SPX Sameday", label:"SPX Sameday"},{code:"SPX Hemat", label:"SPX Hemat"}];
+  selectSPXType:any = {};
+  pickupAdrress:any | undefined = null;
+  timeSlotList:any[]=[];
+  selectedSlotTime:any |undefined = null;
   QueriesDataPos: QueryFields[] = [];
   AllQueriesDataPos: QueryFields[] = [];
   QueriesDataPrinted: QueryFieldsPrinted[] = [];
@@ -319,7 +325,7 @@ export class Dashboard implements OnInit {
         if (!res.ok) throw new Error('get QShopee Gagal');
         return res.json();
       })
-      .then(data => {
+      .then(async data => {
         console.log("Response dari API /shopee/get_positem ", data);
         this.loading = false;
         if (data.code === 20000) {
@@ -330,13 +336,22 @@ export class Dashboard implements OnInit {
             uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}`,
           }));
           // console.log("Data View ", dataRecordsTemp.data);
+          // hasil distinct map
+           const carriers = [...new Set(dataRecordsTemp.data.map((d: { shipping_carrier: any; }) => d.shipping_carrier))].map(c => ({code: c, label: c}));
           this.QueriesDataPos = dataRecordsTemp.data;
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
+          this.arraySPXType = carriers;
+
+          await this._getMassShippingParameter(dataRecordsTemp.data);
+
+
+
         } else {
           this.QueriesDataPos = [];
           this.AllQueriesDataPos = [];
           this.loading = false;
+          this.arraySPXType = [];
         }
       })
       .catch(err => {
@@ -379,7 +394,59 @@ export class Dashboard implements OnInit {
       });
   }
 
+  async _getMassShippingParameter(payload: any) {
+    this.loading = true;
+    const datapayload = cloneDeep(payload);
+    // const limitedPayload = datapayload.slice(0, 50);
+    const uniqueData = Array.from(
+      new Map(datapayload.map((item: { package_number: any; }) => [item.package_number, item])).values()
+    );
 
+    fetch('/v2/shopee/get_massshippingparam', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(uniqueData)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_massshippingparam", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        // console.log("Response dari API /shopee/get_massshippingparam ", data);
+        this.loading = false;
+        if (data.code === 20000) {
+          const dataReturnTemp = data.data;
+          const pickupAddressList:any[] = dataReturnTemp.pickup_address;
+          console.log("ARRAY PICKUP ADDRESS ",dataReturnTemp);
+          if(pickupAddressList.length > 0) {
+            this.pickupAdrress = pickupAddressList.find(addr =>
+                addr.address_flag && addr.address_flag.includes("pickup_address")
+            );
+          }
+          console.log("OBJECT PICKUP ADDRESS ",this.pickupAdrress);
+          if(this.pickupAdrress) {
+              this.timeSlotList = this.pickupAdrress.time_slot_list;
+          }
+
+
+          if(dataReturnTemp.noshipping_Param.length > 0) {
+            const invoiceDihapusTemp = dataReturnTemp.noshipping_Param;
+            console.log("DATA YANG TIDAK BISA SHIPPING ", invoiceDihapusTemp);
+            console.log("DATA YANG DITARIK ", invoiceDihapusTemp);
+          }
+        } else {
+          this.pickupAdrress ={};
+            this.timeSlotList =[];
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_massshippingparam", err);
+      });
+  }
 
 
   async _onRowSelect() {
