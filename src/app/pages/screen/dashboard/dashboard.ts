@@ -30,11 +30,13 @@ export class Dashboard implements OnInit {
   showGenerateDialog: boolean = false;
   showProcessResiDialog: boolean = false;
   showProcedPostDialog: boolean = false;
+  showErrorPopup:any = {show:false, severity:"error", message:"Message"}
   arraySPXType:any[]=[{code:"SPX Sameday", label:"SPX Sameday"},{code:"SPX Hemat", label:"SPX Hemat"}];
   selectSPXType:any = {};
   pickupAdrress:any | undefined = null;
   timeSlotList:any[]=[];
   selectedSlotTime:any |undefined = null;
+  pickupObject:any |undefined = {address:"",city:"",district:""}
   QueriesDataPos: QueryFields[] = [];
   AllQueriesDataPos: QueryFields[] = [];
   QueriesDataPrinted: QueryFieldsPrinted[] = [];
@@ -333,20 +335,16 @@ export class Dashboard implements OnInit {
           const dataRecordsTemp = cloneDeep(data.data);
           dataRecordsTemp.data = dataRecordsTemp.data.map((row: any) => ({
             ...row,
-            uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}`,
+            uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}${row.package_number}`,
           }));
           // console.log("Data View ", dataRecordsTemp.data);
           // hasil distinct map
-           const carriers = [...new Set(dataRecordsTemp.data.map((d: { shipping_carrier: any; }) => d.shipping_carrier))].map(c => ({code: c, label: c}));
+          const carriers = [...new Set(dataRecordsTemp.data.map((d: { shipping_carrier: any; }) => d.shipping_carrier))].map(c => ({code: c, label: c}));
           this.QueriesDataPos = dataRecordsTemp.data;
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
           this.arraySPXType = carriers;
-
           await this._getMassShippingParameter(dataRecordsTemp.data);
-
-
-
         } else {
           this.QueriesDataPos = [];
           this.AllQueriesDataPos = [];
@@ -401,7 +399,6 @@ export class Dashboard implements OnInit {
     const uniqueData = Array.from(
       new Map(datapayload.map((item: { package_number: any; }) => [item.package_number, item])).values()
     );
-
     fetch('/v2/shopee/get_massshippingparam', {
       method: 'POST',
       headers: {
@@ -415,13 +412,13 @@ export class Dashboard implements OnInit {
         if (!res.ok) throw new Error('get QShopee Gagal');
         return res.json();
       })
-      .then(data => {
+      .then(async data => {
         // console.log("Response dari API /shopee/get_massshippingparam ", data);
         this.loading = false;
         if (data.code === 20000) {
           const dataReturnTemp = data.data;
           const pickupAddressList:any[] = dataReturnTemp.pickup_address;
-          console.log("ARRAY PICKUP ADDRESS ",dataReturnTemp);
+          // console.log("RETURN  ",dataReturnTemp);
           if(pickupAddressList.length > 0) {
             this.pickupAdrress = pickupAddressList.find(addr =>
                 addr.address_flag && addr.address_flag.includes("pickup_address")
@@ -429,15 +426,21 @@ export class Dashboard implements OnInit {
           }
           console.log("OBJECT PICKUP ADDRESS ",this.pickupAdrress);
           if(this.pickupAdrress) {
-              this.timeSlotList = this.pickupAdrress.time_slot_list;
-          }
 
-
-          if(dataReturnTemp.noshipping_Param.length > 0) {
-            const invoiceDihapusTemp = dataReturnTemp.noshipping_Param;
-            console.log("DATA YANG TIDAK BISA SHIPPING ", invoiceDihapusTemp);
-            console.log("DATA YANG DITARIK ", invoiceDihapusTemp);
+              this.pickupObject = cloneDeep(this.pickupAdrress);
+              let timeSlotListTemp = this.pickupAdrress.time_slot_list;
+              const result = timeSlotListTemp.map((slot: { date: any; }) => ({
+                ...slot,
+                time_text: this.formatPickupTime(Number(slot.date))
+              }));
+            this.timeSlotList = result
+              // delete this.pickupObject.time_slot_list;
           }
+          // if(dataReturnTemp.noshipping_Param.length > 0) {
+          //   const invoiceDihapusTemp = dataReturnTemp.noshipping_Param;
+          //   console.log("DATA YANG TIDAK BISA SHIPPING ", invoiceDihapusTemp);
+          //   await this._updateInvoiceShipping(invoiceDihapusTemp);
+          // }
         } else {
           this.pickupAdrress ={};
             this.timeSlotList =[];
@@ -447,10 +450,42 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/get_massshippingparam", err);
       });
   }
-
+  async _updateInvoiceShipping(payload: any) {
+    this.loading = true;
+    const datapayload = cloneDeep(payload);
+    // const uniqueData = Array.from(
+    //   new Map(datapayload.map((item: { package_number: any; }) => [item.package_number, item])).values()
+    // );
+    fetch('/v2/shopee/upd_shippingtype', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(datapayload)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/upd_shippingtype", res);
+        if (!res.ok) throw new Error('update QShopee Gagal');
+        return res.json();
+      })
+      .then(async data => {
+        // console.log("Response dari API /shopee/get_massshippingparam ", data);
+        this.loading = false;
+        if (data.code === 20000) {
+          await this._lastFetchShopee();
+        } else {
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/upd_shippingtype", err);
+      });
+  }
 
   async _onRowSelect() {
     // console.log("Selected 1 : ", payload);
+    console.log("Pickup object : ",this.pickupAdrress)
+    console.log("Selected time : ",this.selectedSlotTime)
     console.log("Selected 2 : ", this.selectProduct);
     // {
     //     "item_id": "23562550180.0",
@@ -568,7 +603,7 @@ export class Dashboard implements OnInit {
   }
   async _goPrinting() {
     // console.log("Payload 1 ", this.ordersPrint);
-    const payload = { orders: this.ordersPrint }
+    const payload = { orders: this.ordersPrint, addressObj:this.pickupAdrress, timeSlot:this.selectedSlotTime }
     // console.log("Payload 2 ", payload);
     fetch('/v2/shopee/send_print', {
       method: 'POST',
@@ -619,7 +654,17 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/send_print", err);
       });
   }
-
+  formatPickupTime(epoch: number): string {
+  const date = new Date(epoch * 1000);
+  return date.toLocaleString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
 }
 
 

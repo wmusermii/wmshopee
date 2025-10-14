@@ -41,8 +41,12 @@
           <div class="flex gap-4">
             <!-- LEFT: Table -->
             <div class="flex-1">
-              <p-table [value]="QueriesDataPos" [paginator]="true" dataKey="uniqueKey" selectionMode="single"
-                [(selection)]="selectProduct" [rows]="100" [rowsPerPageOptions]="[10, 50, 100]" class="w-full"
+              <p-table [value]="QueriesDataPos" [paginator]="true"
+                dataKey="uniqueKey"
+                selectionMode="single"
+                [(selection)]="selectProduct"
+                [rows]="100"
+                [rowsPerPageOptions]="[10, 50, 100]" class="w-full"
                 stripedRows="true" showGridlines="true" [tableStyle]="{ 'min-width': '35rem' }">
                 <ng-template #caption>
                   <div class="flex flex-col gap-2">
@@ -118,10 +122,18 @@
 
             <!-- RIGHT: Action Panel -->
             <div class="w-64 flex flex-col gap-2 p-0">
+              <h3 class="font-semibold m-0 p-0 !mt-6">Picked Up</h3>
+              <p class="m-0 p-0 py-1">
+                {{pickupObject.address}}
+              </p>
+              <p class="m-0 p-0 py-1">
+                {{pickupObject.district}}, {{pickupObject.city}}
+              </p>
               <label for="waktu">Waktu</label>
               <p-select id="waktu" [options]="timeSlotList" [(ngModel)]="selectedSlotTime" optionLabel="time_text" placeholder="Pilih Waktu" class="w-full p-0 m-0" styleClass="w-full" />
               <p-button icon="pi pi-print" label="Pickup Massal"
-                        [disabled]="!selectProduct || selectProduct.length === 0" (onClick)="_onRowSelect()"
+                        [disabled]="!(selectProduct && selectProduct.length > 0 && selectedSlotTime)"
+                        (onClick)="_onRowSelect()"
                         styleClass="w-full" severity="primary" raised></p-button>
               <h3 class="font-semibold m-0 p-0 !mt-6">Drop off</h3>
               <p class="m-0 p-0 py-1">Cabang terdekat</p>
@@ -203,6 +215,9 @@
 
 
 
+  </div>
+  <div *ngIf="showErrorPopup.show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <h1>Testing</h1>
   </div>
   <div *ngIf="showGenerateDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">

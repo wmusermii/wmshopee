@@ -125,6 +125,17 @@ export class ShopeeRepository {
       return orderList;
 
   }
+  async updQShopeeInvoiceShippingType(payload:string[]) {
+    //   await db('q_shopee_invoices').update({
+    //   warehouse_shipping: 3,
+    //   updated_at: new Date().toLocaleString('sv-SE').replace('T', ' '),
+    // }).whereIn('package_number', payload);
+    //   console.log("ORDER LIST YANG DI UPDATE : ", payload);
+    //   return payload;
+    await db('q_shopee_invoices').delete().whereIn('package_number', payload);
+      console.log("ORDER LIST YANG DI DELETE : ", payload);
+      return payload;
+  }
   // async copyInvoiceToBulkData(orders: any[]) {
   //   // ambil semua order_sn
   //   const invoices: any[] = await db('q_shopee_invoices')

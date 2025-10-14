@@ -148,6 +148,13 @@ export class ApiService {
     if (!shippingParamList) return ApiResponse.successNoData(shippingParamList, "Unable to generate shipping data!");
     // const listResponse = await this.saveShopeeInvoices(payload.id, invoicesList); //Input Invoices;
       return ApiResponse.success(shippingParamList, "Records found");
+  }
+  async qShopeeUpdateInvoiceShippingType(orders: any[], userinfo: any) {
+    const payloadOrder = await this.tostringArrayPackageOnly(orders);
+    const updateResult = await this.shopeeRepo.updQShopeeInvoiceShippingType(payloadOrder);
+    // const shippingParamList = await this.apiShopeeService.getMassShippingParameter(orders);
+    if (!updateResult) return ApiResponse.successNoData(updateResult, "Unable to update shipping data!");
+    return ApiResponse.success(updateResult, "Records updated");
 
   }
   async qShopeeGet(userinfo: any) {
@@ -495,20 +502,20 @@ export class ApiService {
       return ApiResponse.success(userResult, "Success update");
     }
   }
-  async sendPrinting(orders: any) {
+
+   async sendPrinting(orders: any, addressObj:any, timeSlot:any) {
     // console.log("Sending Printing Orders ",orders);
-    const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders);
+    const hasilprint = await this.apiShopeeService.checkAndStraightLabelNew(orders, addressObj,timeSlot);
     console.log("Hasil Download ", hasilprint);
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
     const ordersToDelete = await this.tostringArrayOnly(hasilprint.data.orders);
     const labelPrinted = hasilprint.data.fileUrl;
-    // console.log("Order yang di delete : ", ordersToDelete);
+    console.log("Order yang di delete : ", ordersToDelete);
     const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
     return ApiResponse.success(hasilprint, "Printing sent successfully");
   }
-
 
 
   private toDatetimeString(unix: number): string {
@@ -519,8 +526,16 @@ export class ApiService {
   async tostringArrayOnly(data: any[]): Promise<string[]> {
     const result: string[] = [];
     for (const item of data) {
-      await new Promise(resolve => setTimeout(resolve, 50)); // contoh delay kalau perlu
+      await new Promise(resolve => setTimeout(resolve, 10)); // contoh delay kalau perlu
       result.push(item.order_sn);
+    }
+    return result;
+  }
+  async tostringArrayPackageOnly(data: any[]): Promise<string[]> {
+    const result: string[] = [];
+    for (const item of data) {
+      await new Promise(resolve => setTimeout(resolve, 10)); // contoh delay kalau perlu
+      result.push(item.package_number);
     }
     return result;
   }

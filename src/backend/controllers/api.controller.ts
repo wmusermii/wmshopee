@@ -114,6 +114,33 @@ export async function generateShopeeShippingParameter(req: Request, res: Respons
   }
 }
 
+export async function updateShopeeShippingType(req: Request, res: Response, next: NextFunction) {
+  try {
+
+    const userInfo: any = req.userInfo;
+    const jobsResult = await apiService.qShopeeUpdateInvoiceShippingType(req.body, userInfo);
+    await ResponseHelper.send(res, jobsResult); return;
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
+export async function updateShopeeInvoicesParameter(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userInfo: any = req.userInfo;
+    const jobsResult = await apiService.qShopeeShippingParameter(req.body, userInfo);
+    await ResponseHelper.send(res, jobsResult); return;
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+
 export async function getQShopee(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("####################################### getQSHopee");
@@ -556,9 +583,10 @@ export async function getBestDataToPrint(req: Request, res: Response, next: Next
 }
 export async function sendingPrinting(req: Request, res: Response, next: NextFunction) {
   try {
-    const { orders } = req.body;
+    // orders: this.ordersPrint, addressObj:this.pickupAdrress, timeSlot:this.selectedSlotTime
+    const { orders, addressObj, timeSlot } = req.body;
     const userInfo: any = req.userInfo;
-    const packageResult = await apiService.sendPrinting(orders);
+    const packageResult = await apiService.sendPrinting(orders, addressObj, timeSlot);
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;
     } else if (packageResult.code === 20400) {
