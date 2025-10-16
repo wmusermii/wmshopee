@@ -36,9 +36,9 @@ export async function generateQShopee(req: Request, res: Response, next: NextFun
   }
 }
 export async function generateQShopeeCurrent(req: Request, res: Response, next: NextFunction) {
-  const { date, fromtime, totime } = req.body;
+  const { date, fromtime, totime,id_q_shopee } = req.body;
   try {
-    let bodyPayload = { fromdate: date, fromtime: fromtime, totime: totime }
+    let bodyPayload = { fromdate: date, fromtime: fromtime, totime: totime,id_q_shopee:id_q_shopee }
     const userInfo: any = req.userInfo;
     const inserResult = await apiService.qShopeeInsertCurrentNew(bodyPayload, userInfo);
     // console.log("################################## generateQShopeeCurrent : ",inserResult);
@@ -100,7 +100,21 @@ export async function generateQShopeeJobs(req: Request, res: Response, next: Nex
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
-
+export async function getLogisticChannelList(req: Request, res: Response, next: NextFunction) {
+  try {
+    const shopperinfoResult = await apiService.qShopeeChannelList();
+    if (shopperinfoResult.code === 20000) {
+      await ResponseHelper.send(res, shopperinfoResult); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "Unable to generate data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
 export async function generateShopeeShippingParameter(req: Request, res: Response, next: NextFunction) {
   try {
 
@@ -587,6 +601,28 @@ export async function sendingPrinting(req: Request, res: Response, next: NextFun
     const { orders, addressObj, timeSlot } = req.body;
     const userInfo: any = req.userInfo;
     const packageResult = await apiService.sendPrinting(orders, addressObj, timeSlot);
+    if (packageResult.code === 20000) {
+      await ResponseHelper.send(res, packageResult); return;
+    } else if (packageResult.code === 20400) {
+      await ResponseHelper.send(res, packageResult);
+      return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData(orders, "Finish printing label"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
+export async function sendingPrintingCounter(req: Request, res: Response, next: NextFunction) {
+  try {
+    // orders: this.ordersPrint, addressObj:this.pickupAdrress, timeSlot:this.selectedSlotTime
+    const { orders, dropOffObj } = req.body;
+    const userInfo: any = req.userInfo;
+    const packageResult = await apiService.sendPrintingCounter(orders, dropOffObj);
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;
     } else if (packageResult.code === 20400) {

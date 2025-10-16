@@ -35,7 +35,7 @@ export class EncryptDecryptJwt {
     return await new SignJWT(userData)
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
       .setIssuedAt()
-      .setExpirationTime("60m") // Token berlaku selama 60 m
+      .setExpirationTime("2h") // Token berlaku selama 60 m
       .sign(secretKey);
   };
   static async verifyToken(token: string):Promise<any>{

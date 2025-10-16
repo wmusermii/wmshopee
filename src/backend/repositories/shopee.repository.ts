@@ -5,23 +5,43 @@ import { logInfo } from '../utils/logger';
 export class ShopeeRepository {
   async saveQShopee(payload: any, userInfo: any) {
     // Pastikan fromdate diformat jadi YYYY-MM-DD
-    //  console.log("PAYLOAD INSERT ",payload);
+     console.log("PAYLOAD INSERT ",payload);
+     console.log("ID Q SHOPEE : ",payload.id_q_shopee);
     payload.fromdate = await this.convertDateFormat(payload.fromdate);
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); // hasilnya "2025-07-24"
     // console.log("PAYLOAD INSERT ",payload);
-    const query = await db('q_shopee').insert(
-      {
-        fromtime: payload.fromtime,
-        totime: payload.totime,
-        created_by: userInfo.iduser,
-        totalresi: payload.totalresi,
-        listresi: payload.listresi,
-        created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
-        datepick: formattedDate,
-      }
-    ).returning('id');
+    if(payload.id_q_shopee > 0) {
 
-    return await query;
+      const deleteInvoices = await db('q_shopee_invoices').delete().where("id_q_shopee", payload.id_q_shopee);
+
+
+       const query = await db('q_shopee').update(
+          {
+            fromtime: payload.fromtime,
+            totime: payload.totime,
+            created_by: userInfo.iduser,
+            totalresi: payload.totalresi,
+            listresi: payload.listresi,
+            created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+            datepick: formattedDate,
+          }
+        ).where("id", payload.id_q_shopee).returning('id');
+        return await query;
+    } else {
+       const query = await db('q_shopee').insert(
+          {
+            fromtime: payload.fromtime,
+            totime: payload.totime,
+            created_by: userInfo.iduser,
+            totalresi: payload.totalresi,
+            listresi: payload.listresi,
+            created_at: new Date().toLocaleString('sv-SE').replace('T', ' '), // ← lokal time,
+            datepick: formattedDate,
+          }
+        ).returning('id');
+        return await query;
+    }
+
   }
 
   async updateQShopee(payload: any) {

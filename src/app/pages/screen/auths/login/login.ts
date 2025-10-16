@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,14 +14,14 @@ import { LocalstorageService } from '../../../../guard/ssr/localstorage/localsto
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class Login {
+export class Login implements OnInit {
   ssrStorage = inject(LocalstorageService);
   submitted = false;
   errorMessage:any = {error:false, severity:"info", message:"ini test", icon:"pi pi-times"};
   loading = false;
   loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required]),
-      password: new FormControl('', [Validators.required]),
+      username: new FormControl('operator', [Validators.required]),
+      password: new FormControl('manage', [Validators.required]),
   });
 
   onSubmit() {
@@ -69,6 +69,9 @@ export class Login {
     return this.loginForm.controls;
   }
   constructor(private router: Router){}
+  ngOnInit(): void {
+    this.onSubmit();
+  }
   _changeError(){
     this.errorMessage={error:false, severity:"info", message:"", icon:"pi pi-send"};
   }

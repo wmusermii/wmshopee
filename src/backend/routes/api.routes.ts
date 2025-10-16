@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, generateShopeeShippingParameter, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, getStockDetailopnameByIdOPExcel, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, updateItemsInPackage, updateQShopeeAttribute, updateShopeeShippingType, updateUser, viewQShopeePosItem, viewQShopeePosItemPrinted } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, generateShopeeShippingParameter, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getLogisticChannelList, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, getStockDetailopnameByIdOPExcel, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, sendingPrintingCounter, updateItemsInPackage, updateQShopeeAttribute, updateShopeeShippingType, updateUser, viewQShopeePosItem, viewQShopeePosItemPrinted } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -17,6 +17,8 @@ router.post('/shopee/gen_qshopee_job', asyncHandler(authBearerMiddleware),asyncH
 
 router.post('/shopee/get_massshippingparam', asyncHandler(authBearerMiddleware),asyncHandler(generateShopeeShippingParameter)); // untuk menggenerate shipping parameter
 
+router.get('/shopee/get_channelslist', asyncHandler(authBearerMiddleware),asyncHandler(getLogisticChannelList));
+
 router.post('/shopee/upd_shippingtype', asyncHandler(authBearerMiddleware),asyncHandler(updateShopeeShippingType));
 
 router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItem)); // untuk melihat table q_shopee yang siap di print
@@ -28,6 +30,7 @@ router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHand
 router.post('/shopee/get_data_print', asyncHandler(authBearerMiddleware),asyncHandler(getBestDataToPrint));// Untuk print label invoice
 
 router.post('/shopee/send_print', asyncHandler(authBearerMiddleware),asyncHandler(sendingPrinting));// Untuk print label invoice
+router.post('/shopee/send_print_counter', asyncHandler(authBearerMiddleware),asyncHandler(sendingPrintingCounter));
 
 router.get('/shopee/get_attributes', asyncHandler(authBearerMiddleware),asyncHandler(getQShopeeAttribute));
 router.post('/shopee/update_attributes', asyncHandler(authBearerMiddleware),asyncHandler(updateQShopeeAttribute));

@@ -51,6 +51,10 @@ export class ApiService {
     // let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
     let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(packageList) : [{}];
     payload.totalresi = totalResi;
+    //######################## GATE PACKAGE DETAIL SIAPA TAU ADA TRACK_NUMBERNYA #################
+    let arrayPackagesList:any[] = totalResi > 0 ? await this.extractPackageOrderSNList(packageList) : [{}];
+
+    //####################################################################
     // logInfo("✅ Sudah di List Extract ", payload.totalresi);
     // payload.listresi = JSON.stringify(arrayOrder); SUDAH TIDAK PERLU LAGI
     payload.listresi=JSON.stringify([]);
@@ -77,27 +81,30 @@ export class ApiService {
   }
 
    async qShopeeInsertCurrentNew(payload: any, userinfo: any) {
-    // const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); ///INI KACAU
-    // Pecah string tanggal
-    // const [day, month, year] = payload.fromdate.split('-').map(Number);
-    // const pad = (n: number) => n.toString().padStart(2, '0');
-    // // Format manual tanpa UTC shift
-    // const formattedDate = `${year}-${pad(month)}-${pad(day)}`;
-    // console.log("PAYLOAD ", payload);
+    const id_qshopee= payload.id_q_shopee;
+
     // const orderList = await this.apiShopeeService.getOrderList(payload.fromdate, payload.fromtime, payload.totime);
     // const totalResi = orderList.length;
     // logInfo("✅ Penarikan Order by tanggal ", orderList.length);
     const packageList = await this.apiShopeeService.getShipmentList(payload.fromdate, payload.fromtime, payload.totime);
     // console.log("HASIL FETCH DATA ORDERS : ",packageList);
-
     const totalResi = packageList.length;
     logInfo("✅ package Sudah di List ", totalResi);
     // // let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(orderList) : [{}];
     let arrayOrder:any[] = totalResi > 0 ? await this.extractOrderSNList(packageList) : [{}];
     payload.totalresi = totalResi;
+    //################################ GET PACKAGE DETAIL untuk Dapeting tracking Number ######################
+    // let arrayPackages:any[] = totalResi > 0 ? await this.extractPackageOrderSNList(packageList) : [{}];
+    // const packageDetailList = await this.apiShopeeService.getPackageDetailList(arrayPackages);
+    // console.log("HASIL DARI PACKAGE DETAIL ", packageDetailList);
+    // const packageDetail = await this.apiShopeeService.getShipmentList(payload.fromdate, payload.fromtime, payload.totime);
+    //####################################################################################
     // // logInfo("✅ Sudah di List Extract ", payload.totalresi);
     // // payload.listresi = JSON.stringify(arrayOrder); SUDAH TIDAK PERLU LAGI
     // payload.listresi=JSON.stringify([]);
+    // const deleteActiveInvoices = await this.shopeeRepo.saveQShopee(payload, userinfo);
+
+    // delete payload.id_q_shopee;
     const shopeeResult = await this.shopeeRepo.saveQShopee(payload, userinfo);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to insert shopee data!");
     // //###################################AMBIL ###################
@@ -142,6 +149,12 @@ export class ApiService {
     } else {
       return ApiResponse.success(rowQueryShopee, "Records found");
     }
+  }
+  async qShopeeChannelList() {
+    const shippingParamList = await this.apiShopeeService.getChannelList();
+    if (!shippingParamList) return ApiResponse.successNoData(shippingParamList, "Unable to generate channel data!");
+    // const listResponse = await this.saveShopeeInvoices(payload.id, invoicesList); //Input Invoices;
+      return ApiResponse.success(shippingParamList, "Records found");
   }
   async qShopeeShippingParameter(orders: any[], userinfo: any) {
     const shippingParamList = await this.apiShopeeService.getMassShippingParameter(orders);
@@ -333,6 +346,12 @@ export class ApiService {
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);
   }
+  async extractPackageOrderSNList(orderList: any[]): Promise<string[]> {
+    const uniqueOrders = [
+      ...new Map(orderList.map(o => [o.package_number, o])).values()
+    ];
+    return uniqueOrders.map(item => item.package_number);
+  }
   async saveShopeeInvoices(id: number, orderDetails: any[]) {
     // 1. Persiapan data untuk table q_shopee_invoices
 
@@ -510,13 +529,56 @@ export class ApiService {
     if(hasilprint.code !== 20000) {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
-    const ordersToDelete = await this.tostringArrayOnly(hasilprint.data.orders);
-    const labelPrinted = hasilprint.data.fileUrl;
+    if(hasilprint.message === 'No shipped orders found') {
+      console.log("Order yang di delete 1 : ", hasilprint.data.failedOrders);
+      // 🧩 Merge berdasarkan package_number
+      const mergedDelete = hasilprint.data.failedOrders.map((f: { package_number: any; }) => {
+        const found = orders.find((o: { package_number: any; }) => o.package_number === f.package_number);
+        return found ? { ...f, order_sn: found.order_sn } : f;
+      });
+       const ordersToDelete = await this.tostringArrayOnly(mergedDelete);
+      const labelPrinted = "";
+      console.log("Order yang di delete 3 : ", ordersToDelete);
+      const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
+      return ApiResponse.success(hasilprint, hasilprint.data.failedOrders[0]);
+    }
+    console.log("**** ORDER BALIKAN ",hasilprint.data.downloadResult.orders);
+    const ordersToDelete = await this.tostringArrayOnly(hasilprint.data.downloadResult.orders);
+    const labelPrinted = hasilprint.data.downloadResult.fileUrl;
+
     console.log("Order yang di delete : ", ordersToDelete);
     const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
     return ApiResponse.success(hasilprint, "Printing sent successfully");
   }
 
+   async sendPrintingCounter(orders: any, dropOffObj:any) {
+    // console.log("Sending Printing Orders ",orders);
+    const hasilprint = await this.apiShopeeService.checkAndStraightLabelCounter(orders, dropOffObj);
+    console.log("Hasil Download ", hasilprint);
+    if(hasilprint.code !== 20000) {
+      return ApiResponse.successNoData(hasilprint, "Error on printing!");
+    }
+    if(hasilprint.message === 'No shipped orders found') {
+      console.log("Order yang di delete 1 : ", hasilprint.data.failedOrders);
+      // 🧩 Merge berdasarkan package_number
+      const mergedDelete = hasilprint.data.failedOrders.map((f: { package_number: any; }) => {
+        const found = orders.find((o: { package_number: any; }) => o.package_number === f.package_number);
+        return found ? { ...f, order_sn: found.order_sn } : f;
+      });
+       const ordersToDelete = await this.tostringArrayOnly(mergedDelete);
+      const labelPrinted = "";
+      console.log("Order yang di delete 3 : ", ordersToDelete);
+      const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
+      return ApiResponse.success(hasilprint, hasilprint.data.failedOrders[0]);
+    }
+    console.log("**** ORDER BALIKAN ",hasilprint.data.downloadResult.orders);
+    const ordersToDelete = await this.tostringArrayOnly(hasilprint.data.downloadResult.orders);
+    const labelPrinted = hasilprint.data.downloadResult.fileUrl;
+
+    console.log("Order yang di delete : ", ordersToDelete);
+    const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
+    return ApiResponse.success(hasilprint, "Printing sent successfully");
+  }
 
   private toDatetimeString(unix: number): string {
     const date = new Date(unix * 1000);

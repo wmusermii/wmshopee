@@ -74,7 +74,7 @@ export class Dashboard implements OnInit {
   currentDate: string | undefined;
   starttime: string | undefined = ""
   endtime: string | undefined = ""
-
+  idQShopee:number | undefined = 0;
   startDateFetch:Date| undefined = new Date
   endDateFetch:Date| undefined = new Date
 
@@ -100,6 +100,7 @@ export class Dashboard implements OnInit {
     console.log("USER INFO ", this.userInfo);
     // this._refreshCountInvoices();
     this._refreshCountSKU();
+    // this._getChannelList();
     if (this.date && !sessionDate) {
       this.currentDate = this.date.toLocaleDateString('en-GB'); // format dd/mm/yyyy
       // Kalau mau jadi 11-08-2025
@@ -181,6 +182,33 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /warehouse/get_sku_count", err);
       });
   }
+  async _getChannelList(){
+    this.loading = true;
+    fetch('/v2/shopee/get_channelslist', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
+    })
+      .then(res => {
+        console.log("Response dari API  /v2/shopee/get_channelslist", res);
+        if (!res.ok) throw new Error('get QShopee Gagal'); this.loading = false;
+        return res.json();
+      })
+      .then(async data => {
+        console.log("Response dari API /v2/shopee/get_channelslist", data);
+        if (data.code === 20000) {
+
+        } else {
+
+        }
+      })
+      .catch(err => {
+        this.loading = false;
+        console.log("Response Error Catch /v2/shopee/get_channelslist", err);
+      });
+  }
   async _lastFetchShopee() {
     this.loading = true;
     fetch('/v2/shopee/get_qshopeetoday', {
@@ -199,6 +227,7 @@ export class Dashboard implements OnInit {
         console.log("Response dari API /v2/shopee/get_qshopeetoday", data);
         if (data.code === 20000) {
           this.loading = false;
+          this.idQShopee = data.data.id;
           this.starttime = data.data.totime;
           this.endtime = data.data.totime;
           this.ssrStorage.setItem("FETCHTIME", `${this.starttime},${this.endtime},${this.currentDate}`);
@@ -265,8 +294,7 @@ export class Dashboard implements OnInit {
     //   this.endtime = dateTmp.toLocaleTimeString('en-GB');
     // }
     //#############################################################################
-    let payload = { date: this.currentDate, fromtime: this.starttime, totime: this.endtime }
-
+    let payload = { date: this.currentDate, fromtime: this.starttime, totime: this.endtime, id_q_shopee:this.idQShopee }
     console.log("Payload yang dikirim ", payload);
     fetch('/v2/shopee/gen_qshopeeCurrent', {
       method: 'POST',
@@ -310,7 +338,11 @@ export class Dashboard implements OnInit {
     this.loading = true;
     await this._refreshListPrint(this.selectProduct);
   }
-
+   async _langsungPrintCounterMassal() {
+    // this.router.navigate(['/printing']);
+    this.loading = true;
+    await this._refreshListPrintCounter(this.selectProduct);
+  }
 
   async _getViewPosProcess(payload: any) {
     this.loading = true;
@@ -345,6 +377,7 @@ export class Dashboard implements OnInit {
           this.loading = false;
           this.arraySPXType = carriers;
           await this._getMassShippingParameter(dataRecordsTemp.data);
+          this.onGlobalSearch()
         } else {
           this.QueriesDataPos = [];
           this.AllQueriesDataPos = [];
@@ -392,64 +425,109 @@ export class Dashboard implements OnInit {
       });
   }
 
-  async _getMassShippingParameter(payload: any) {
+  async _getMassShippingParameter(payload: any[]) {
+  try {
     this.loading = true;
-    const datapayload = cloneDeep(payload);
-    // const limitedPayload = datapayload.slice(0, 50);
+
+    // Hapus duplikat berdasarkan package_number
     const uniqueData = Array.from(
-      new Map(datapayload.map((item: { package_number: any; }) => [item.package_number, item])).values()
+      new Map(payload.map(item => [item.package_number, item])).values()
     );
-    fetch('/v2/shopee/get_massshippingparam', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.token}`
-      },
-      body: JSON.stringify(uniqueData)
-    })
-      .then(res => {
-        console.log("Response dari API  /shopee/get_massshippingparam", res);
-        if (!res.ok) throw new Error('get QShopee Gagal');
+
+    // Bagi data ke dalam batch berisi maksimal 50 item
+    const batchSize = 50;
+    const batches = [];
+    for (let i = 0; i < uniqueData.length; i += batchSize) {
+      batches.push(uniqueData.slice(i, i + batchSize));
+    }
+
+    console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
+
+    // Jalankan semua batch paralel
+    const results = await Promise.all(
+      batches.map(async (batch, index) => {
+        // console.log(`Batch ke-${index + 1}:`, batch.length, "items");
+        const res = await fetch('/v2/shopee/get_massshippingparam', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify(batch)
+        });
+        if (!res.ok) throw new Error(`Batch ${index + 1} gagal`);
         return res.json();
       })
-      .then(async data => {
-        // console.log("Response dari API /shopee/get_massshippingparam ", data);
-        this.loading = false;
-        if (data.code === 20000) {
-          const dataReturnTemp = data.data;
-          const pickupAddressList:any[] = dataReturnTemp.pickup_address;
-          // console.log("RETURN  ",dataReturnTemp);
-          if(pickupAddressList.length > 0) {
-            this.pickupAdrress = pickupAddressList.find(addr =>
-                addr.address_flag && addr.address_flag.includes("pickup_address")
-            );
-          }
-          console.log("OBJECT PICKUP ADDRESS ",this.pickupAdrress);
-          if(this.pickupAdrress) {
+    );
+    // Gabungkan semua hasil
+    const mergedPickupAddresses: any[] = [];
+    const mergedDropoff: any[] = [];
+    const successList: any[] = [];
+    const failList: any[] = [];
 
-              this.pickupObject = cloneDeep(this.pickupAdrress);
-              let timeSlotListTemp = this.pickupAdrress.time_slot_list;
-              const result = timeSlotListTemp.map((slot: { date: any; }) => ({
-                ...slot,
-                time_text: this.formatPickupTime(Number(slot.date))
-              }));
-            this.timeSlotList = result
-              // delete this.pickupObject.time_slot_list;
-          }
-          // if(dataReturnTemp.noshipping_Param.length > 0) {
-          //   const invoiceDihapusTemp = dataReturnTemp.noshipping_Param;
-          //   console.log("DATA YANG TIDAK BISA SHIPPING ", invoiceDihapusTemp);
-          //   await this._updateInvoiceShipping(invoiceDihapusTemp);
-          // }
-        } else {
-          this.pickupAdrress ={};
-            this.timeSlotList =[];
+    for (const result of results) {
+      if (result.code === 20000 && result.data) {
+        const dataReturnTemp = result.data;
+        mergedPickupAddresses.push(...(dataReturnTemp.pickup_address || []));
+        mergedDropoff.push(...(dataReturnTemp.drop_off || []));
+        successList.push(...(dataReturnTemp.success_list || []));
+        failList.push(...(dataReturnTemp.fail_list || []));
+      }
+    }
+
+    // console.log("SEMUA PICKUP ADDRESS:", mergedPickupAddresses);
+    console.log("DROP OFF LIST:", mergedDropoff);
+    console.log("SUCCESS:", successList.length, "FAIL:", failList.length);
+
+    // Pilih pickup address utama
+    if (mergedPickupAddresses.length > 0) {
+      this.pickupAdrress = mergedPickupAddresses.find(addr =>
+        addr.address_flag && addr.address_flag.includes("pickup_address")
+      ) || mergedPickupAddresses[0];
+      this.pickupObject = cloneDeep(this.pickupAdrress);
+      console.log("TIME SLOT ",
+        this.pickupAdrress.time_slot_list
+      );
+      // Format waktu slot pickup
+      const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
+
+this.timeSlotList = timeSlotListTemp.map((slot: any) => {
+  const date = new Date(Number(slot.date) * 1000);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = date.toLocaleString('id-ID', { month: 'short' }); // contoh: "Nov"
+        // Default gunakan time_text dari API
+        let timeRange = slot.time_text;
+        // Jika tidak ada time_text, buat sendiri berdasarkan pickup_time_id
+        if (!timeRange && slot.pickup_time_id) {
+          const match = slot.pickup_time_id.match(/_(\d+)$/);
+          const slotIndex = match ? parseInt(match[1]) : 0;
+          // Mapping slot index ke jam
+          const timeSlots: Record<number, string> = {
+            1: '13:00 - 15:00',
+            2: '15:00 - 17:00',
+            3: '17:00 - 19:00',
+            4: '19:00 - 23:00'
+          };
+          timeRange = timeSlots[slotIndex] || '13:00 - 16:00'; // fallback default
         }
-      })
-      .catch(err => {
-        console.log("Response Error Catch /shopee/get_massshippingparam", err);
+        return {
+          ...slot,
+          time_text: `${day} ${month} ${timeRange}`
+        };
       });
+
+    } else {
+      this.pickupAdrress = {};
+      this.timeSlotList = [];
+    }
+
+  } catch (err) {
+    console.error("Response Error Catch /shopee/get_massshippingparam", err);
+  } finally {
+    this.loading = false;
   }
+}
+
   async _updateInvoiceShipping(payload: any) {
     this.loading = true;
     const datapayload = cloneDeep(payload);
@@ -487,21 +565,13 @@ export class Dashboard implements OnInit {
     console.log("Pickup object : ",this.pickupAdrress)
     console.log("Selected time : ",this.selectedSlotTime)
     console.log("Selected 2 : ", this.selectProduct);
-    // {
-    //     "item_id": "23562550180.0",
-    //     "item_name": "SERTIFIKAT TKU PENGGALANG Ramu Rakit Terap",
-    //     "model_id": "157139562077.0",
-    //     "model_name": "Ramu SERTIFIKAT",
-    //     "image_url": "https://cf.shopee.co.id/file/id-11134207-7rbk1-m8ltzb32r85n72_tn",
-    //     "shipping_carrier": "SPX Hemat",
-    //     "invoices": 2,
-    //     "qty": 51
-    // }
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
     this._langsungPrint();
   }
   async _onMassPrint() {
-
+    console.log("Selected 3 : ", this.selectProduct);
+    this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
+    this._langsungPrintCounterMassal();
   }
   async _onRowSelectPrinted(payload: any) {
     // console.log("Selected print 1 : ", payload);
@@ -528,17 +598,24 @@ export class Dashboard implements OnInit {
 
 
   onGlobalSearch() {
-    console.log("Global filter : ", this.globalFilter);
-    const term = this.globalFilter.trim().toLowerCase();
-    if (term === '') {
-      this.QueriesDataPos = [...this.AllQueriesDataPos];
-    } else {
-      this.QueriesDataPos = this.AllQueriesDataPos.filter(item =>
-        [item.item_name, item.model_name, item.shipping_carrier]
-          .some(field => field?.toLowerCase().includes(term))
-      );
-    }
-  }
+  const term = this.globalFilter.trim().toLowerCase();
+  const selectedType = this.selectSPXType?.code || ''; // ambil kode tipe, kalau null jadi string kosong
+
+  console.log("Filter text:", term, "Filter type:", selectedType);
+
+  this.QueriesDataPos = this.AllQueriesDataPos.filter(item => {
+    const matchesText =
+      term === '' ||
+      [item.item_name, item.model_name, item.shipping_carrier]
+        .some(field => field?.toLowerCase().includes(term));
+
+    const matchesType =
+      selectedType === '' || item.shipping_carrier === selectedType;
+
+    return matchesText && matchesType;
+  });
+}
+
   onGlobalSearchPrinted() {
     console.log("Global filter Printed : ", this.globalFilterPrinted);
     const term = this.globalFilterPrinted.trim().toLowerCase();
@@ -601,58 +678,187 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/get_data_print", err);
       });
   }
+  async _refreshListPrintCounter(payload:any[]): Promise<void> {
+    // const payload = { item_id: this.selectProduct.item_id, model_id: this.selectProduct.model_id, shipping_carrier: this.selectProduct.shipping_carrier }
+    const payloadSend = {itemArray:payload}
+    fetch('/v2/shopee/get_data_print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payloadSend)
+    })
+      .then(res => {
+        console.log("Response dari API /shopee/get_data_print counter 0", res);
+        if (!res.ok) throw new Error('q_shopee Gagal');
+        return res.json();
+      })
+      .then(async data => {
+        console.log("Response dari API /shopee/get_data_print counter 1", data);
+        if (data.code === 20000) {
+          const dataRecordsTemp: any[] = cloneDeep(data.data);
+          this.ordersPrint = Object.values(dataRecordsTemp.reduce((acc, item) => {
+            if (!acc[item.order_sn]) {
+              acc[item.order_sn] = {
+                order_sn: item.order_sn,
+                package_number: item.package_number
+              };
+            }
+            return acc;
+          }, {} as Record<string, { order_sn: string, package_number: string }>)
+          );
+
+          await this._goPrintingCounter();
+
+
+        } else {
+          this.ordersPrint = []
+          this.loading = false;
+        }
+      })
+      .catch(err => {
+        this.loading = false;
+        console.log("Response Error Catch /shopee/get_data_print counter", err);
+      });
+  }
   async _goPrinting() {
-    // console.log("Payload 1 ", this.ordersPrint);
-    const payload = { orders: this.ordersPrint, addressObj:this.pickupAdrress, timeSlot:this.selectedSlotTime }
-    // console.log("Payload 2 ", payload);
-    fetch('/v2/shopee/send_print', {
+  try {
+    const payload = {
+      orders: this.ordersPrint,
+      addressObj: this.pickupAdrress,
+      timeSlot: this.selectedSlotTime
+    };
+    const res = await fetch('/v2/shopee/send_print', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
       },
       body: JSON.stringify(payload)
-    })
-      .then(res => {
-        console.log("Response dari API /shopee/send_print 0", res);
-        if (!res.ok) throw new Error('q_shopee Gagal');
-        return res.json();
-      })
-      .then(async data => {
-        console.log("Response dari API /shopee/send_print 1", data);
-        // this.loading=false;
-        if (data.code === 20000) {
-          const fileNameURL = data.data.data.fileUrl;
-          console.log("File yang di download ", fileNameURL);
-          // window.open(fileNameURL, '_blank');
-          const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
-          console.log("Menggunakan Origin : ", url);
-          const urlLangsung = fileNameURL+`?t=${Date.now()}`;
-          console.log("Menggunakan Langsung : ", urlLangsung);
-          setTimeout(() => {
-            const printWindow = window.open(url, '_blank');
-            if (printWindow) {
-              printWindow.onload = () => {
-                console.log("Coba print");
-                printWindow.focus();
-                printWindow.print();
-                // setTimeout(() => {
-                //   printWindow.close(); // coba tutup tab setelah delay
-                // }, 5000);
-              };
-            } else {
-              alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
-            }
-          }, 50); // kasih jeda biar file ready
+    });
+    console.log("Response dari API /shopee/send_print 0", res);
+    const data = await res.json();
+    console.log("Response dari API /shopee/send_print 1", data);
+    // ✅ Jika ada failedOrders, tampilkan alert & jangan download
+    const failedOrders = data?.data?.data?.failedOrders || [];
+    if (failedOrders.length > 0) {
+      this.loading=false;
+      const reasonList = failedOrders
+        .map((f: any) => `📦 ${f.package_number}: ${f.reason}`)
+        .join('\n');
+
+      alert(`Beberapa order gagal dikirim atau sudah pernah dikirim:\n\n${reasonList}`);
+      // Refresh data
+      this._lastFetchShopee();
+      return; // ⛔ stop agar tidak lanjut ke proses print
+    }
+    // ✅ Kalau tidak ada error dan ada file yang bisa diunduh
+    if (data.code === 20000 && data.data?.data?.downloadResult.fileUrl) {
+      const fileNameURL = data.data.data.downloadResult.fileUrl;
+      const url = `${window.location.origin}/upload/${data.data.data.downloadResult.fileName}?t=${Date.now()}`;
+      console.log("📄 File siap diunduh:", url);
+      setTimeout(() => {
+        const printWindow = window.open(url, '_blank');
+        if (printWindow) {
+          printWindow.onload = () => {
+            console.log("🖨️ Mencetak dokumen...");
+            printWindow.focus();
+            printWindow.print();
+          };
+        } else {
+          alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
         }
-        // this.loading=true;
-        // this.router.navigate(['/dashboard']);
-        this._lastFetchShopee();
-      })
-      .catch(err => {
-        this.loading = false;
-        console.log("Response Error Catch /shopee/send_print", err);
-      });
+
+      }, 100);
+    } else {
+      console.log("HASIL ERROR NYA APA ", data);
+      const dataMessage = data.data;
+      this.showErrorPopup = {
+        show: true,
+        severity: "error",
+        message: dataMessage?.message || "Gagal mencetak label"
+      };
+    }
+    // Refresh data
+    this._lastFetchShopee();
+  } catch (err) {
+    this.loading = false;
+    console.error("Response Error Catch /shopee/send_print", err);
+    alert("Terjadi kesalahan saat mencetak label.");
+  }
+  }
+  async _goPrintingCounter() {
+  try {
+    // { orders, dropOffObj }
+    console.log("TIME SLOT LIST ", this.timeSlotList);
+
+    // ambil slot paling akhir (terakhir di array)
+    const latestSlot = this.timeSlotList[this.timeSlotList.length - 1];
+
+    const dropoff= {address_id:this.pickupAdrress.address_id,pickup_time_id: latestSlot.pickup_time_id, logistics_channel_id:80099, dropoff:{branch_id:"14590", sender_real_name:"JAWARA STORE OFFICIAL"}}
+    const payload = {
+      orders: this.ordersPrint,
+      dropOffObj:dropoff
+    };
+    const res = await fetch('/v2/shopee/send_print_counter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    });
+    console.log("Response dari API /shopee/send_print_counter 0", res);
+    const data = await res.json();
+    console.log("Response dari API /shopee/send_print_counter 1", data);
+    // ✅ Jika ada failedOrders, tampilkan alert & jangan download
+    const failedOrders = data?.data?.data?.failedOrders || [];
+    if (failedOrders.length > 0) {
+      this.loading=false;
+      const reasonList = failedOrders
+        .map((f: any) => `📦 ${f.package_number}: ${f.reason}`)
+        .join('\n');
+
+      alert(`Beberapa order gagal dikirim atau sudah pernah dikirim:\n\n${reasonList}`);
+      // Refresh data
+      this._lastFetchShopee();
+      return; // ⛔ stop agar tidak lanjut ke proses print
+    }
+    // ✅ Kalau tidak ada error dan ada file yang bisa diunduh
+    if (data.code === 20000 && data.data?.data?.downloadResult.fileUrl) {
+      const fileNameURL = data.data.data.downloadResult.fileUrl;
+      const url = `${window.location.origin}/upload/${data.data.data.downloadResult.fileName}?t=${Date.now()}`;
+      console.log("📄 File siap diunduh:", url);
+      setTimeout(() => {
+        const printWindow = window.open(url, '_blank');
+        if (printWindow) {
+          printWindow.onload = () => {
+            console.log("🖨️ Mencetak dokumen...");
+            printWindow.focus();
+            printWindow.print();
+          };
+        } else {
+          alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
+        }
+
+      }, 100);
+    } else {
+      console.log("HASIL ERROR NYA APA ", data);
+      const dataMessage = data.data;
+      this.showErrorPopup = {
+        show: true,
+        severity: "error",
+        message: dataMessage?.message || "Gagal mencetak label"
+      };
+    }
+    // Refresh data
+    this._lastFetchShopee();
+  } catch (err) {
+    this.loading = false;
+    console.error("Response Error Catch /shopee/send_print_counter", err);
+    alert("Terjadi kesalahan saat mencetak label.");
+  }
   }
   formatPickupTime(epoch: number): string {
   const date = new Date(epoch * 1000);
