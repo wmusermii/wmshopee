@@ -118,12 +118,6 @@
             <!-- RIGHT: Action Panel -->
             <div class="w-64 flex flex-col gap-2 p-0">
               <h3 class="font-semibold m-0 p-0 !mt-6">Picked Up</h3>
-              <p class="m-0 p-0 break-words whitespace-normal">
-                {{pickupObject.address}}
-              </p>
-              <p class="m-0 p-0">
-                {{pickupObject.district}}, {{pickupObject.city}}
-              </p>
               <label for="waktu">Waktu</label>
               <p-select id="waktu" [options]="timeSlotList" [(ngModel)]="selectedSlotTime" optionLabel="time_text"
                 placeholder="Pilih Waktu" class="w-full p-0 m-0" styleClass="w-full" />
