@@ -9,8 +9,6 @@
       styleClass="custom-chip" />
     <p-chip [label]="invoicetotalStr" icon="pi pi-receipt" class="border border-solid border-gray-300"
       styleClass="custom-chip" />
-    <p-chip [label]="invoicetotalprintedStr" icon="pi pi-receipt" class="border border-solid border-gray-300"
-      styleClass="custom-chip" />
   </div>
   <div class="w-full flex justify-between items-center bg-white py-3 px-5 rounded shadow mb-3">
     <!-- Kiri -->
@@ -38,6 +36,7 @@
         <p-tab value="0">Invoices</p-tab>
         <p-tab value="1">Error</p-tab>
         <p-tab value="2">Printed</p-tab>
+        <p-tab value="3">Summary</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0">
@@ -262,6 +261,13 @@
               </tr>
             </ng-template>
           </p-table>
+        </p-tabpanel>
+        <p-tabpanel value="3">
+          <div class="flex gap-4">
+              <div class="flex-1">
+
+              </div>
+          </div>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
