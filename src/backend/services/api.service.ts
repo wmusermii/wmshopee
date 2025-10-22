@@ -338,8 +338,12 @@ export class ApiService {
     return ApiResponse.success(shopeeResult, "Success get data!");
   }
  async viewShopeePosByIDPrinted(payload: any, userinfo: any) {
-    // const shopeeResult = await this.shopeeRepo.viewQShopeePosBySN(payload);
     const shopeeResult = await this.shopeeRepo.viewQShopeePosBySNPrinted(payload);
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    return ApiResponse.success(shopeeResult, "Success get data!");
+  }
+  async viewShopeePosByIDError(payload: any, userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.viewQShopeePosBySNError(payload);
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     return ApiResponse.success(shopeeResult, "Success get data!");
   }

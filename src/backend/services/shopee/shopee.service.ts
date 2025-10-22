@@ -826,7 +826,7 @@ export class ShopeeService {
             }
             // Ambil tracking number
             const packageOnlyList = await this.tostringArrayPackagesOnly(shippedOrders);
-            await this.delay(100);
+            await this.delay(1000);
             const trackingOrder = await this.getMasTrackingNumberMulti(packageOnlyList);
             console.log("🧾 Tracking Result Counter : ", trackingOrder);
 

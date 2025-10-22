@@ -41,6 +41,10 @@ export class Dashboard implements OnInit {
   AllQueriesDataPos: QueryFields[] = [];
   QueriesDataPrinted: QueryFieldsPrinted[] = [];
   AllQueriesDataPrinted: QueryFieldsPrinted[] = [];
+
+  QueriesDataError: QueryFieldsPrinted[] = [];
+  AllQueriesDataError: QueryFieldsPrinted[] = [];
+
   // selectProduct: QueryFields = {
   //   item_id: '',
   //   item_name: '',
@@ -63,10 +67,21 @@ export class Dashboard implements OnInit {
     qty: 0,
     labelshopee:''
   };
-
+  selectProductError: QueryFieldsPrinted = {
+    item_id: '',
+    item_name: '',
+    model_id: '',
+    model_name: '',
+    image_url: '',
+    shipping_carrier: '',
+    invoices: 0,
+    qty: 0,
+    labelshopee:''
+  };
 
   globalFilter: string = '';
   globalFilterPrinted: string = '';
+  globalFilterError: string = '';
   token: string | null | undefined = undefined;
   userInfo: any | undefined;
   date: Date | undefined = new Date(); // contoh
@@ -238,6 +253,7 @@ export class Dashboard implements OnInit {
           this.invoicetotalStr = `Invoices : ${this.totalResi} pcs.`
           await this._getViewPosProcess({ id: data.data.id });
           await this._getViewPrintedProcess({ id: data.data.id });
+          await this._getViewPrintedError({ id: data.data.id });
         } else {
           this.loading = false;
           this.disableBtn = false;
@@ -416,7 +432,42 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/get_positemprinted", err);
       });
   }
+  async _getViewPrintedError(payload: any) {
+    this.loading = true;
+    fetch('/v2/shopee/get_positemerror', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_positemerror", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/get_positemerror ", data);
+        this.loading = false;
+        if (data.code === 20000) {
+          // this.showProcedPostDialog = true;
+          const dataRecordsTemp = cloneDeep(data.data);
+          console.log("Data View error : ", dataRecordsTemp.data);
+          this.QueriesDataError = dataRecordsTemp.data;
+          this.AllQueriesDataError = dataRecordsTemp.data;
 
+          // this.loading=false;
+        } else {
+          this.QueriesDataError = [];
+          this.AllQueriesDataError = [];
+          this.loading = false;
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_positemerror", err);
+      });
+  }
   async _getMassShippingParameter(payload: any[]) {
   try {
     this.loading = true;
@@ -566,8 +617,6 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     this._langsungPrintCounterMassal();
   }
   async _onRowSelectPrinted(payload: any) {
-    // console.log("Selected print 1 : ", payload);
-    // console.log("Selected print 2 : ", this.selectProductPrinted);
     const fileUrl = this.selectProductPrinted.labelshopee+`?t=${Date.now()}`
     // const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
           setTimeout(() => {
@@ -576,17 +625,28 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
               printWindow.onload = () => {
                 printWindow.focus();
                 printWindow.print();
-                setTimeout(() => {
-                  printWindow.close(); // coba tutup tab setelah delay
-                }, 5000);
               };
             } else {
               alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
             }
           }, 100);
-
   }
-
+   async _onRowSelectError(payload: any) {
+    console.log("Item Error : ", this.selectProductError);
+    // const fileUrl = this.selectProductError.labelshopee+`?t=${Date.now()}`
+    // // const url = `${window.location.origin}/upload/${data.data.data.fileName}?t=${Date.now()}`; // anti-cache
+    //       setTimeout(() => {
+    //         const printWindow = window.open(fileUrl, '_blank');
+    //         if (printWindow) {
+    //           printWindow.onload = () => {
+    //             printWindow.focus();
+    //             printWindow.print();
+    //           };
+    //         } else {
+    //           alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
+    //         }
+    //       }, 100);
+  }
 
 
   onGlobalSearch() {
@@ -615,6 +675,18 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       this.QueriesDataPrinted = [...this.AllQueriesDataPrinted];
     } else {
       this.QueriesDataPrinted = this.AllQueriesDataPrinted.filter(item =>
+        [item.item_name, item.model_name, item.shipping_carrier]
+          .some(field => field?.toLowerCase().includes(term))
+      );
+    }
+  }
+  onGlobalSearchError() {
+    console.log("Global filter error : ", this.globalFilterError);
+    const term = this.globalFilterError.trim().toLowerCase();
+    if (term === '') {
+      this.QueriesDataError = [...this.AllQueriesDataError];
+    } else {
+      this.QueriesDataError = this.AllQueriesDataError.filter(item =>
         [item.item_name, item.model_name, item.shipping_carrier]
           .some(field => field?.toLowerCase().includes(term))
       );
