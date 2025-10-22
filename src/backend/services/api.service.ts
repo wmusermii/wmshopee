@@ -439,6 +439,16 @@ export class ApiService {
       });
     });
     // 3. Insert ke kedua tabel
+    // 3.1 Delete jika ada invoice yang ada pada invoices
+    const listInvoces = await this.extractOrderSNList(invoices);
+    const hasilDeleteInvoice = await this.shopeeRepo.deleteQShopeeInvoices(listInvoces);
+    console.log("HASIL DELETE INVOICE : ", hasilDeleteInvoice);
+    const hasilDeleteInvoiceDetail = await this.shopeeRepo.deleteQShopeeInvoicesDetail(listInvoces);
+    console.log("HASIL DELETE INVOICE DETAIL : ", hasilDeleteInvoiceDetail);
+
+
+    // 3.2 Delete detail invoice jika ada
+    //#####################################################
     const invoicesResult = await this.shopeeRepo.saveQShopeeInvoices(invoices);
     const detailsResult = await this.shopeeRepo.saveQShopeeInvoicesDetail(invoiceDetails); // <- tambahkan fungsi ini
     const updateQShopee = await this.shopeeRepo.updateQShopee({ id: id });
@@ -559,7 +569,7 @@ export class ApiService {
       return ApiResponse.successNoData(hasilprint, "Error on printing!");
     }
     if(hasilprint.message === 'No shipped orders found') {
-      console.log("Order yang di delete 1 : ", hasilprint.data.failedOrders);
+      console.log("Order yang di delete counter 1 : ", hasilprint.data.failedOrders);
       // 🧩 Merge berdasarkan package_number
       const mergedDelete = hasilprint.data.failedOrders.map((f: { package_number: any; }) => {
         const found = orders.find((o: { package_number: any; }) => o.package_number === f.package_number);
@@ -567,7 +577,7 @@ export class ApiService {
       });
        const ordersToDelete = await this.tostringArrayOnly(mergedDelete);
       const labelPrinted = "";
-      console.log("Order yang di delete 3 : ", ordersToDelete);
+      console.log("Order yang di delete counter 3 : ", ordersToDelete);
       const selectInvoiceUpdate = await this.shopeeRepo.copyInvoiceToBulkData(ordersToDelete, labelPrinted);
       return ApiResponse.success(hasilprint, hasilprint.data.failedOrders[0]);
     }

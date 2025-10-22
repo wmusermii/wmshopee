@@ -92,6 +92,8 @@ export class Dashboard implements OnInit {
   // whitemtotal: string = "In Warehouse : 500 pcs.";
   invoicetotal: number = 0;
   invoicetotalStr: string = "Invoices : 0 pcs.";
+  invoiceprinted: number = 0;
+  invoicetotalprintedStr: string = "Printed : 0 pcs.";
   constructor(private router: Router, private ssrStorage: LocalstorageService) { }
   async ngOnInit(): Promise<void> {
     this.token = this.ssrStorage.getItem('token');
@@ -283,17 +285,6 @@ export class Dashboard implements OnInit {
   async _processFetchingShopee() {
     this.loading = true;
     this.showGenerateDialog = false;
-    //################## AMBIL DATA DULU DARI LOCAL SESSION #######################
-    // let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
-    // if (startArray) {
-    //   //################### SETTING JAM BERIKUT ########################
-    //   let startT: string[] = startArray.split(",");
-    //   this.starttime = startT[0];
-    //   let dateTmp = new Date();
-    //   // Jam:Menit:Detik
-    //   this.endtime = dateTmp.toLocaleTimeString('en-GB');
-    // }
-    //#############################################################################
     let payload = { date: this.currentDate, fromtime: this.starttime, totime: this.endtime, id_q_shopee:this.idQShopee }
     console.log("Payload yang dikirim ", payload);
     fetch('/v2/shopee/gen_qshopeeCurrent', {
@@ -413,6 +404,7 @@ export class Dashboard implements OnInit {
           console.log("Data View printed : ", dataRecordsTemp.data);
           this.QueriesDataPrinted = dataRecordsTemp.data;
           this.AllQueriesDataPrinted = dataRecordsTemp.data;
+
           // this.loading=false;
         } else {
           this.QueriesDataPrinted = [];
@@ -790,17 +782,24 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
   }
   async _goPrintingCounter() {
   try {
-    // { orders, dropOffObj }
     console.log("TIME SLOT LIST ", this.timeSlotList);
 
-    // ambil slot paling akhir (terakhir di array)
     const latestSlot = this.timeSlotList[this.timeSlotList.length - 1];
+    const dropoff = {
+      address_id: this.pickupAdrress.address_id,
+      pickup_time_id: latestSlot.pickup_time_id,
+      logistics_channel_id: 80099,
+      dropoff: {
+        branch_id: "14590",
+        sender_real_name: "JAWARA STORE OFFICIAL"
+      }
+    };
 
-    const dropoff= {address_id:this.pickupAdrress.address_id,pickup_time_id: latestSlot.pickup_time_id, logistics_channel_id:80099, dropoff:{branch_id:"14590", sender_real_name:"JAWARA STORE OFFICIAL"}}
     const payload = {
       orders: this.ordersPrint,
-      dropOffObj:dropoff
+      dropOffObj: dropoff
     };
+
     const res = await fetch('/v2/shopee/send_print_counter', {
       method: 'POST',
       headers: {
@@ -809,27 +808,51 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       },
       body: JSON.stringify(payload)
     });
-    console.log("Response dari API /shopee/send_print_counter 0", res);
+
     const data = await res.json();
-    console.log("Response dari API /shopee/send_print_counter 1", data);
-    // ✅ Jika ada failedOrders, tampilkan alert & jangan download
+    console.log("Response dari API /shopee/send_print_counter", data);
+
     const failedOrders = data?.data?.data?.failedOrders || [];
+    const downloadResult = data?.data?.data?.downloadResult;
+    const hasDownload = !!downloadResult?.fileUrl;
+
+    // ⚠️ Siapkan reasonList dan filter orders gagal
+    let reasonList = "";
+    let failedOrderDetails: any[] = [];
+
     if (failedOrders.length > 0) {
-      this.loading=false;
-      const reasonList = failedOrders
-        .map((f: any) => `📦 ${f.package_number}: ${f.reason}`)
+      failedOrderDetails = failedOrders.map((f: any) => ({
+        order_sn: f.order_sn,
+        package_number: f.package_number,
+        reason: f.reason || "Unknown reason"
+      }));
+
+      reasonList = failedOrderDetails
+        .map(f => `📦 ${f.order_sn}: ${f.reason}`)
         .join('\n');
 
-      alert(`Beberapa order gagal dikirim atau sudah pernah dikirim:\n\n${reasonList}`);
-      // Refresh data
-      this._lastFetchShopee();
-      return; // ⛔ stop agar tidak lanjut ke proses print
+      console.warn("⚠️ Beberapa order gagal ship:", failedOrderDetails);
+
+      // 🔍 Filter order gagal dari this.ordersPrint berdasarkan order_sn
+      const failedOrderSNs = failedOrderDetails.map(f => f.order_sn);
+      const failedOrderObjects = this.ordersPrint.filter((o: any) =>
+        failedOrderSNs.includes(o.order_sn)
+      );
+
+      // 🟡 Tampilkan ke popup custom milik kamu
+      this.showErrorPopup = {
+        show: true,
+        severity: "warn",
+        message: `Beberapa order gagal dikirim:\n${reasonList}`,
+        failedOrders: failedOrderObjects
+      };
     }
-    // ✅ Kalau tidak ada error dan ada file yang bisa diunduh
-    if (data.code === 20000 && data.data?.data?.downloadResult.fileUrl) {
-      const fileNameURL = data.data.data.downloadResult.fileUrl;
-      const url = `${window.location.origin}/upload/${data.data.data.downloadResult.fileName}?t=${Date.now()}`;
+
+    // ✅ Tetap lanjut kalau ada file yang bisa diunduh
+    if (data.code === 20000 && hasDownload) {
+      const url = `${window.location.origin}/upload/${downloadResult.fileName}?t=${Date.now()}`;
       console.log("📄 File siap diunduh:", url);
+
       setTimeout(() => {
         const printWindow = window.open(url, '_blank');
         if (printWindow) {
@@ -841,25 +864,30 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
         } else {
           alert("Gagal membuka tab baru. Pastikan popup tidak diblokir browser.");
         }
-
-      }, 100);
-    } else {
-      console.log("HASIL ERROR NYA APA ", data);
-      const dataMessage = data.data;
+      }, 200);
+    } else if (!hasDownload) {
+      console.warn("Tidak ada file untuk diunduh.");
       this.showErrorPopup = {
         show: true,
-        severity: "error",
-        message: dataMessage?.message || "Gagal mencetak label"
+        severity: "warn",
+        message:
+          failedOrders.length > 0
+            ? `Beberapa order tidak dicetak:\n\r${reasonList}`
+            : "Tidak ada dokumen yang bisa dicetak."
       };
     }
-    // Refresh data
+
+    // 🔄 Refresh data
     this._lastFetchShopee();
+
   } catch (err) {
     this.loading = false;
     console.error("Response Error Catch /shopee/send_print_counter", err);
     alert("Terjadi kesalahan saat mencetak label.");
   }
   }
+
+
   formatPickupTime(epoch: number): string {
   const date = new Date(epoch * 1000);
   return date.toLocaleString('id-ID', {
