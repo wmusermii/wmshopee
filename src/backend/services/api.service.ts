@@ -347,6 +347,12 @@ export class ApiService {
     if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
     return ApiResponse.success(shopeeResult, "Success get data!");
   }
+  async viewShopeeSummaryPrinted(payload: any, userinfo: any) {
+    const shopeeResult = await this.shopeeRepo.viewQShopeeSummaryPrinted(payload);
+
+    if (!shopeeResult) return ApiResponse.successNoData(shopeeResult, "Unable to get data!");
+    return ApiResponse.success(shopeeResult, "Success get data!");
+  }
   async extractOrderSNList(orderList: any[]): Promise<string[]> {
     return orderList.map(item => item.order_sn);
   }

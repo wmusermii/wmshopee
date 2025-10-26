@@ -44,7 +44,8 @@ export class Dashboard implements OnInit {
 
   QueriesDataError: QueryFieldsPrinted[] = [];
   AllQueriesDataError: QueryFieldsPrinted[] = [];
-
+  QueriesPrintedSummary: QueryFieldsSummary[] = [];
+  AllQueriesPrintedSummary: QueryFieldsSummary[] = [];
   // selectProduct: QueryFields = {
   //   item_id: '',
   //   item_name: '',
@@ -254,6 +255,7 @@ export class Dashboard implements OnInit {
           await this._getViewPosProcess({ id: data.data.id });
           await this._getViewPrintedProcess({ id: data.data.id });
           await this._getViewPrintedError({ id: data.data.id });
+          await this._getViewPrintedSummary({ id: data.data.id });
         } else {
           this.loading = false;
           this.disableBtn = false;
@@ -374,16 +376,16 @@ export class Dashboard implements OnInit {
           const dataRecordsTemp = cloneDeep(data.data);
           dataRecordsTemp.data = dataRecordsTemp.data.map((row: any) => ({
             ...row,
-            uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}${row.package_number}`,
+            uniqueKey: `${row.order_sn}`,
           }));
-          // console.log("Data View ", dataRecordsTemp.data);
+          //  uniqueKey: `${row.item_id}${row.model_id}${row.shipping_carrier}${row.package_number}`,
           // hasil distinct map
           const carriers = [...new Set(dataRecordsTemp.data.map((d: { shipping_carrier: any; }) => d.shipping_carrier))].map(c => ({code: c, label: c}));
           this.QueriesDataPos = dataRecordsTemp.data;
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
           this.arraySPXType = carriers;
-          await this._getMassShippingParameter(dataRecordsTemp.data);
+          // await this._getMassShippingParameter(dataRecordsTemp.data);
           this.onGlobalSearch()
         } else {
           this.QueriesDataPos = [];
@@ -453,7 +455,7 @@ export class Dashboard implements OnInit {
         if (data.code === 20000) {
           // this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          console.log("Data View error : ", dataRecordsTemp.data);
+          // console.log("Data View error : ", dataRecordsTemp.data);
           this.QueriesDataError = dataRecordsTemp.data;
           this.AllQueriesDataError = dataRecordsTemp.data;
 
@@ -468,6 +470,43 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /shopee/get_positemerror", err);
       });
   }
+
+  async _getViewPrintedSummary(payload: any) {
+    this.loading = true;
+    fetch('/v2/shopee/get_summaryprinted', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        console.log("Response dari API  /shopee/get_summaryprinted", res);
+        if (!res.ok) throw new Error('get QShopee Gagal');
+        return res.json();
+      })
+      .then(data => {
+        console.log("Response dari API /shopee/get_summaryprinted ", data);
+        this.loading = false;
+        if (data.code === 20000) {
+            const dataRecordsTemp = cloneDeep(data.data);
+           console.log("Data View Summary : ", dataRecordsTemp.data);
+          this.QueriesPrintedSummary = dataRecordsTemp.data;
+          this.AllQueriesPrintedSummary = dataRecordsTemp.data;
+        } else {
+          this.QueriesPrintedSummary = [];
+          this.AllQueriesPrintedSummary = [];
+          this.loading = false;
+        }
+      })
+      .catch(err => {
+        console.log("Response Error Catch /shopee/get_summaryprinted", err);
+      });
+  }
+
+
+
   async _getMassShippingParameter(payload: any[]) {
   try {
     this.loading = true;
@@ -485,11 +524,10 @@ export class Dashboard implements OnInit {
     }
 
     console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
-
+    // console.log(`Mengirim ***** : ${JSON.stringify(batches)}`);
     // Jalankan semua batch paralel
     const results = await Promise.all(
       batches.map(async (batch, index) => {
-        // console.log(`Batch ke-${index + 1}:`, batch.length, "items");
         const res = await fetch('/v2/shopee/get_massshippingparam', {
           method: 'POST',
           headers: {
@@ -502,6 +540,8 @@ export class Dashboard implements OnInit {
         return res.json();
       })
     );
+
+
     // Gabungkan semua hasil
     const mergedPickupAddresses: any[] = [];
     const mergedDropoff: any[] = [];
@@ -512,9 +552,9 @@ export class Dashboard implements OnInit {
       if (result.code === 20000 && result.data) {
         const dataReturnTemp = result.data;
         mergedPickupAddresses.push(...(dataReturnTemp.pickup_address || []));
-        mergedDropoff.push(...(dataReturnTemp.drop_off || []));
-        successList.push(...(dataReturnTemp.success_list || []));
-        failList.push(...(dataReturnTemp.fail_list || []));
+        mergedDropoff.push(...(dataReturnTemp.dropoff_param || []));
+        successList.push(...(dataReturnTemp.shipping_Param || []));
+        failList.push(...(dataReturnTemp.noshipping_Param || []));
       }
     }
 
@@ -570,6 +610,112 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     this.loading = false;
   }
 }
+ async _getMassShippingParameterNeo(payload: QueryFields[]): Promise<{ error: boolean; object: any }> {
+  try {
+    this.loading = true;
+
+    // 🔹 Hapus duplikat berdasarkan package_number
+    const uniqueData = Array.from(
+      new Map(payload.map(item => [item.package_number, item])).values()
+    );
+
+    // 🔹 Bagi data ke dalam batch (maks 50)
+    const batchSize = 50;
+    const batches = [];
+    for (let i = 0; i < uniqueData.length; i += batchSize) {
+      batches.push(uniqueData.slice(i, i + batchSize));
+    }
+
+    console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
+
+    // 🔹 Jalankan semua batch paralel
+    const results = await Promise.all(
+      batches.map(async (batch, index) => {
+        const res = await fetch('/v2/shopee/get_massshippingparam', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify(batch)
+        });
+
+        if (!res.ok) throw new Error(`Batch ${index + 1} gagal`);
+        return res.json();
+      })
+    );
+
+    // 🔹 Gabungkan semua hasil
+    const mergedPickupAddresses: any[] = [];
+    const mergedDropoff: any[] = [];
+    const successList: any[] = [];
+    const failList: any[] = [];
+
+    for (const result of results) {
+      if (result.code === 20000 && result.data) {
+        const dataReturnTemp = result.data;
+        mergedPickupAddresses.push(...(dataReturnTemp.pickup_address || []));
+        mergedDropoff.push(...(dataReturnTemp.dropoff_param || []));
+        successList.push(...(dataReturnTemp.shipping_Param || []));
+        failList.push(...(dataReturnTemp.noshipping_Param || []));
+      }
+    }
+
+    console.log("DROP OFF LIST NEO:", mergedDropoff);
+    console.log("SUCCESS NEO:", successList.length, "FAIL:", failList.length);
+
+    // 🟡 Jika ada kegagalan
+    if (failList.length > 0) {
+      return { error: true, object: failList };
+    }
+
+    // 🟢 Jika tidak ada kegagalan, ambil pickup address utama
+    if (mergedPickupAddresses.length > 0) {
+      this.pickupAdrress = mergedPickupAddresses.find(addr =>
+        addr.address_flag && addr.address_flag.includes("pickup_address")
+      ) || mergedPickupAddresses[0];
+
+      this.pickupObject = structuredClone(this.pickupAdrress);
+
+      // Format time_slot_list
+      const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
+      this.timeSlotList = timeSlotListTemp.map((slot: any) => {
+        const date = new Date(Number(slot.date) * 1000);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleString('id-ID', { month: 'short' });
+
+        let timeRange = slot.time_text;
+        if (!timeRange && slot.pickup_time_id) {
+          const match = slot.pickup_time_id.match(/_(\d+)$/);
+          const slotIndex = match ? parseInt(match[1]) : 0;
+          const timeSlots: Record<number, string> = {
+            1: '13:00 - 15:00',
+            2: '15:00 - 17:00',
+            3: '17:00 - 19:00',
+            4: '19:00 - 23:00'
+          };
+          timeRange = timeSlots[slotIndex] || '13:00 - 16:00';
+        }
+
+        return {
+          ...slot,
+          time_text: `${day} ${month} ${timeRange}`
+        };
+      });
+
+      return { error: false, object: this.pickupAdrress };
+    }
+
+    // 🔸 Tidak ada pickup address sama sekali
+    return { error: true, object: { reason: "No pickup address found" } };
+
+  } catch (err: any) {
+    console.error("Response Error Catch /shopee/get_massshippingparam", err);
+    return { error: true, object: { reason: err.message || "Unexpected error" } };
+  } finally {
+    this.loading = false;
+  }
+}
 
   async _updateInvoiceShipping(payload: any) {
     this.loading = true;
@@ -614,7 +760,32 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
   async _onMassPrint() {
     console.log("Selected 3 : ", this.selectProduct);
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
-    this._langsungPrintCounterMassal();
+    const resultShipping:any = await this._getMassShippingParameterNeo(this.selectProduct);
+    console.log("************ Check shipping parameter ", resultShipping);
+    // {
+    //     "error": true,
+    //     "object": [
+    //         {
+    //             "package_number": "OFG215184032250980",
+    //             "fail_reason": "Package is not ready to ship"
+    //         }
+    //     ]
+    // }
+    if(resultShipping.error) {
+      let reasonList = resultShipping.object
+        .map((f: { package_number: any; fail_reason: any; }) => `📦 ${f.package_number}: ${f.fail_reason}`)
+        .join('\r\n');
+      this.showErrorPopup = {
+        show: true,
+        severity: "warn",
+        message: `Tidak bisa cetak invoices:\r\n${reasonList}`,
+        failedOrders: reasonList
+      };
+
+    } else {
+      this._langsungPrintCounterMassal();
+    }
+
   }
   async _onRowSelectPrinted(payload: any) {
     const fileUrl = this.selectProductPrinted.labelshopee+`?t=${Date.now()}`
@@ -658,7 +829,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
   this.QueriesDataPos = this.AllQueriesDataPos.filter(item => {
     const matchesText =
       term === '' ||
-      [item.item_name, item.model_name, item.shipping_carrier]
+      [item.item_name, item.model_name, item.shipping_carrier, item.order_sn]
         .some(field => field?.toLowerCase().includes(term));
 
     const matchesType =
@@ -855,7 +1026,6 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
   async _goPrintingCounter() {
   try {
     console.log("TIME SLOT LIST ", this.timeSlotList);
-
     const latestSlot = this.timeSlotList[this.timeSlotList.length - 1];
     const dropoff = {
       address_id: this.pickupAdrress.address_id,
@@ -901,7 +1071,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
 
       reasonList = failedOrderDetails
         .map(f => `📦 ${f.order_sn}: ${f.reason}`)
-        .join('\n');
+        .join('\r\n');
 
       console.warn("⚠️ Beberapa order gagal ship:", failedOrderDetails);
 
@@ -915,7 +1085,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       this.showErrorPopup = {
         show: true,
         severity: "warn",
-        message: `Beberapa order gagal dikirim:\n${reasonList}`,
+        message: `Beberapa order gagal dikirim:\r\n${reasonList}`,
         failedOrders: failedOrderObjects
       };
     }
@@ -924,7 +1094,6 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     if (data.code === 20000 && hasDownload) {
       const url = `${window.location.origin}/upload/${downloadResult.fileName}?t=${Date.now()}`;
       console.log("📄 File siap diunduh:", url);
-
       setTimeout(() => {
         const printWindow = window.open(url, '_blank');
         if (printWindow) {
@@ -938,7 +1107,9 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
         }
       }, 200);
     } else if (!hasDownload) {
-      console.warn("Tidak ada file untuk diunduh.");
+      console.warn("⚠️ Tidak ada file untuk diunduh.");
+
+
       this.showErrorPopup = {
         show: true,
         severity: "warn",
@@ -975,6 +1146,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
 
 
 interface QueryFields {
+  order_sn?:string,
   id_q_shopee?:string,
   item_id?: string;
   item_name?: string;
@@ -984,6 +1156,7 @@ interface QueryFields {
   shipping_carrier?: string;
   invoices?: number;
   qty?: number;
+  package_number:string;
 }
 interface QueryFieldsPrinted {
   order_sn?:string
@@ -996,6 +1169,11 @@ interface QueryFieldsPrinted {
   invoices?: number;
   qty?: number;
   labelshopee?: string
+}
+interface QueryFieldsSummary {
+  shipping_carrier?: string;
+  printed?: number;
+  total?: number;
 }
 interface Column {
   field: string;

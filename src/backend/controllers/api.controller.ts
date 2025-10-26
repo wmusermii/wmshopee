@@ -341,6 +341,7 @@ export async function viewQShopeePosItemError(req: Request, res: Response, next:
     const { id } = req.body;
     const userInfo: any = req.userInfo;
     const viewResult = await apiService.viewShopeePosByIDError({ id: id }, userInfo);
+
     if (viewResult.code === 20000 && viewResult.data.length > 0) {
       await ResponseHelper.send(res, ApiResponse.success(viewResult, "Success")); return;
     } else {
@@ -353,7 +354,25 @@ export async function viewQShopeePosItemError(req: Request, res: Response, next:
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+export async function viewQShopeePrintedSummary(req: Request, res: Response, next: NextFunction) {
+  try {
+    console.log("####################################### viewQShopeePrintedSummary");
+    const { id } = req.body;
+    const userInfo: any = req.userInfo;
+    const viewResult = await apiService.viewShopeeSummaryPrinted({ id: id }, userInfo);
 
+    if (viewResult.code === 20000&& viewResult.data.length) {
+      await ResponseHelper.send(res, ApiResponse.success(viewResult, "Success")); return;
+    } else {
+      await ResponseHelper.send(res, ApiResponse.successNoData([], "No available data"));
+      return;
+    }
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
 
 
 export async function getCountInvoicesAvailable(req: Request, res: Response, next: NextFunction) {

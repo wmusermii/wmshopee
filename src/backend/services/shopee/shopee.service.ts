@@ -346,27 +346,52 @@ export class ShopeeService {
     return { status: "error", message: "Error Channel List" }
   }
 
-  public async getShippingParameterMass(orders: any[]): Promise<any> {
-    const batchSize = 50;
-    const allSuccess: any[] = [];
-    const allFail: any[] = [];
-    const alldropoff: any[] = [];
-    let pickupAddressList: any[] = [];
+ public async getShippingParameterMass(orders: any[]): Promise<any> {
+  const batchSize = 50;
+  const allSuccess: any[] = [];
+  const allFail: any[] = [];
+  const alldropoff: any[] = [];
+  let pickupAddressList: any[] = [];
 
-    // Bagi orders menjadi batch 50
-    for (let i = 0; i < orders.length; i += batchSize) {
-      const batch = orders.slice(i, i + batchSize);
+  const shippingParamList = await this.getChannelList();
+  const listLogisticts: any[] = shippingParamList.logistics_channel_list;
+
+  // 🧩 Step 1: Group orders berdasarkan logistics_channel_id atau shipping_carrier
+  const groupedOrders: Record<string, any[]> = {};
+  for (const order of orders) {
+    // Coba cocokkan carrier dengan channel ID dari daftar Shopee
+    const matchedChannel = listLogisticts.find(l =>
+      order.shipping_carrier?.toLowerCase().includes(l.logistics_channel_name.toLowerCase())
+    );
+
+    const channelId = matchedChannel ? matchedChannel.logistics_channel_id : "unknown";
+
+    if (!groupedOrders[channelId]) groupedOrders[channelId] = [];
+    groupedOrders[channelId].push(order);
+  }
+
+  // 🧩 Step 2: Loop setiap grup berdasarkan logistics_channel_id
+  for (const [channelId, group] of Object.entries(groupedOrders)) {
+    console.log(`🚚 Processing logistics_channel_id: ${channelId} with ${group.length} orders`);
+
+    // Bagi grup ini per 50 order
+    for (let i = 0; i < group.length; i += batchSize) {
+      const batch = group.slice(i, i + batchSize);
       const package_list = batch.map(o => ({ package_number: o.package_number }));
+
       const path = '/api/v2/logistics/get_mass_shipping_parameter';
       try {
         const res = await this.fetchWithAuthMETHOD(path, {}, "POST", { package_list });
+        console.log("RESPONSE SHIPPING 1 ",res);
+        console.log("RESPONSE SHIPPING 2  ",res.response.info_needed.pickup);
         if (res && res.response) {
-          // console.log("************** Resp dari shipping parameter ", res.response);
           const response = res.response;
+
           // Simpan pickup address (kalau belum disimpan)
           if (!pickupAddressList.length && response.pickup?.address_list) {
             pickupAddressList = response.pickup.address_list;
           }
+
           if (response.success_list?.length) {
             allSuccess.push(...response.success_list);
           }
@@ -380,17 +405,19 @@ export class ShopeeService {
           console.error("Invalid response:", res);
         }
       } catch (error) {
-        console.error("Error on batch:", error);
+        console.error(`Error on batch for channel ${channelId}:`, error);
       }
     }
-
-    return {
-      pickupAddressList,
-      success_list: allSuccess,
-      fail_list: allFail,
-      drop_off: alldropoff
-    };
   }
+
+  return {
+    pickupAddressList,
+    success_list: allSuccess,
+    fail_list: allFail,
+    drop_off: alldropoff
+  };
+}
+
 
 
 
@@ -503,7 +530,7 @@ export class ShopeeService {
         pickup_time_id: dropOffObj.pickup_time_id
       }
     });
-    // console.log("** RETURN DARI SHOP ORDER : ", res);
+    console.log("** RETURN DARI SHOP ORDER : ", res);
     if (res) {
       return res
     }
@@ -535,7 +562,13 @@ export class ShopeeService {
     const resultShipOrder: any[] = [];
     const resultNoShipOrder: any[] = [];
     const packageList = await this.ArraytoPackagesNumberOnly(orders);
+    // const shipingParam = await this.getShippingParameterMass(orders);
+    // console.log("GET SHIPPING PARAM PADA postMassShipOrderCounter ",shipingParam);
+
+
+
     const shipingOrders: any = await this.postShipOrderMASSCounter(packageList, dropOffObj);
+
     if (shipingOrders.error) {
       const result = { shipped_orders: resultShipOrder, noshipped_orders: resultNoShipOrder, error: shipingOrders.error, message: shipingOrders.message }
       return result;

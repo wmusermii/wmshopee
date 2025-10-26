@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ResponseHelper } from '../utils/ResponseHelper';
-import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, generateShopeeShippingParameter, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getLogisticChannelList, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, getStockDetailopnameByIdOPExcel, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, sendingPrintingCounter, updateItemsInPackage, updateQShopeeAttribute, updateShopeeShippingType, updateUser, viewQShopeePosItem, viewQShopeePosItemError, viewQShopeePosItemPrinted } from '../controllers/api.controller';
+import { checkPackageTaken, echo, generateQShopee, generateQShopeeCurrent, generateQShopeeJobs, generateShopeeShippingParameter, getAllSKUAvailable, getAllSKUOnTransaction, getAllStockopname, getAllWarhouseAvailable, getBestDataToPrint, getCountInvoicesAvailable, getCountSKUAvailable, getItemsInPackage, getLogisticChannelList, getPackageJobAvailable, getQShopee, getQShopeeAttribute, getQShopeeToday, getShopInfo, getShopPerformance, getStockDetailopnameByIdOP, getStockDetailopnameByIdOPExcel, insertStockDetailopname, insertStockopname, sendingEmailTo, sendingPrinting, sendingPrintingCounter, updateItemsInPackage, updateQShopeeAttribute, updateShopeeShippingType, updateUser, viewQShopeePosItem, viewQShopeePosItemError, viewQShopeePosItemPrinted, viewQShopeePrintedSummary } from '../controllers/api.controller';
 import { attrb, login, registUser } from '../controllers/auth.controller';
 import { authBearerMiddleware } from '../middlewares/authmiddleware';
 import { asyncHandler } from '../middlewares/asyncHandler';
@@ -25,7 +25,7 @@ router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandl
 router.post('/shopee/get_positemprinted', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItemPrinted)); // untuk menggenerate table q_shopee generateQShopeeJobs
 router.post('/shopee/get_positemerror', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItemError)); // untuk menggenerate table q_shopee generateQShopeeJobs
 
-
+router.post('/shopee/get_summaryprinted', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePrintedSummary));
 
 
 

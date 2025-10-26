@@ -250,7 +250,8 @@ export class ShopeeRepository {
         'qid.model_name',
         'qid.image_url',
         'qi.shipping_carrier',
-        'qi.package_number'
+        'qi.package_number',
+        'qi.order_sn'
       )
       .innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn')
       .count({ invoices: 'qid.order_sn' })
@@ -320,6 +321,21 @@ async viewQShopeePosBySNError(payload: any) {
       'qi.order_sn'
     )
     .orderBy('qty', 'desc');
+
+  return query;
+}
+
+async viewQShopeeSummaryPrinted(payload: any) {
+  const query = await db('q_shopee_invoices_bulk as qi')
+    .select('qi.shipping_carrier')
+    .countDistinct({ printed: 'qi.order_sn' })           // jumlah order unik per carrier
+    .sum({ total: 'qi.total_amount' })        // total qty per carrier
+    .where('qi.id_q_shopee', payload.id)
+    .andWhere((qb: { whereNotNull: (arg0: string) => { (): any; new(): any; andWhereRaw: { (arg0: string): void; new(): any; }; }; }) => {
+      qb.whereNotNull('qi.labelshopee').andWhereRaw("trim(qi.labelshopee) <> ''");
+    })
+    .groupBy('qi.shipping_carrier')
+    .orderBy('printed', 'desc');
 
   return query;
 }

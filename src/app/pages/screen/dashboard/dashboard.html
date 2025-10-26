@@ -16,12 +16,6 @@
       <button pButton type="submit" icon="pi pi-sync" (click)="_popupShopee()" class="w-full" [disabled]="disableBtn"
         label="Sync Shopee">
       </button>
-      <!-- <h3>Mulai</h3>
-      <p-datepicker [(ngModel)]="startDateFetch" inputStyleClass="!text-center" class="!text-center"
-        dateFormat="dd-M-yy" [showTime]="true" [showSeconds]="true" hourFormat="24" />
-      <h3>Sampai</h3>
-      <p-datepicker [(ngModel)]="endDateFetch" inputStyleClass="!text-center" class="!text-center" dateFormat="dd-M-yy"
-        [showTime]="true" [showSeconds]="true" hourFormat="24" /> -->
     </div>
     <!-- Kanan -->
     <div>
@@ -51,9 +45,7 @@
                     <!-- Baris atas -->
                     <div class="flex items-center justify-between">
                       <span class="text-xl font-bold">Stock Details</span>
-
                     </div>
-
                     <!-- Baris kedua: search -->
                     <p-inputgroup class="w-full">
                       <p-inputgroup-addon>
@@ -75,8 +67,8 @@
                     <th pSortableColumn="item_name">
                       Item <p-sortIcon field="item_name"></p-sortIcon>
                     </th>
-                    <th pSortableColumn="invoices">
-                      Invoices <p-sortIcon field="invoices"></p-sortIcon>
+                    <th pSortableColumn="order_sn">
+                      Invoices <p-sortIcon field="order_sn"></p-sortIcon>
                     </th>
                     <th pSortableColumn="shipping_carrier">
                       Type <p-sortIcon field="shipping_carrier"></p-sortIcon>
@@ -105,7 +97,7 @@
                         </div>
                       </div>
                     </td>
-                    <td class="!text-end">{{ product.invoices }}</td>
+                    <td class="!text-end">{{ product.order_sn }}</td>
                     <td>{{ product.shipping_carrier }}</td>
                     <td class="!text-end">
                       <span class="text-4xl font-semibold text-blue-700">
@@ -263,11 +255,39 @@
           </p-table>
         </p-tabpanel>
         <p-tabpanel value="3">
-          <div class="flex gap-4">
-              <div class="flex-1">
-
+          <p-table [value]="QueriesPrintedSummary" class="w-full" stripedRows="true" showGridlines="true"
+            [tableStyle]="{ 'min-width': '30rem' }">
+            <ng-template #caption>
+              <div class="flex flex-col gap-2">
+                <!-- Baris atas: Title dan Add Button -->
+                <div class="flex items-center justify-between">
+                  <span class="text-xl font-bold">Printed Summary</span>
+                  <!-- <p-button icon="pi pi-plus" (onClick)="_addProduct()" label="Add Product" rounded raised /> -->
+                </div>
+                <!-- Input Search -->
               </div>
-          </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="shipping_carrier">
+                  Pengiriman <p-sortIcon field="shipping_carrier"></p-sortIcon>
+                </th>
+                <th pSortableColumn="printed">
+                  Total <p-sortIcon field="printed"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-product>
+              <tr [pSelectableRow]="product">
+                <td>
+                  <span class="text-3xl font-semibold text-gray-700"> Pengiriman &nbsp;{{ product.shipping_carrier }}</span>
+                </td>
+                <td>
+                  <span class="text-4xl font-semibold text-blue-700">{{ product.printed }}&nbsp;Invoices</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
@@ -291,7 +311,9 @@
       <!-- Isi Pesan -->
       <div>
         <h2 class="text-xl font-bold text-gray-800 mb-1">Terjadi Kesalahan</h2>
-        <p class="text-gray-600 text-sm">{{ showErrorPopup.message || 'Testing' }}</p>
+        <p class="text-gray-600 text-sm whitespace-pre-line">
+          {{ showErrorPopup.message || 'Testing' }}
+        </p>
       </div>
     </div>
   </div>
