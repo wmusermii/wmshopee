@@ -169,7 +169,7 @@
                 <th pSortableColumn="item_name">
                   Item <p-sortIcon field="item_name"></p-sortIcon>
                 </th>
-                <th pSortableColumn="invoices">
+                <th pSortableColumn="order_sn">
                   Invoices <p-sortIcon field="invoices"></p-sortIcon>
                 </th>
                 <th pSortableColumn="shipping_carrier">
@@ -191,8 +191,8 @@
                     </div>
                   </div>
                 </td>
-                <td class="!text-end">
-                  {{ product.invoices }}
+                <td class="!text-center">
+                  {{ product.order_sn }}
                 </td>
                 <td>{{product.shipping_carrier}}</td>
                 <td class="!text-end">

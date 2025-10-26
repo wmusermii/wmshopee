@@ -305,20 +305,25 @@ async viewQShopeePosBySNError(payload: any) {
       'qid.image_url',
       'qi.shipping_carrier',
       'qi.labelshopee',
+      'qi.order_sn'
     )
     .innerJoin('q_shopee_invoices_bulk as qi', 'qid.order_sn', 'qi.order_sn')
     .count({ invoices: 'qid.order_sn' })
     .sum({ qty: 'qid.model_quantity_purchased' })
-    .where('qid.status', 0)
-    .andWhereRaw(`date(qid.create_time) = date('now','localtime')`)
-    .andWhere((builder: { whereNull: (arg0: string) => { (): any; new(): any; orWhereRaw: { (arg0: string): void; new(): any; }; }; }) => {
-      builder.whereNull('qi.labelshopee').orWhereRaw(`trim(qi.labelshopee) = ''`);
-    })
-    .groupBy('qid.item_id', 'qid.model_id', 'qi.shipping_carrier')
+    .where('qi.id_q_shopee', payload.id)
+    .andWhereRaw(`(qi.labelshopee IS NULL OR trim(qi.labelshopee) = '')`)
+    .groupBy(
+      'qid.item_id',
+      'qid.model_id',
+      'qi.shipping_carrier',
+      'qi.labelshopee',
+      'qi.order_sn'
+    )
     .orderBy('qty', 'desc');
 
   return query;
 }
+
 
 
   async selectSKUAvailable() {

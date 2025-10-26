@@ -687,7 +687,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       this.QueriesDataError = [...this.AllQueriesDataError];
     } else {
       this.QueriesDataError = this.AllQueriesDataError.filter(item =>
-        [item.item_name, item.model_name, item.shipping_carrier]
+        [item.item_name, item.model_name, item.shipping_carrier, item.order_sn]
           .some(field => field?.toLowerCase().includes(term))
       );
     }
@@ -986,6 +986,7 @@ interface QueryFields {
   qty?: number;
 }
 interface QueryFieldsPrinted {
+  order_sn?:string
   item_id?: string;
   item_name?: string;
   model_id?: string;

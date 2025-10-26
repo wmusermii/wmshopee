@@ -88,9 +88,7 @@ export class ShopeeService {
   private async fetchWithAuth(path: string, queryParams: any = {}): Promise<any> {
     let cred = await this.getCredential();
     let timestamp = getTimestamp();
-
     let sign = this.generateSignature(path, timestamp, cred.access_token, cred.shop_id, cred.client_id, cred.client_secret);
-
     const searchParams = new URLSearchParams({
       partner_id: cred.client_id,
       shop_id: cred.shop_id,
@@ -704,7 +702,7 @@ export class ShopeeService {
             }
             // Ambil tracking number
             const packageOnlyList = await this.tostringArrayPackagesOnly(shippedOrders);
-            await this.delay(1000);
+            await this.delay(500);
             const trackingOrder = await this.getMasTrackingNumberMulti(packageOnlyList);
             console.log("🧾 HASIL TRACKING : ", trackingOrder);
 
@@ -726,7 +724,7 @@ export class ShopeeService {
               console.log("🧾 HASIL CREATE DOCUMENT :", createDocuments);
 
               realOrders = mergedToCreateDocs;
-              await this.delay(1000);
+              await this.delay(500);
               continue;
             }
           }
@@ -742,7 +740,7 @@ export class ShopeeService {
               resultDocumentInfo.some((doc: any) => doc.order_sn === order.order_sn)
             );
             console.log("ORDER YANG BISA CETAK ", filteredOrders);
-            await this.delay(1000);
+            await this.delay(100);
             const massDownloadRESULT = await this.downloadMassShippingStraighInfo(filteredOrders, uploadFolder);
             if (massDownloadRESULT) {
               return ApiResponse.success(
@@ -778,7 +776,7 @@ export class ShopeeService {
         attempt++;
         console.log(`🔄 Percobaan ke-${attempt}, total orders:`, realOrders.length);
         const documentResultInfo = await this.getMasshippingDocumentInfo(realOrders);
-        // console.log("RETURN CHECK DOCUMENT : ", documentResultInfo);
+        console.log("*****  RETURN CHECK DOCUMENT : ", documentResultInfo);
         if (documentResultInfo.error) {
           console.log("document error message : ", documentResultInfo.message);
           // Jika document belum siap karena belum order ship
@@ -826,7 +824,7 @@ export class ShopeeService {
             }
             // Ambil tracking number
             const packageOnlyList = await this.tostringArrayPackagesOnly(shippedOrders);
-            await this.delay(1000);
+            await this.delay(100);
             const trackingOrder = await this.getMasTrackingNumberMulti(packageOnlyList);
             console.log("🧾 Tracking Result Counter : ", trackingOrder);
 
@@ -848,7 +846,7 @@ export class ShopeeService {
               console.log("🧾 HASIL CREATE DOCUMENT :", createDocuments);
 
               realOrders = mergedToCreateDocs;
-              await this.delay(1000);
+              await this.delay(100);
               continue;
             }
           }
@@ -856,7 +854,7 @@ export class ShopeeService {
         {
           const resultDocumentInfo = documentResultInfo.response?.result_list || [];
           console.log("Hasil getMasshippingDocumentInfo check document counter ", resultDocumentInfo);
-
+          await this.delay(1000);
           if (resultDocumentInfo.length > 0) {
             // 🔹 Pisahkan antara dokumen yang READY dan yang gagal
             const readyDocs = resultDocumentInfo.filter(
@@ -875,7 +873,7 @@ export class ShopeeService {
                 reason: doc.fail_message || doc.fail_error || "Unknown document error",
               }));
               failedSummary.push(...failedMapped);
-              console.warn("❌ Beberapa dokumen gagal dibuat:", failedMapped.length, failedMapped);
+              console.warn("❌ Beberapa dokumen gagal dibuat: jumlah (", failedMapped.length+" )", failedMapped);
             }
 
             // 🔹 Lanjutkan proses hanya untuk yang dokumen READY

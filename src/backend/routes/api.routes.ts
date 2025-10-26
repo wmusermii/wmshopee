@@ -25,6 +25,10 @@ router.post('/shopee/get_positem', asyncHandler(authBearerMiddleware),asyncHandl
 router.post('/shopee/get_positemprinted', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItemPrinted)); // untuk menggenerate table q_shopee generateQShopeeJobs
 router.post('/shopee/get_positemerror', asyncHandler(authBearerMiddleware),asyncHandler(viewQShopeePosItemError)); // untuk menggenerate table q_shopee generateQShopeeJobs
 
+
+
+
+
 router.get('/shopee/get_shop_performance', asyncHandler(authBearerMiddleware),asyncHandler(getShopPerformance)); // untuk mendapatka performa toko terhadap shopee
 router.get('/shopee/get_shop_info', asyncHandler(authBearerMiddleware),asyncHandler(getShopInfo)); //mendapatkan Info toko dari Shopee
 

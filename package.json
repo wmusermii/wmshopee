@@ -8,6 +8,7 @@
     "postupload": "cpx \"upload/**/*\" dist/wmshopee/upload",
     "postbuild": "cpx \"data/**/*\" dist/wmshopee/server/data",
     "builddata": "npm run build && npm run postbuild && npm run postupload",
+    "buildtotal": "powershell -Command \"$time=(Get-Date -Format 'yyyyMMddHHmm'); if (Test-Path 'data/admdb.sqlite') {Rename-Item -Path 'data/admdb.sqlite' -NewName ('admdb_' + $time + '.bak')} ; Copy-Item 'dist/wmshopee/server/data/admdb.sqlite' 'data/admdb.sqlite' -Force ; npm run builddata\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:wmshopee": "node dist/wmshopee/server/server.mjs"
