@@ -614,9 +614,7 @@ export async function getBestDataToPrint(req: Request, res: Response, next: Next
   try {
     console.log("####################################### getBestDataToPrint");
     const userInfo: any = req.userInfo;
-    // console.log("PAYLOAD DI BEST DATA TO PRINT : ",req.body);
-    // const { item_id, model_id,shipping_carrier } = req.body;
-    // const packageResult = await apiService.getBestShopeeItems(item_id, model_id, shipping_carrier);
+
     const packageResult = await apiService.getBestShopeeItems(req.body);
     if (packageResult.code === 20000) {
       await ResponseHelper.send(res, packageResult); return;

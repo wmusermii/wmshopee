@@ -227,7 +227,7 @@ export class Dashboard implements OnInit {
         console.log("Response Error Catch /v2/shopee/get_channelslist", err);
       });
   }
-  async _lastFetchShopee() {
+  async _lastFetchShopee():Promise<void> {
     this.loading = true;
     fetch('/v2/shopee/get_qshopeetoday', {
       method: 'GET',
@@ -270,14 +270,6 @@ export class Dashboard implements OnInit {
 
   async _popupShopee() {
     this.showGenerateDialog = true;
-    // let startArray: any = await this.ssrStorage.getItem("FETCHTIME");
-    // if (startArray) {
-    //   //################### SETTING JAM BERIKUT ########################
-    //   let startT: string[] = startArray.split(",");
-    //   this.starttime = startT[0];
-    //   let dateTmp = new Date();
-    //   this.endtime = dateTmp.toLocaleTimeString('en-GB');
-    // }
    this.starttime = this.startDateFetch?.toLocaleString('id-ID', {
     day: '2-digit',
     month: 'short',
@@ -385,7 +377,8 @@ export class Dashboard implements OnInit {
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
           this.arraySPXType = carriers;
-          // await this._getMassShippingParameter(dataRecordsTemp.data);
+          await this._getMassShippingParameter(dataRecordsTemp.data);
+          // await this._lastFetchShopee();
           this.onGlobalSearch()
         } else {
           this.QueriesDataPos = [];
@@ -507,109 +500,104 @@ export class Dashboard implements OnInit {
 
 
 
-  async _getMassShippingParameter(payload: any[]) {
-  try {
-    this.loading = true;
-
-    // Hapus duplikat berdasarkan package_number
-    const uniqueData = Array.from(
-      new Map(payload.map(item => [item.package_number, item])).values()
-    );
-
-    // Bagi data ke dalam batch berisi maksimal 50 item
-    const batchSize = 50;
-    const batches = [];
-    for (let i = 0; i < uniqueData.length; i += batchSize) {
-      batches.push(uniqueData.slice(i, i + batchSize));
-    }
-
-    console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
-    // console.log(`Mengirim ***** : ${JSON.stringify(batches)}`);
-    // Jalankan semua batch paralel
-    const results = await Promise.all(
-      batches.map(async (batch, index) => {
-        const res = await fetch('/v2/shopee/get_massshippingparam', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.token}`
-          },
-          body: JSON.stringify(batch)
-        });
-        if (!res.ok) throw new Error(`Batch ${index + 1} gagal`);
-        return res.json();
-      })
-    );
-
-
-    // Gabungkan semua hasil
-    const mergedPickupAddresses: any[] = [];
-    const mergedDropoff: any[] = [];
-    const successList: any[] = [];
-    const failList: any[] = [];
-
-    for (const result of results) {
-      if (result.code === 20000 && result.data) {
-        const dataReturnTemp = result.data;
-        mergedPickupAddresses.push(...(dataReturnTemp.pickup_address || []));
-        mergedDropoff.push(...(dataReturnTemp.dropoff_param || []));
-        successList.push(...(dataReturnTemp.shipping_Param || []));
-        failList.push(...(dataReturnTemp.noshipping_Param || []));
-      }
-    }
-
-    // console.log("SEMUA PICKUP ADDRESS:", mergedPickupAddresses);
-    console.log("DROP OFF LIST:", mergedDropoff);
-    console.log("SUCCESS:", successList.length, "FAIL:", failList.length);
-
-    // Pilih pickup address utama
-    if (mergedPickupAddresses.length > 0) {
-      this.pickupAdrress = mergedPickupAddresses.find(addr =>
-        addr.address_flag && addr.address_flag.includes("pickup_address")
-      ) || mergedPickupAddresses[0];
-      this.pickupObject = cloneDeep(this.pickupAdrress);
-      console.log("TIME SLOT ",
-        this.pickupAdrress.time_slot_list
+  async _getMassShippingParameter(payload: any[]):Promise<void> {
+    try {
+      this.loading = true;
+      // Hapus duplikat berdasarkan package_number
+      const uniqueData = Array.from(
+        new Map(payload.map(item => [item.package_number, item])).values()
       );
-      // Format waktu slot pickup
-      const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
-
-this.timeSlotList = timeSlotListTemp.map((slot: any) => {
-  const date = new Date(Number(slot.date) * 1000);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = date.toLocaleString('id-ID', { month: 'short' }); // contoh: "Nov"
-        // Default gunakan time_text dari API
-        let timeRange = slot.time_text;
-        // Jika tidak ada time_text, buat sendiri berdasarkan pickup_time_id
-        if (!timeRange && slot.pickup_time_id) {
-          const match = slot.pickup_time_id.match(/_(\d+)$/);
-          const slotIndex = match ? parseInt(match[1]) : 0;
-          // Mapping slot index ke jam
-          const timeSlots: Record<number, string> = {
-            1: '13:00 - 15:00',
-            2: '15:00 - 17:00',
-            3: '17:00 - 19:00',
-            4: '19:00 - 23:00'
-          };
-          timeRange = timeSlots[slotIndex] || '13:00 - 16:00'; // fallback default
+      // Bagi data ke dalam batch berisi maksimal 50 item
+      const batchSize = 50;
+      const batches = [];
+      for (let i = 0; i < uniqueData.length; i += batchSize) {
+        batches.push(uniqueData.slice(i, i + batchSize));
+      }
+      console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
+      const results = await Promise.all(
+        batches.map(async (batch, index) => {
+          const res = await fetch('/v2/shopee/get_massshippingparam', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${this.token}`
+            },
+            body: JSON.stringify(batch)
+          });
+          if (!res.ok) throw new Error(`Batch ${index + 1} gagal`);
+          return res.json();
+        })
+      );
+      // Gabungkan semua hasil
+      const mergedPickupAddresses: any[] = [];
+      const mergedDropoff: any[] = [];
+      const successList: any[] = [];
+      const failList: any[] = [];
+      for (const result of results) {
+        if (result.code === 20000 && result.data) {
+          const dataReturnTemp = result.data;
+          mergedPickupAddresses.push(...(dataReturnTemp.pickup_address || []));
+          mergedDropoff.push(...(dataReturnTemp.dropoff_param || []));
+          successList.push(...(dataReturnTemp.shipping_Param || []));
+          failList.push(...(dataReturnTemp.noshipping_Param || []));
         }
-        return {
-          ...slot,
-          time_text: `${day} ${month} ${timeRange}`
-        };
-      });
+      }
+      // console.log("SEMUA PICKUP ADDRESS:", mergedPickupAddresses);
+      console.log("*** Drop of List:", mergedDropoff);
+      console.log("success:", successList.length, "fail:", failList.length);
+      console.log("list yang di hapus : ", failList);
+      if(failList.length > 0){
+        // await this._updateInvoiceShipping(failList);
+        // await this._lastFetchShopee();
+      }
+      //
+      // Pilih pickup address utama
+      if (mergedPickupAddresses.length > 0) {
+        this.pickupAdrress = mergedPickupAddresses.find(addr =>
+          addr.address_flag && addr.address_flag.includes("pickup_address")
+        ) || mergedPickupAddresses[0];
+        this.pickupObject = cloneDeep(this.pickupAdrress);
+        console.log("TIME SLOT ",
+          this.pickupAdrress.time_slot_list
+        );
+        // Format waktu slot pickup
+        const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
 
-    } else {
-      this.pickupAdrress = {};
-      this.timeSlotList = [];
+        this.timeSlotList = timeSlotListTemp.map((slot: any) => {
+          const date = new Date(Number(slot.date) * 1000);
+          const day = date.getDate().toString().padStart(2, '0');
+          const month = date.toLocaleString('id-ID', { month: 'short' }); // contoh: "Nov"
+          // Default gunakan time_text dari API
+          let timeRange = slot.time_text;
+          // Jika tidak ada time_text, buat sendiri berdasarkan pickup_time_id
+          if (!timeRange && slot.pickup_time_id) {
+            const match = slot.pickup_time_id.match(/_(\d+)$/);
+            const slotIndex = match ? parseInt(match[1]) : 0;
+            // Mapping slot index ke jam
+            const timeSlots: Record<number, string> = {
+              1: '13:00 - 15:00',
+              2: '15:00 - 17:00',
+              3: '17:00 - 19:00',
+              4: '19:00 - 23:00'
+            };
+            timeRange = timeSlots[slotIndex] || '13:00 - 16:00'; // fallback default
+          }
+          return {
+            ...slot,
+            time_text: `${day} ${month} ${timeRange}`
+          };
+        });
+
+      } else {
+        this.pickupAdrress = {};
+        this.timeSlotList = [];
+      }
+    } catch (err) {
+      console.error("Response Error Catch /shopee/get_massshippingparam", err);
+    } finally {
+      this.loading = false;
     }
-
-  } catch (err) {
-    console.error("Response Error Catch /shopee/get_massshippingparam", err);
-  } finally {
-    this.loading = false;
   }
-}
  async _getMassShippingParameterNeo(payload: QueryFields[]): Promise<{ error: boolean; object: any }> {
   try {
     this.loading = true;
@@ -618,16 +606,13 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     const uniqueData = Array.from(
       new Map(payload.map(item => [item.package_number, item])).values()
     );
-
     // 🔹 Bagi data ke dalam batch (maks 50)
     const batchSize = 50;
     const batches = [];
     for (let i = 0; i < uniqueData.length; i += batchSize) {
       batches.push(uniqueData.slice(i, i + batchSize));
     }
-
     console.log(`Mengirim ${batches.length} batch (max ${batchSize} per batch)`);
-
     // 🔹 Jalankan semua batch paralel
     const results = await Promise.all(
       batches.map(async (batch, index) => {
@@ -650,7 +635,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     const mergedDropoff: any[] = [];
     const successList: any[] = [];
     const failList: any[] = [];
-
+// console.log("MASSSHIPPING RESULT ",results);
     for (const result of results) {
       if (result.code === 20000 && result.data) {
         const dataReturnTemp = result.data;
@@ -661,12 +646,12 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       }
     }
 
-    console.log("DROP OFF LIST NEO:", mergedDropoff);
-    console.log("SUCCESS NEO:", successList.length, "FAIL:", failList.length);
+    // console.log("** pickup address:", mergedPickupAddresses);
+    console.log("** success neo :", successList.length, "fail neo:", failList.length);
 
     // 🟡 Jika ada kegagalan
     if (failList.length > 0) {
-      return { error: true, object: failList };
+       return { error: false, object: this.pickupAdrress };
     }
 
     // 🟢 Jika tidak ada kegagalan, ambil pickup address utama
@@ -740,7 +725,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
         // console.log("Response dari API /shopee/get_massshippingparam ", data);
         this.loading = false;
         if (data.code === 20000) {
-          await this._lastFetchShopee();
+          // await this._lastFetchShopee();
         } else {
         }
       })
@@ -760,32 +745,7 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
   async _onMassPrint() {
     console.log("Selected 3 : ", this.selectProduct);
     this.ssrStorage.setItem("FORCEITEMID", this.selectProduct);
-    const resultShipping:any = await this._getMassShippingParameterNeo(this.selectProduct);
-    console.log("************ Check shipping parameter ", resultShipping);
-    // {
-    //     "error": true,
-    //     "object": [
-    //         {
-    //             "package_number": "OFG215184032250980",
-    //             "fail_reason": "Package is not ready to ship"
-    //         }
-    //     ]
-    // }
-    if(resultShipping.error) {
-      let reasonList = resultShipping.object
-        .map((f: { package_number: any; fail_reason: any; }) => `📦 ${f.package_number}: ${f.fail_reason}`)
-        .join('\r\n');
-      this.showErrorPopup = {
-        show: true,
-        severity: "warn",
-        message: `Tidak bisa cetak invoices:\r\n${reasonList}`,
-        failedOrders: reasonList
-      };
-
-    } else {
-      this._langsungPrintCounterMassal();
-    }
-
+    this._langsungPrintCounterMassal();
   }
   async _onRowSelectPrinted(payload: any) {
     const fileUrl = this.selectProductPrinted.labelshopee+`?t=${Date.now()}`
@@ -937,7 +897,8 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
             if (!acc[item.order_sn]) {
               acc[item.order_sn] = {
                 order_sn: item.order_sn,
-                package_number: item.package_number
+                package_number: item.package_number,
+                logistics_channel_id: item.logistics_channel_id
               };
             }
             return acc;
@@ -1023,25 +984,40 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
     alert("Terjadi kesalahan saat mencetak label.");
   }
   }
-  async _goPrintingCounter() {
+  async _goPrintingCounter():Promise<void> {
   try {
-    console.log("TIME SLOT LIST ", this.timeSlotList);
-    const latestSlot = this.timeSlotList[this.timeSlotList.length - 1];
-    const dropoff = {
-      address_id: this.pickupAdrress.address_id,
-      pickup_time_id: latestSlot.pickup_time_id,
-      logistics_channel_id: 80099,
+    console.log("***** Check timeslot dari orders ");
+    const latestTimeslot:any= await this._getMassShippingParameterNeo(this.ordersPrint);
+    // console.log("data yang di print ",this.ordersPrint);
+    console.log("Sebelum Print Counter ",latestTimeslot);
+    if(latestTimeslot.error) {
+      console.warn("⚠️ Tidak ada address pickup ready.");
+      this.showErrorPopup = {
+        show: true,
+        severity: "Error",
+        message: "Tidak ada alamat pickup atau timeslot tidak tersedia untuk counter masal."
+      };
+      return;
+    }
+    // console.log("Sebelum Print Dropoff 1 ",latestTimeslot);
+    // console.log("Sebelum Print Dropoff 2 ",this.ordersPrint[0].logistics_channel_id);
+    // console.log("Sebelum Print Dropoff 3 ",latestTimeslot.object.time_slot_list[0].pickup_time_id);
+    const dropoffOBJ = {
+      address_id: latestTimeslot.object.address_id,
+      pickup_time_id: latestTimeslot.object.time_slot_list[0].pickup_time_id,
+      logistics_channel_id: this.ordersPrint[0].logistics_channel_id,
       dropoff: {
         branch_id: "14590",
         sender_real_name: "JAWARA STORE OFFICIAL"
       }
     };
-
+    console.log("Sebelum Print Counter dropoff ",dropoffOBJ);
     const payload = {
       orders: this.ordersPrint,
-      dropOffObj: dropoff
+      dropOffObj: dropoffOBJ
     };
-
+    console.log("*** payload Untuk Print ", payload);
+    this.loading=true;
     const res = await fetch('/v2/shopee/send_print_counter', {
       method: 'POST',
       headers: {
@@ -1050,31 +1026,25 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       },
       body: JSON.stringify(payload)
     });
-
     const data = await res.json();
     console.log("Response dari API /shopee/send_print_counter", data);
-
     const failedOrders = data?.data?.data?.failedOrders || [];
     const downloadResult = data?.data?.data?.downloadResult;
     const hasDownload = !!downloadResult?.fileUrl;
-
     // ⚠️ Siapkan reasonList dan filter orders gagal
     let reasonList = "";
     let failedOrderDetails: any[] = [];
-
     if (failedOrders.length > 0) {
+      this.loading=false;
       failedOrderDetails = failedOrders.map((f: any) => ({
         order_sn: f.order_sn,
         package_number: f.package_number,
         reason: f.reason || "Unknown reason"
       }));
-
       reasonList = failedOrderDetails
         .map(f => `📦 ${f.order_sn}: ${f.reason}`)
         .join('\r\n');
-
       console.warn("⚠️ Beberapa order gagal ship:", failedOrderDetails);
-
       // 🔍 Filter order gagal dari this.ordersPrint berdasarkan order_sn
       const failedOrderSNs = failedOrderDetails.map(f => f.order_sn);
       const failedOrderObjects = this.ordersPrint.filter((o: any) =>
@@ -1108,8 +1078,6 @@ this.timeSlotList = timeSlotListTemp.map((slot: any) => {
       }, 200);
     } else if (!hasDownload) {
       console.warn("⚠️ Tidak ada file untuk diunduh.");
-
-
       this.showErrorPopup = {
         show: true,
         severity: "warn",
@@ -1156,7 +1124,8 @@ interface QueryFields {
   shipping_carrier?: string;
   invoices?: number;
   qty?: number;
-  package_number:string;
+  package_number?:string;
+  ship_by_date?:string;
 }
 interface QueryFieldsPrinted {
   order_sn?:string
@@ -1168,7 +1137,9 @@ interface QueryFieldsPrinted {
   shipping_carrier?: string;
   invoices?: number;
   qty?: number;
-  labelshopee?: string
+  labelshopee?: string,
+  logistics_channel_id?:string,
+  fulfillment_flag?:string
 }
 interface QueryFieldsSummary {
   shipping_carrier?: string;

@@ -17,6 +17,9 @@ router.post('/shopee/gen_qshopee_job', asyncHandler(authBearerMiddleware),asyncH
 
 router.post('/shopee/get_massshippingparam', asyncHandler(authBearerMiddleware),asyncHandler(generateShopeeShippingParameter)); // untuk menggenerate shipping parameter
 
+// router.post('/shopee/del_invoicesbyshippingparam', asyncHandler(authBearerMiddleware),asyncHandler(generateShopeeShippingParameter));
+
+
 router.get('/shopee/get_channelslist', asyncHandler(authBearerMiddleware),asyncHandler(getLogisticChannelList));
 
 router.post('/shopee/upd_shippingtype', asyncHandler(authBearerMiddleware),asyncHandler(updateShopeeShippingType));

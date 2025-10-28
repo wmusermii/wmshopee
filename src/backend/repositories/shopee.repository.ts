@@ -4,17 +4,11 @@ import { logInfo } from '../utils/logger';
 
 export class ShopeeRepository {
   async saveQShopee(payload: any, userInfo: any) {
-    // Pastikan fromdate diformat jadi YYYY-MM-DD
-     console.log("PAYLOAD INSERT ",payload);
-     console.log("ID Q SHOPEE : ",payload.id_q_shopee);
+     console.log("*** id_q_shopee : ",payload.id_q_shopee);
     payload.fromdate = await this.convertDateFormat(payload.fromdate);
     const formattedDate = new Date(payload.fromdate).toISOString().substring(0, 10); // hasilnya "2025-07-24"
-    // console.log("PAYLOAD INSERT ",payload);
     if(payload.id_q_shopee > 0) {
-
-      const deleteInvoices = await db('q_shopee_invoices').delete().where("id_q_shopee", payload.id_q_shopee);
-
-
+      const deleteInvoices = await db('q_shopee_invoices').delete().where("id_q_shopee", payload.id_q_shopee); //### delete invoices dengan id q shopee sama jika ada
        const query = await db('q_shopee').update(
           {
             fromtime: payload.fromtime,
@@ -54,6 +48,10 @@ export class ShopeeRepository {
     return await query;
   }
   async saveQShopeeInvoices(payload: any[]) {
+
+    // console.log("***** inser into invoice ", payload[1]);
+
+
     const query = await db('q_shopee_invoices').insert(payload);
     return await query;
   }
@@ -109,6 +107,7 @@ export class ShopeeRepository {
     // const today = new Date().toISOString().substring(0, 10);
     // console.log("######### getQShopeeItembestMulti : ", payload);
     const items = payload.itemArray;
+    // console.log("***** Items data yang di print payload : ",items);
     const filters = items.map((item: {
       id_q_shopee: any; item_id: any; model_id: any; shipping_carrier: any;
 }) => [
@@ -117,13 +116,18 @@ export class ShopeeRepository {
         item.model_id,
         item.shipping_carrier
       ]);
-      const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
+      // console.log("***** Items data yang di print filter : ",filters);
+      const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number', 'qi.logistics_channel_id').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
   .groupBy('qid.id_q_shopee','qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number');
-      const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string }) => ({
+
+      // console.log("***** Items data hasil ambil db : ",invoicesOfItem);
+      const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string;logistics_channel_id:string }) => ({
         order_sn: d.order_sn,
-        package_number: d.package_number
+        package_number: d.package_number,
+        logistics_channel_id: d.logistics_channel_id
       }));
-      // console.log("ORDER LIST YANG DI PRINT : ", orderList);
+
+      console.log("***** Items data hasil untuk di print  : ", orderList);
 
       return orderList;
 
@@ -136,7 +140,7 @@ export class ShopeeRepository {
     //   console.log("ORDER LIST YANG DI UPDATE : ", payload);
     //   return payload;
     await db('q_shopee_invoices').delete().whereIn('package_number', payload);
-      console.log("ORDER LIST YANG DI DELETE : ", payload);
+      console.log("******* ORDER LIST YANG DI DELETE : ", payload);
       return payload;
   }
   // async copyInvoiceToBulkData(orders: any[]) {
@@ -251,7 +255,10 @@ export class ShopeeRepository {
         'qid.image_url',
         'qi.shipping_carrier',
         'qi.package_number',
-        'qi.order_sn'
+        'qi.order_sn',
+        'qi.logistics_channel_id',
+        'qi.fulfillment_flag',
+        'qi.ship_by_date'
       )
       .innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn')
       .count({ invoices: 'qid.order_sn' })
