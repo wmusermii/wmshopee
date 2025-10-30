@@ -409,6 +409,109 @@ export class ShopeeService {
       drop_off: alldropoff
     };
   }
+  public async getShippingParameterMassSimple(payload: any): Promise<any> {
+  const packageListSimple = await this.shopeeRepo.getQShopeeGetSimpleLogisticChannelId(payload);
+  console.log("**** Get simple packages : ", packageListSimple);
+
+  const batchSize = 50;
+  const allSuccess: any[] = [];
+  const allFail: any[] = [];
+  const alldropoff: any[] = [];
+  let pickupAddressList: any[] = [];
+
+  const shippingParamList = await this.getChannelList();
+  const listLogisticts: any[] = shippingParamList?.logistics_channel_list || [];
+  console.log("**** Channel List sample : ", listLogisticts[0]);
+
+  // 🧩 Step 1: Group orders berdasarkan logistics_channel_id atau shipping_carrier
+  const groupedOrders: Record<string, any[]> = {};
+
+  for (const order of packageListSimple) {
+    // jika order sudah punya logistics_channel_id, gunakan itu (paling akurat)
+    let channelId: string | number = order.logistics_channel_id ?? "unknown";
+
+    // jika tidak ada, coba matching berdasarkan nama
+    if (!order.logistics_channel_id) {
+      const carrierNorm = (order.shipping_carrier || "").toString().toLowerCase().trim();
+
+      // coba match includes dua arah
+      let matchedChannel = listLogisticts.find(l =>
+        (l.logistics_channel_name || "").toString().toLowerCase().includes(carrierNorm)
+      );
+
+      if (!matchedChannel) {
+        matchedChannel = listLogisticts.find(l =>
+          carrierNorm.includes((l.logistics_channel_name || "").toString().toLowerCase())
+        );
+      }
+
+      // coba match kata per kata (fallback)
+      if (!matchedChannel && carrierNorm) {
+        const carrierWords = carrierNorm.split(/\s+/).filter(Boolean);
+        matchedChannel = listLogisticts.find(l => {
+          const lname = (l.logistics_channel_name || "").toString().toLowerCase();
+          return carrierWords.every((w: any) => lname.includes(w) || carrierNorm.includes(w));
+        });
+      }
+
+      if (matchedChannel) {
+        channelId = matchedChannel.logistics_channel_id;
+      } else {
+        channelId = "unknown";
+      }
+    }
+
+    // pastikan key string
+    const key = String(channelId);
+    if (!groupedOrders[key]) groupedOrders[key] = [];
+    groupedOrders[key].push(order);
+  }
+
+  console.log("Grouped orders summary:", Object.keys(groupedOrders).map(k => ({ channel: k, count: groupedOrders[k].length })));
+
+  // 🧩 Step 2: Loop setiap grup berdasarkan logistics_channel_id
+  for (const [channelId, group] of Object.entries(groupedOrders)) {
+    console.log(`🧩 Group of order : `,group);
+    console.log(`🚚 Processing logistics_channel_id: ${channelId} with ${group.length} orders`);
+    // Bagi grup ini per 50 order
+    for (let i = 0; i < group.length; i += batchSize) {
+      const batch = group.slice(i, i + batchSize);
+      const package_list = batch.map(o => ({ package_number: o.package_number }));
+      const path = '/api/v2/logistics/get_mass_shipping_parameter';
+      try {
+        const res = await this.fetchWithAuthMETHOD(path, {}, "POST", { package_list });
+        if (res && res.response) {
+          const response = res.response;
+          // Simpan pickup address (kalau belum disimpan)
+          if (!pickupAddressList.length && response.pickup?.address_list) {
+            pickupAddressList = response.pickup.address_list;
+          }
+          if (response.success_list?.length) {
+            allSuccess.push(...response.success_list);
+          }
+          if (response.fail_list?.length) {
+            console.log("**** info fail param ", response.fail_list);
+            allFail.push(...response.fail_list);
+          }
+          if (response.dropoff?.branch_list) {
+            alldropoff.push(...response.dropoff.branch_list);
+          }
+        } else {
+          console.error("Invalid response:", res);
+        }
+      } catch (error) {
+        console.error(`Error on batch for channel ${channelId}:`, error);
+      }
+    }
+  }
+
+  return {
+    pickupAddressList,
+    success_list: allSuccess,
+    fail_list: allFail,
+    drop_off: alldropoff
+  };
+}
 
 
 
@@ -436,6 +539,16 @@ export class ShopeeService {
     const objResult = { pickup_address: shipingParam.pickupAddressList, shipping_Param: shipingParam.success_list, noshipping_Param: shipingParam.fail_list, dropoff_param: shipingParam.drop_off }
     return objResult;
   }
+public async getMassShippingParameterSimple(payload: any): Promise<any> {
+    const shipingParam = await this.getShippingParameterMassSimple(payload);
+    // console.log("hasil getMassShippingParameter : ", shipingParam);
+    const objResult = { pickup_address: shipingParam.pickupAddressList, shipping_Param: shipingParam.success_list, noshipping_Param: shipingParam.fail_list, dropoff_param: shipingParam.drop_off }
+    return objResult;
+  }
+
+
+
+
   public async getMassDocumentReadyParameter(orders: any[]): Promise<any> {
     // const resultShipParam: any[] = [];
     // const resultNoShipParam: any[] = [];

@@ -127,6 +127,19 @@ export async function generateShopeeShippingParameter(req: Request, res: Respons
     return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
   }
 }
+export async function generateShopeeShippingParameterSimple(req: Request, res: Response, next: NextFunction) {
+  try {
+
+    const userInfo: any = req.userInfo;
+    const jobsResult = await apiService.qShopeeShippingParameterSimple(req.body, userInfo);
+    await ResponseHelper.send(res, jobsResult); return;
+  } catch (error) {
+    logError("Error api.controller : ", error)
+    // next(error);
+    return await ResponseHelper.send(res, ApiResponse.serverError(error + "")); return;
+  }
+}
+
 
 export async function updateShopeeShippingType(req: Request, res: Response, next: NextFunction) {
   try {

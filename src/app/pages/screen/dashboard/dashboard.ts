@@ -34,6 +34,7 @@ export class Dashboard implements OnInit {
   arraySPXType:any[]=[{code:"SPX Sameday", label:"SPX Sameday"},{code:"SPX Hemat", label:"SPX Hemat"}];
   selectSPXType:any = {};
   pickupAdrress:any | undefined = null;
+  dropOffList:any |undefined = null;
   timeSlotList:any[]=[];
   selectedSlotTime:any |undefined = null;
   pickupObject:any |undefined = {address:"",city:"",district:""}
@@ -252,10 +253,10 @@ export class Dashboard implements OnInit {
           this.disableBtn = false;
           this.totalResi = data.data.totalresi;
           this.invoicetotalStr = `Invoices : ${this.totalResi} pcs.`
-          await this._getViewPosProcess({ id: data.data.id });
-          await this._getViewPrintedProcess({ id: data.data.id });
-          await this._getViewPrintedError({ id: data.data.id });
-          await this._getViewPrintedSummary({ id: data.data.id });
+          await this._getViewPosProcess({ id: this.idQShopee });
+          await this._getViewPrintedProcess({ id: this.idQShopee });
+          await this._getViewPrintedError({ id: this.idQShopee });
+          await this._getViewPrintedSummary({ id: this.idQShopee });
         } else {
           this.loading = false;
           this.disableBtn = false;
@@ -377,7 +378,8 @@ export class Dashboard implements OnInit {
           this.AllQueriesDataPos = dataRecordsTemp.data;
           this.loading = false;
           this.arraySPXType = carriers;
-          await this._getMassShippingParameter(dataRecordsTemp.data);
+          // await this._getMassShippingParameter(dataRecordsTemp.data);
+          await this._getMassShippingParameterSimple({"id_q_shopee":this.idQShopee})
           // await this._lastFetchShopee();
           this.onGlobalSearch()
         } else {
@@ -498,6 +500,104 @@ export class Dashboard implements OnInit {
       });
   }
 
+  async _getMassShippingParameterSimple(payload: any): Promise<void> {
+  try {
+    this.loading = true;
+
+    const res = await fetch('/v2/shopee/get_massshippingparamSimple', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error('Gagal memanggil API get_massshippingparamSimple');
+
+    const data = await res.json();
+    console.log("Response dari API /shopee/get_massshippingparamSimple ", data);
+
+    if (data.code === 20000 && data.data) {
+      console.log("DATA DARI API SIMPLE : ",data.data);
+      const { pickup_address, shipping_Param, noshipping_Param, dropoff_param } = data.data;
+
+      console.log("📦 Pickup Address List:", pickup_address);
+      console.log("📦 Dropoff List:", dropoff_param);
+      console.log("✅ Success List:", shipping_Param?.length || 0);
+      console.log("❌ Fail List:", noshipping_Param?.length || 0);
+
+      // 🟢 Pilih pickup address utama (punya flag pickup_address)
+      if (pickup_address?.length > 0) {
+        this.pickupAdrress = pickup_address.find((addr: any) =>
+          addr.address_flag && addr.address_flag.includes("pickup_address")
+        ) || pickup_address[0];
+
+        this.pickupObject = cloneDeep(this.pickupAdrress);
+
+        console.log("🕒 Time Slot:", this.pickupAdrress.time_slot_list);
+
+        // 🕒 Format time slot ke versi yang mudah dibaca
+        const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
+        this.timeSlotList = timeSlotListTemp.map((slot: any) => {
+          const date = new Date(Number(slot.date) * 1000);
+          const day = date.getDate().toString().padStart(2, '0');
+          const month = date.toLocaleString('id-ID', { month: 'short' }); // contoh: "Nov"
+          let timeRange = slot.time_text;
+
+          if (!timeRange && slot.pickup_time_id) {
+            const match = slot.pickup_time_id.match(/_(\d+)$/);
+            const slotIndex = match ? parseInt(match[1]) : 0;
+            const timeSlots: Record<number, string> = {
+              1: '13:00 - 15:00',
+              2: '15:00 - 17:00',
+              3: '17:00 - 19:00',
+              4: '19:00 - 23:00'
+            };
+            timeRange = timeSlots[slotIndex] || '13:00 - 16:00';
+          }
+
+          return {
+            ...slot,
+            time_text: `${day} ${month} ${timeRange}`
+          };
+        });
+      } else {
+        this.pickupAdrress = {};
+        this.timeSlotList = [];
+      }
+
+      // 🔸 Simpan hasil dropoff untuk dipakai di proses berikutnya
+      this.dropOffList = dropoff_param || [];
+
+      // 🔹 Jika ada data gagal, bisa munculkan popup warning
+      if (noshipping_Param?.length > 0) {
+        console.log("Beberapa paket gagal diambil parameter pengirimannya : ",noshipping_Param);
+        // this.showErrorPopup = {
+        //   show: true,
+        //   severity: 'warn',
+        //   message: `Beberapa paket gagal diambil parameter pengirimannya (${noshipping_Param.length})`
+        // };
+      }
+
+      // ✅ Tampilkan dialog lanjutan (kalau perlu)
+      // this.showProcedPostDialog = true;
+      this.onGlobalSearch();
+
+    } else {
+      console.warn("⚠️ API tidak mengembalikan data yang diharapkan");
+    }
+  } catch (err) {
+    console.error("Response Error Catch /shopee/get_massshippingparamSimple", err);
+    this.showErrorPopup = {
+      show: true,
+      severity: 'error',
+      message: 'Gagal memproses data pengiriman massal.'
+    };
+  } finally {
+    this.loading = false;
+  }
+}
 
 
   async _getMassShippingParameter(payload: any[]):Promise<void> {
@@ -546,10 +646,10 @@ export class Dashboard implements OnInit {
       console.log("*** Drop of List:", mergedDropoff);
       console.log("success:", successList.length, "fail:", failList.length);
       console.log("list yang di hapus : ", failList);
-      if(failList.length > 0){
+      // if(failList.length > 0){
         // await this._updateInvoiceShipping(failList);
         // await this._lastFetchShopee();
-      }
+      // }
       //
       // Pilih pickup address utama
       if (mergedPickupAddresses.length > 0) {
@@ -661,7 +761,6 @@ export class Dashboard implements OnInit {
       ) || mergedPickupAddresses[0];
 
       this.pickupObject = structuredClone(this.pickupAdrress);
-
       // Format time_slot_list
       const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
       this.timeSlotList = timeSlotListTemp.map((slot: any) => {

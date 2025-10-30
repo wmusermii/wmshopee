@@ -148,6 +148,14 @@ export class ApiService {
     // const listResponse = await this.saveShopeeInvoices(payload.id, invoicesList); //Input Invoices;
       return ApiResponse.success(shippingParamList, "Records found");
   }
+  async qShopeeShippingParameterSimple(payload: any, userinfo: any) {
+    const shippingParamList = await this.apiShopeeService.getMassShippingParameterSimple(payload);
+    if (!shippingParamList) return ApiResponse.successNoData(shippingParamList, "Unable to generate shipping data!");
+    // const listResponse = await this.saveShopeeInvoices(payload.id, invoicesList); //Input Invoices;
+      return ApiResponse.success(shippingParamList, "Records found");
+  }
+
+
   async qShopeeUpdateInvoiceShippingType(orders: any[], userinfo: any) {
     const payloadOrder = await this.tostringArrayPackageOnly(orders);
     const updateResult = await this.shopeeRepo.updQShopeeInvoiceShippingType(payloadOrder);

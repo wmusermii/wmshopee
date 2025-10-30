@@ -104,10 +104,7 @@ export class ShopeeRepository {
     // return [];
   }
   async getQShopeeItembestMulti(payload:any) {
-    // const today = new Date().toISOString().substring(0, 10);
-    // console.log("######### getQShopeeItembestMulti : ", payload);
     const items = payload.itemArray;
-    // console.log("***** Items data yang di print payload : ",items);
     const filters = items.map((item: {
       id_q_shopee: any; item_id: any; model_id: any; shipping_carrier: any;
 }) => [
@@ -119,19 +116,22 @@ export class ShopeeRepository {
       // console.log("***** Items data yang di print filter : ",filters);
       const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number', 'qi.logistics_channel_id').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
   .groupBy('qid.id_q_shopee','qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number');
-
       // console.log("***** Items data hasil ambil db : ",invoicesOfItem);
       const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string;logistics_channel_id:string }) => ({
         order_sn: d.order_sn,
         package_number: d.package_number,
         logistics_channel_id: d.logistics_channel_id
       }));
-
       console.log("***** Items data hasil untuk di print  : ", orderList);
-
       return orderList;
-
   }
+  async getQShopeeGetSimpleLogisticChannelId(payload:any):Promise<any>{
+      const result = await db('q_shopee_invoices as qi').select('qi.logistics_channel_id','qi.shipping_carrier',
+        db.raw('MIN(qi.package_number) as package_number') // ambil salah satu package_number dari setiap grup
+      ).where('qi.id_q_shopee', payload.id_q_shopee).groupBy('qi.logistics_channel_id', 'qi.shipping_carrier');
+      return result;
+  }
+
   async updQShopeeInvoiceShippingType(payload:string[]) {
     //   await db('q_shopee_invoices').update({
     //   warehouse_shipping: 3,
