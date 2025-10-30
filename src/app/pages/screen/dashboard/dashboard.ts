@@ -414,7 +414,7 @@ export class Dashboard implements OnInit {
         if (data.code === 20000) {
           // this.showProcedPostDialog = true;
           const dataRecordsTemp = cloneDeep(data.data);
-          console.log("Data View printed : ", dataRecordsTemp.data);
+          // console.log("Data View printed invoice : ", dataRecordsTemp.data);
           this.QueriesDataPrinted = dataRecordsTemp.data;
           this.AllQueriesDataPrinted = dataRecordsTemp.data;
 
@@ -534,9 +534,7 @@ export class Dashboard implements OnInit {
         ) || pickup_address[0];
 
         this.pickupObject = cloneDeep(this.pickupAdrress);
-
         console.log("🕒 Time Slot:", this.pickupAdrress.time_slot_list);
-
         // 🕒 Format time slot ke versi yang mudah dibaca
         const timeSlotListTemp = this.pickupAdrress.time_slot_list || [];
         this.timeSlotList = timeSlotListTemp.map((slot: any) => {
@@ -563,8 +561,33 @@ export class Dashboard implements OnInit {
           };
         });
       } else {
-        this.pickupAdrress = {};
-        this.timeSlotList = [];
+        this.pickupAdrress = {"address_id":12865432,"region":"ID","state":"DKI JAKARTA","city":"KOTA JAKARTA TIMUR","district":"MAKASAR","town":"","address":"Jalan Pangkalan Jati V No. 42, RT.2/RW.5, Cipinang Melayu (Pagar putih)","zipcode":"13620","address_flag":["pickup_address"],"time_slot_list":[{"date":1761814800,"pickup_time_id":"1761814800","flags":["recommended"]},{"date":1761901200,"pickup_time_id":"1761901200","flags":[]}]}
+        this.pickupObject = cloneDeep(this.pickupAdrress);
+        // Force time slot default (dari jam saat ini sampai 19:00)
+        const now = new Date();
+        const currentHour = now.getHours();
+        const slotRules = [
+          { index: 1, start: 13, end: 15 },
+          { index: 2, start: 15, end: 17 },
+          { index: 3, start: 17, end: 19 },
+          { index: 4, start: 19, end: 23 },
+        ];
+        // Ambil hanya slot yang masih valid ke depannya
+        const validSlots = slotRules.filter(s => s.end > currentHour);
+        const unixDate = Math.floor(now.getTime() / 1000);
+          const day = now.getDate().toString().padStart(2,'0');
+          const month = now.toLocaleString('id-ID',{ month:'short' });
+
+          this.timeSlotList = validSlots.map(s => {
+            const timeRange = `${s.start.toString().padStart(2,'0')}:00 - ${s.end.toString().padStart(2,'0')}:00`;
+            return {
+              date: unixDate,
+              pickup_time_id: `fallback_${s.index}`, // biar gak conflict dgn Shopee ID
+              time_text: `${day} ${month} ${timeRange}`
+            };
+          });
+
+        // this.timeSlotList = [];
       }
 
       // 🔸 Simpan hasil dropoff untuk dipakai di proses berikutnya
