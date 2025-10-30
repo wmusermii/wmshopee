@@ -103,25 +103,39 @@ export class ShopeeRepository {
     return await query;
     // return [];
   }
-  async getQShopeeItembestMulti(payload:any) {
+  async getQShopeeItembestMulti(payload:any):Promise<any[]> {
     const items = payload.itemArray;
-    const filters = items.map((item: {
-      id_q_shopee: any; item_id: any; model_id: any; shipping_carrier: any;
-}) => [
-        item.id_q_shopee,
-        item.item_id,
-        item.model_id,
-        item.shipping_carrier
-      ]);
-      // console.log("***** Items data yang di print filter : ",filters);
-      const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number', 'qi.logistics_channel_id').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
-  .groupBy('qid.id_q_shopee','qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number');
-      // console.log("***** Items data hasil ambil db : ",invoicesOfItem);
-      const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string;logistics_channel_id:string }) => ({
-        order_sn: d.order_sn,
-        package_number: d.package_number,
-        logistics_channel_id: d.logistics_channel_id
-      }));
+    console.log("******** DATA YANG INGIN DI PRINT ", items);
+//     const filters = items.map((item: {
+//       id_q_shopee: any; item_id: any; model_id: any; shipping_carrier: any;
+// }) => [
+//         item.id_q_shopee,
+//         item.item_id,
+//         item.model_id,
+//         item.shipping_carrier
+//       ]);
+//       // console.log("***** Items data yang di print filter : ",filters);
+//       const invoicesOfItem = await db('q_shopee_invoices_detail as qid').select('qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number', 'qi.logistics_channel_id').innerJoin('q_shopee_invoices as qi', 'qid.order_sn', 'qi.order_sn').where('qid.status', 0).whereIn(['qid.id_q_shopee', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier'],filters)
+//   .groupBy('qid.id_q_shopee','qi.order_sn', 'qid.item_id', 'qid.model_id', 'qi.shipping_carrier', 'qi.package_number');
+//       // console.log("***** Items data hasil ambil db : ",invoicesOfItem);
+      // const orderList = invoicesOfItem.map((d: { order_sn: string; package_number: string;logistics_channel_id:string }) => ({
+      //   order_sn: d.order_sn,
+      //   package_number: d.package_number,
+      //   logistics_channel_id: d.logistics_channel_id
+      // }));
+
+    const orderList = Array.from(
+      new Map(
+        items.map((d: { order_sn: any; package_number: any; logistics_channel_id: any; }) => [
+          `${d.order_sn}_${d.package_number}_${d.logistics_channel_id}`,
+          {
+            order_sn: d.order_sn,
+            package_number: d.package_number,
+            logistics_channel_id: d.logistics_channel_id
+          }
+        ])
+      ).values()
+      );
       console.log("***** Items data hasil untuk di print  : ", orderList);
       return orderList;
   }
